@@ -116,7 +116,7 @@ class FNO1d_bn(nn.Module):
 
     def fourier_layer(self, x, time, spectral_layer, conv_layer, batch_norm_layer):
         x = spectral_layer(x) + conv_layer(x)
-        x = self.batch_norm(x, time)  
+        x = batch_norm_layer(x, time)  
         return self.activation(x)
 
     def linear_layer(self, x, linear_transformation):
