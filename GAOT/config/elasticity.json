@@ -30,7 +30,7 @@
     "dataset": {
         "name": "Elasticity",
         "metaname": "elliptic_pdes/Elasticity",
-        "base_path": "datasets/time_indep/",
+        "base_path": "datasets/",
         "train_size": 1024,
         "val_size": 128,
         "test_size": 256,
@@ -55,9 +55,9 @@
     },
 
     "path": {
-        "ckpt_path": ".ckpt/examples/time_indep/elasticity.pt",
-        "loss_path": ".loss/examples/time_indep/elasticity.png",
-        "result_path": ".results/examples/time_indep/elasticity.png",
-        "database_path": ".database/examples/time_indep/elasticity.csv"
+        "ckpt_path": "task1/elasticity.pt",
+        "loss_path": "task1/elasticity_loss.png",
+        "result_path": "task1/elasticity_result.png",
+        "database_path": "task1/elasticity.csv"
     }
 }
