@@ -17,5 +17,7 @@ torch
 toml
 omegaconf
 xarray
+netcdf4
 rotary-embedding-torch
 torch-geometric
+torch-scatter -f https://data.pyg.org/whl/torch-2.5.1+cu121.html -f https://data.pyg.org/whl/torch-2.5.1+cu121.html

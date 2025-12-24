@@ -247,14 +247,20 @@ class AdamWOptimizer:
         for epoch in range(self.epoch):
             trainer.model.train()
             total_loss = 0.0
-            for batch in trainer.train_loader:
+            
+            # Inner progress bar for batches
+            batch_pbar = tqdm(trainer.train_loader, desc=f"Epoch {epoch+1}", leave=False)
+            for batch in batch_pbar:
                 start_time = time.time()
                 self.optimizer.zero_grad()
                 train_loss = trainer.train_step(batch)
                 train_loss.backward()
                 self.optimizer.step()
 
-                total_loss += train_loss.detach()
+                loss_val = train_loss.detach().item()
+                total_loss += loss_val
+                batch_pbar.set_postfix({"loss": f"{loss_val:.4f}"})
+                
                 # if trainer.device.type == 'cuda':
                 #     torch.cuda.synchronize()
                 # time_total += time.time() - start_time
@@ -265,7 +271,7 @@ class AdamWOptimizer:
             pbar.update(1)
 
             if (epoch + 1) % self.eval_every_eps == 0:
-                train_loss = total_loss.cpu().item() / len(trainer.train_loader)
+                train_loss = total_loss / len(trainer.train_loader)
                 losses.append(train_loss)
                 epochs.append(epoch)
                 val_loss = trainer.validate(trainer.val_loader)

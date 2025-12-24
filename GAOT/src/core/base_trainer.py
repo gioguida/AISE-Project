@@ -56,6 +56,12 @@ class BaseTrainer(ABC):
         else:
             self.device = torch.device(self.setup_config.device)
         
+        # Print device information
+        print(f"Using device: {self.device}")
+        if self.device.type == 'cuda':
+            print(f"GPU: {torch.cuda.get_device_name(0)}")
+            print(f"CUDA available: {torch.cuda.is_available()}")
+        
         # Set random seed
         manual_seed(self.setup_config.seed + self.setup_config.rank)
         
