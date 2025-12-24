@@ -19,7 +19,7 @@ class SpectralConv1d(nn.Module):
         self.modes1 = modes1
 
         self.scale = (1 / (in_channels * out_channels))
-        self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, dtype=torch.cfloat))
+        self.weights1 = nn.Parameter(self.scale * torch.randn(in_channels, out_channels, self.modes1, dtype=torch.cfloat))
 
     # Complex multiplication
     def compl_mul1d(self, input, weights):
@@ -103,15 +103,18 @@ class FNO1d_bn(nn.Module):
         self.lin0 = nn.Conv1d(self.width, self.width, 1)
         self.lin1 = nn.Conv1d(self.width, self.width, 1)
         self.lin2 = nn.Conv1d(self.width, self.width, 1)
+        self.batch_norm1  = FILM(self.width, use_bn)
+        self.batch_norm2  = FILM(self.width, use_bn)
+        self.batch_norm3  = FILM(self.width, use_bn)
+
 
         self.linear_q = nn.Linear(self.width, 32)
         self.output_layer = nn.Linear(32, 1)
 
         # Batch Normalization
-        self.batch_norm  = FILM(self.width, use_bn)
         self.activation = torch.nn.Tanh()
 
-    def fourier_layer(self, x, time, spectral_layer, conv_layer):
+    def fourier_layer(self, x, time, spectral_layer, conv_layer, batch_norm_layer):
         x = spectral_layer(x) + conv_layer(x)
         x = self.batch_norm(x, time)  
         return self.activation(x)
@@ -131,9 +134,9 @@ class FNO1d_bn(nn.Module):
 
         # x = F.pad(x, [0, self.padding])  # pad the domain if input is non-periodic
 
-        x = self.fourier_layer(x, time, self.spect1, self.lin0)
-        x = self.fourier_layer(x, time, self.spect2, self.lin1)
-        x = self.fourier_layer(x, time, self.spect3, self.lin2)
+        x = self.fourier_layer(x, time, self.spect1, self.lin0, self.batch_norm1)
+        x = self.fourier_layer(x, time, self.spect2, self.lin1, self.batch_norm2)
+        x = self.fourier_layer(x, time, self.spect3, self.lin2, self.batch_norm3)
 
         # x = x[..., :-self.padding]  # pad the domain if input is non-periodic
         x = x.permute(0, 2, 1)
