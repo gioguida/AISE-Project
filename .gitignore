@@ -214,3 +214,46 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.Python
+*.egg-info/
+**__pycache__**
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Data / Results / Chekpoints
+.results/
+.loss/
+.ckpt/
+.database/
+.database_old/
+
+config/*
+!config/examples
+slurmjob/**
+tests/*
+tests/*
+log/*
+demo/*
+datasets/*

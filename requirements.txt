@@ -10,3 +10,12 @@ jupyterlab
 requests
 pillow
 openpyxl
+
+
+# additional requirements for GAOT
+torch
+toml
+omegaconf
+xarray
+rotary-embedding-torch
+torch-geometric
