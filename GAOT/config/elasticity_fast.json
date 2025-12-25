@@ -6,7 +6,7 @@
         "trainer_name": "static",
         "train": true,
         "test": false,
-        "ckpt": true
+        "ckpt": false
     },
 
     "model": {
@@ -16,13 +16,13 @@
             "magno": {
                 "coord_dim": 2,
                 "radius": 0.033,
-                "hidden_size": 48,
+                "hidden_size": 32,
                 "mlp_layers": 3,
-                "lifting_channels": 48
+                "lifting_channels": 32
             },
             "transformer": {
                 "patch_size": 2,
-                "hidden_size": 192
+                "hidden_size": 128
             }
         }
     },
@@ -34,8 +34,8 @@
         "train_size": 1024,
         "val_size": 128,
         "test_size": 256,
-        "batch_size": 8,       
-        "num_workers": 4,       
+        "batch_size": 8,
+        "num_workers": 4,
         "shuffle": true
     },
 
@@ -44,20 +44,20 @@
         "args": {
             "lr": 8e-4,
             "weight_decay": 1e-05,
-            "epoch": 200,
+            "epoch": 1000,
             "loss_scale": 1.0,
             "eval_every_eps": 2,
             "scheduler": "mix",
-            "max_lr": 5e-4,
+            "max_lr": 1e-3,
             "min_lr": 1e-4,
             "final_lr": 5e-5
         }
     },
 
     "path": {
-        "ckpt_path": "task1_gpu/elasticity_fast.pt",
-        "loss_path": "task1_gpu/elasticity_loss_fast.png",
-        "result_path": "task1_gpu/elasticity_result_fast.png",
-        "database_path": "task1_gpu/elasticity_fast.csv"
+        "ckpt_path": "task1_fast/elasticity_fast.pt",
+        "loss_path": "task1_fast/elasticity_loss_fast.png",
+        "result_path": "task1_fast/elasticity_result_fast.png",
+        "database_path": "task1_fast/elasticity_fast.csv"
     }
 }
