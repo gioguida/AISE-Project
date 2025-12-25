@@ -1,28 +1,28 @@
 {
     "setup": {
         "seed": 42,
-        "device": "cpu",
+        "device": "cuda:0",
         "dtype": "torch.float32",
         "trainer_name": "static",
         "train": true,
         "test": false,
-        "ckpt": false
+        "ckpt": true
     },
 
     "model": {
         "name": "goat",
-        "latent_tokens_size": [64, 64],
+        "latent_tokens_size": [48, 48],
         "args": {
             "magno": {
                 "coord_dim": 2,
                 "radius": 0.033,
-                "hidden_size": 32,
-                "mlp_layers": 2,
-                "lifting_channels": 32
+                "hidden_size": 48,
+                "mlp_layers": 3,
+                "lifting_channels": 48
             },
             "transformer": {
                 "patch_size": 2,
-                "hidden_size": 128
+                "hidden_size": 192
             }
         }
     },
@@ -30,11 +30,11 @@
     "dataset": {
         "name": "Elasticity",
         "metaname": "elliptic_pdes/Elasticity",
-        "base_path": "datasets/unstructured/",
+        "base_path": "datasets/",
         "train_size": 1024,
         "val_size": 128,
         "test_size": 256,
-        "batch_size": 4,       
+        "batch_size": 8,       
         "num_workers": 4,       
         "shuffle": true
     },
@@ -44,20 +44,20 @@
         "args": {
             "lr": 8e-4,
             "weight_decay": 1e-05,
-            "epoch": 100,
+            "epoch": 200,
             "loss_scale": 1.0,
             "eval_every_eps": 2,
             "scheduler": "mix",
-            "max_lr": 1e-3,
+            "max_lr": 5e-4,
             "min_lr": 1e-4,
             "final_lr": 5e-5
         }
     },
 
     "path": {
-        "ckpt_path": "task1/elasticity_fast.pt",
-        "loss_path": "task1/elasticity_loss_fast.png",
-        "result_path": "task1/elasticity_result_fast.png",
-        "database_path": "task1/elasticity_fast.csv"
+        "ckpt_path": "task1_gpu/elasticity_fast.pt",
+        "loss_path": "task1_gpu/elasticity_loss_fast.png",
+        "result_path": "task1_gpu/elasticity_result_fast.png",
+        "database_path": "task1_gpu/elasticity_fast.csv"
     }
 }
