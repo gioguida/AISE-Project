@@ -38,7 +38,16 @@ class GAOT(nn.Module):
         
         # Get latent token dimensions
         latent_tokens_size = config.latent_tokens_size
-        if coord_dim == 2:
+        
+        # Check if using random tokens (int) or grid tokens (tuple/list)
+        self.is_random_tokens = isinstance(latent_tokens_size, int)
+        
+        if self.is_random_tokens:
+            self.num_tokens = latent_tokens_size
+            self.H = self.W = self.D = None
+            # Force patch size to 1 for random tokens
+            self.patch_size = 1
+        elif coord_dim == 2:
             if len(latent_tokens_size) != 2:
                 raise ValueError(f"For 2D, latent_tokens_size must have 2 dimensions, got {len(latent_tokens_size)}")
             self.H = latent_tokens_size[0]
@@ -65,7 +74,9 @@ class GAOT(nn.Module):
     
     def init_processor(self, node_latent_size, config):
         # Initialize the Vision Transformer processor
-        if self.coord_dim == 2:
+        if self.is_random_tokens:
+            patch_volume = 1
+        elif self.coord_dim == 2:
             patch_volume = self.patch_size * self.patch_size
         else:  # 3D
             patch_volume = self.patch_size * self.patch_size * self.patch_size
@@ -74,7 +85,11 @@ class GAOT(nn.Module):
                                       patch_volume * node_latent_size)
     
         self.positional_embedding_name = config.positional_embedding
-        self.positions = self._get_patch_positions()
+        
+        if self.is_random_tokens:
+            self.positions = None
+        else:
+            self.positions = self._get_patch_positions()
 
         return Transformer(
             input_size=node_latent_size * patch_volume,
@@ -165,7 +180,10 @@ class GAOT(nn.Module):
         C = rndata.shape[2]
         P = self.patch_size
         
-        if self.coord_dim == 2:
+        if self.is_random_tokens:
+            # No reshaping needed for random tokens
+            pass
+        elif self.coord_dim == 2:
             H, W = self.H, self.W
             
             # Check input shape
@@ -206,22 +224,27 @@ class GAOT(nn.Module):
         
         # Apply patch linear transformation
         rndata = self.patch_linear(rndata)
-        pos = self.positions.to(rndata.device)
         
-        # Apply positional encoding
-        if self.positional_embedding_name == 'absolute':
-            patch_volume = P ** self.coord_dim
-            pos_emb = self._compute_absolute_embeddings(pos, patch_volume * self.node_latent_size)
-            rndata = rndata + pos_emb
-            relative_positions = None
-        elif self.positional_embedding_name == 'rope':
-            relative_positions = pos
+        relative_positions = None
+        if not self.is_random_tokens:
+            pos = self.positions.to(rndata.device)
+            
+            # Apply positional encoding
+            if self.positional_embedding_name == 'absolute':
+                patch_volume = P ** self.coord_dim
+                pos_emb = self._compute_absolute_embeddings(pos, patch_volume * self.node_latent_size)
+                rndata = rndata + pos_emb
+            elif self.positional_embedding_name == 'rope':
+                relative_positions = pos
         
         # Apply transformer processor
         rndata = self.processor(rndata, condition=condition, relative_positions=relative_positions)
         
         # Reshape back to original regional nodes format
-        if self.coord_dim == 2:
+        if self.is_random_tokens:
+            # No reshaping needed
+            pass
+        elif self.coord_dim == 2:
             rndata = rndata.view(batch_size, num_patches_H, num_patches_W, P, P, C)
             rndata = rndata.permute(0, 1, 3, 2, 4, 5).contiguous()
             rndata = rndata.view(batch_size, H * W, C)
