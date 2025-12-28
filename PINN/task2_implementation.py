@@ -39,7 +39,7 @@ class Config:
     DD_LR_ADAM = 0.01
     DD_LR_LBFGS = 0.5
     DD_BATCH_SIZE = 1024
-    DD_SCALE_FACTOR = 1000.0  # Scale solution for better training
+    DD_SCALE_FACTOR = 1.0  # Scale solution for better training
     
     # Device
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -459,7 +459,7 @@ def evaluate_model(model, data_generator, config, is_data_driven=False):
         U_pred = model(coords).detach().cpu().numpy().reshape(config.N, config.N)
     
     # Rescale if data-driven model
-    if is_data_driven:
+    if is_data_driven and hasattr(config, 'DD_SCALE_FACTOR'):
         U_pred = U_pred / config.DD_SCALE_FACTOR
     
     # Get exact solution

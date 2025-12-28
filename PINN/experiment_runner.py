@@ -18,7 +18,7 @@ from task2_implementation import (
     train_pinn,
     train_data_driven,
     evaluate_model,
-    plot_training_history,
+    plot_training_history, 
     plot_solution_comparison
 )
 
