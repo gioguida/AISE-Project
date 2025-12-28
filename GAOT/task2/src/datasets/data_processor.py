@@ -40,6 +40,7 @@ class DataProcessor:
         # Special dataset handling
         self.poseidon_datasets = ["Poisson-Gauss", "CE-Gauss", "CE-RP", "CE-CRP", "CE-KH", "CE-RPUI",
                                   "NS-Gauss", "NS-PwC", "NS-SL", "NS-SVS", "NS-Sines"]
+        self.soboleng = torch.quasirandom.SobolEngine(dimension=1)
     
     def load_and_process_data(self) -> Tuple[Dict, bool]:
         """
@@ -287,12 +288,14 @@ class DataProcessor:
             x_max, y_max = phy_domain[1]
 
             # generate random points and rescale them to domain size
-            x_rand = torch.rand(token_size, dtype=self.dtype)
-            x_rand = x_rand*(x_max - x_min) + x_min
-            y_rand = torch.rand(token_size, dtype=self.dtype)
+            x_rand = torch.rand(token_size, 1).to(self.dtype)
+            # x_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
+            x_rand = x_rand*(x_max - x_min) + x_min 
+            y_rand = torch.rand(token_size, 1).to(self.dtype)
+            # y_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
             y_rand = y_rand*(y_max - y_min) + y_min
 
-            latent_queries = torch.stack((x_rand, y_rand), dim=-1)
+            latent_queries = torch.cat((x_rand, y_rand), dim=-1)
             
         
         elif len(phy_domain[0]) == 3:
@@ -300,14 +303,17 @@ class DataProcessor:
             x_min, y_min, z_min = phy_domain[0]
             x_max, y_max, z_max = phy_domain[1]
             # generate random points and rescale them to domain size
-            x_rand = torch.rand(token_size, dtype=self.dtype)
+            x_rand = torch.rand(token_size, 1).to(self.dtype)
+            # x_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
             x_rand = x_rand*(x_max - x_min) + x_min
-            y_rand = torch.rand(token_size, dtype=self.dtype)
+            y_rand = torch.rand(token_size, 1).to(self.dtype)
+            # y_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
             y_rand = y_rand*(y_max - y_min) + y_min
-            z_rand = torch.rand(token_size, dtype=self.dtype)
+            z_rand = torch.rand(token_size, 1).to(self.dtype)
+            # z_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
             z_rand = z_rand*(z_max - z_min) + z_min
 
-            latent_queries = torch.stack((x_rand, y_rand, z_rand), dim=-1)
+            latent_queries = torch.cat((x_rand, y_rand, z_rand), dim=-1)
         
         else:
             raise ValueError(f"Unsupported token_size dimensions: {len(phy_domain[0])}")

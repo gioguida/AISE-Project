@@ -55,9 +55,9 @@
     },
 
     "path": {
-        "ckpt_path": "task1_big/elasticity_big.pt",
-        "loss_path": "task1_big/elasticity_loss_big.png",
-        "result_path": "task1_gpu/elasticity_result_big.png",
-        "database_path": "task1_gpu/elasticity_big.csv"
+        "ckpt_path": "task2_big/elasticity_big.pt",
+        "loss_path": "task2_big/elasticity_loss_big.png",
+        "result_path": "task2_big/elasticity_result_big.png",
+        "database_path": "task2_big/elasticity_big.csv"
     }
 }

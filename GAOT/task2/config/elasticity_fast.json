@@ -11,7 +11,7 @@
 
     "model": {
         "name": "goat",
-        "latent_tokens_size": 256,
+        "latent_tokens_size": 1764,
         "args": {
             "magno": {
                 "coord_dim": 2,
@@ -34,7 +34,7 @@
         "train_size": 1024,
         "val_size": 128,
         "test_size": 256,
-        "batch_size": 8,
+        "batch_size": 10,
         "num_workers": 4,
         "shuffle": true
     },
@@ -44,7 +44,7 @@
         "args": {
             "lr": 8e-4,
             "weight_decay": 1e-05,
-            "epoch": 1000,
+            "epoch": 100,
             "loss_scale": 1.0,
             "eval_every_eps": 2,
             "scheduler": "mix",
@@ -55,9 +55,9 @@
     },
 
     "path": {
-        "ckpt_path": "task1_fast/elasticity_fast.pt",
-        "loss_path": "task1_fast/elasticity_loss_fast.png",
-        "result_path": "task1_fast/elasticity_result_fast.png",
-        "database_path": "task1_fast/elasticity_fast.csv"
+        "ckpt_path": "task2_fast/elasticity_fast.pt",
+        "loss_path": "task2_fast/elasticity_loss_fast.png",
+        "result_path": "task2_fast/elasticity_result_fast.png",
+        "database_path": "task2_fast/elasticity_fast.csv"
     }
 }
