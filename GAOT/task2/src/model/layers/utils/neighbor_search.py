@@ -89,6 +89,10 @@ class NeighborSearch(nn.Module):
                     neighbors up to query point j-1. First element is 0
                     and last element is the total number of neighbors.
         """
+        # Fallback to native if radius is a tensor and method is not native
+        if isinstance(radius, torch.Tensor) and self.method != 'native':
+             return _native_neighbor_search(data, queries, radius)
+
         if self.method == 'open3d':
             search_return = self.search_fn(data, queries, radius)
             return {
@@ -123,9 +127,14 @@ def _native_neighbor_search(data: torch.Tensor, queries: torch.Tensor, radius: t
 
     # compute pairwise distances
     if isinstance(radius, torch.Tensor):
-        if radius.dim() != 1 or radius.size(0) != queries.size(0):
-            raise ValueError("If radius is a tensor, it must be one-dimensional and match the number of queries.")
-        radius = radius.view(-1, 1) 
+        if radius.dim() == 1:
+            if radius.size(0) == queries.size(0):
+                radius = radius.view(-1, 1)
+            elif radius.size(0) == data.size(0):
+                radius = radius.view(1, -1)
+            else:
+                raise ValueError(f"If radius is a 1D tensor, it must match the number of queries ({queries.size(0)}) or data ({data.size(0)}). Got {radius.size(0)}.")
+        # If radius is already 2D, we assume it is correctly shaped for broadcasting (e.g. (M, 1) or (1, N))
     else:
         radius = torch.tensor(radius, device=queries.device).view(1, 1)
     

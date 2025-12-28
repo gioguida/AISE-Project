@@ -86,13 +86,22 @@ class StaticTrainer(BaseTrainer):
         gno_radius = getattr(self.model_config.args.magno, 'radius', 0.033)
         scales = getattr(self.model_config.args.magno, 'scales', [1.0])
         
+        # Dynamic radius config
+        dynamic_radius_config = {
+            'use_dynamic_radius': getattr(self.model_config.args.magno, 'use_dynamic_radius', False),
+            'dynamic_radius_method': getattr(self.model_config.args.magno, 'dynamic_radius_method', 'knn'),
+            'dynamic_radius_k': getattr(self.model_config.args.magno, 'dynamic_radius_k', 8),
+            'dynamic_radius_alpha': getattr(self.model_config.args.magno, 'dynamic_radius_alpha', 1.5)
+        }
+        
         # Build graphs for all splits
         all_graphs = self.graph_builder.build_all_graphs(
             data_splits=data_splits,
             latent_queries=self.latent_tokens_coord,
             gno_radius=gno_radius,
             scales=scales,
-            build_train=self.setup_config.train
+            build_train=self.setup_config.train,
+            dynamic_radius_config=dynamic_radius_config
         )
         
         # Create data loaders with graphs

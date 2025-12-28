@@ -48,6 +48,12 @@ class MAGNOConfig:
     
     # --- Transform and Sampling ---
     transform_type: str = 'linear'                          # Transform type for both encoder and decoder, support ['linear', 'nonlinear']
+
+    # --- Dynamic Radius ---
+    use_dynamic_radius: bool = False                        # Whether to use dynamic radius
+    dynamic_radius_method: str = "knn"                      # "knn" or "delaunay"
+    dynamic_radius_k: int = 8                               # k for knn
+    dynamic_radius_alpha: float = 1.5                       # Scaling factor for dynamic radius
     sampling_strategy: Optional[str] = None                 # Edge sampling strategy, support ['max_neighbors', 'ratio']
     max_neighbors: Optional[int] = None                     # Max neighbors for sampling
     sample_ratio: Optional[float] = None                    # Sample ratio for edge drop

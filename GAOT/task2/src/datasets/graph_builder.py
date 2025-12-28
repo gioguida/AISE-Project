@@ -25,8 +25,47 @@ class GraphBuilder:
         """
         self.nb_search = NeighborSearch(neighbor_search_method)
     
+    def compute_dynamic_radius(self, tokens: torch.Tensor, method: str, k: int, alpha: float) -> torch.Tensor:
+        """
+        Compute dynamic radius for each token.
+        r_l = alpha * d_k(y_l)
+        """
+        if method == 'knn':
+            # Compute pairwise distances
+            dists = torch.cdist(tokens, tokens) # (M, M)
+            sorted_dists, _ = torch.sort(dists, dim=1)
+            # d_k is at index k. (Assuming k < M)
+            if k >= tokens.size(0):
+                k = tokens.size(0) - 1
+            d_k = sorted_dists[:, k]
+            return alpha * d_k
+            
+        elif method == 'delaunay':
+            # Use scipy Delaunay
+            from scipy.spatial import Delaunay
+            points = tokens.cpu().numpy()
+            tri = Delaunay(points)
+            
+            indptr, indices = tri.vertex_neighbor_vertices
+            
+            radii = []
+            for i in range(len(points)):
+                nbrs = indices[indptr[i]:indptr[i+1]]
+                if len(nbrs) == 0:
+                    radii.append(0.1) 
+                    continue
+                
+                d = np.linalg.norm(points[nbrs] - points[i], axis=1)
+                d_k = np.max(d)
+                radii.append(d_k)
+            
+            return alpha * torch.tensor(radii, device=tokens.device, dtype=tokens.dtype)
+        else:
+            raise ValueError(f"Unknown dynamic radius method: {method}")
+
     def build_graphs_for_split(self, x_data: torch.Tensor, latent_queries: torch.Tensor,
-                              gno_radius: float, scales: List[float]) -> Tuple[List, List]:
+                              gno_radius: float, scales: List[float],
+                              dynamic_radius_config: Optional[dict] = None) -> Tuple[List, List]:
         """
         Build encoder and decoder graphs for a data split.
         
@@ -35,12 +74,22 @@ class GraphBuilder:
             latent_queries: Latent query coordinates [n_latent, coord_dim]
             gno_radius: Base radius for neighbor search
             scales: List of scale factors for multi-scale graphs
+            dynamic_radius_config: Configuration for dynamic radius
             
         Returns:
             tuple: (encoder_graphs_list, decoder_graphs_list)
         """
         print(f"Building graphs for {len(x_data)} samples...")
         start_time = time.time()
+        
+        # Compute dynamic radius if enabled
+        dynamic_radii = None
+        if dynamic_radius_config and dynamic_radius_config.get('use_dynamic_radius', False):
+            method = dynamic_radius_config.get('dynamic_radius_method', 'knn')
+            k = dynamic_radius_config.get('dynamic_radius_k', 8)
+            alpha = dynamic_radius_config.get('dynamic_radius_alpha', 1.5)
+            dynamic_radii = self.compute_dynamic_radius(latent_queries, method, k, alpha)
+            print(f"Using dynamic radius ({method}, k={k}, alpha={alpha}). Mean radius: {dynamic_radii.mean().item():.4f}")
         
         encoder_graphs = []
         decoder_graphs = []
@@ -62,7 +111,11 @@ class GraphBuilder:
             # Build encoder graphs (physical -> latent)
             encoder_nbrs_sample = []
             for scale in scales:
-                scaled_radius = gno_radius * scale
+                if dynamic_radii is not None:
+                    scaled_radius = dynamic_radii * scale
+                else:
+                    scaled_radius = gno_radius * scale
+                    
                 with torch.no_grad():
                     nbrs = self.nb_search(x_coord_scaled, latent_queries, scaled_radius)
                 encoder_nbrs_sample.append(nbrs)
@@ -71,7 +124,11 @@ class GraphBuilder:
             # Build decoder graphs (latent -> physical)
             decoder_nbrs_sample = []
             for scale in scales:
-                scaled_radius = gno_radius * scale
+                if dynamic_radii is not None:
+                    scaled_radius = dynamic_radii * scale
+                else:
+                    scaled_radius = gno_radius * scale
+                    
                 with torch.no_grad():
                     nbrs = self.nb_search(latent_queries, x_coord_scaled, scaled_radius)
                 decoder_nbrs_sample.append(nbrs)
@@ -88,7 +145,8 @@ class GraphBuilder:
     
     def build_all_graphs(self, data_splits: dict, latent_queries: torch.Tensor,
                         gno_radius: float, scales: List[float],
-                        build_train: bool = True) -> dict:
+                        build_train: bool = True,
+                        dynamic_radius_config: Optional[dict] = None) -> dict:
         """
         Build graphs for all data splits.
         
@@ -98,6 +156,7 @@ class GraphBuilder:
             gno_radius: Base radius for neighbor search
             scales: Scale factors for multi-scale graphs
             build_train: Whether to build train/val graphs (skip if testing only)
+            dynamic_radius_config: Configuration for dynamic radius
             
         Returns:
             dict: Dictionary with encoder/decoder graphs for each split
@@ -108,7 +167,7 @@ class GraphBuilder:
         if 'test' in data_splits:
             print("Building test graphs...")
             encoder_test, decoder_test = self.build_graphs_for_split(
-                data_splits['test']['x'], latent_queries, gno_radius, scales
+                data_splits['test']['x'], latent_queries, gno_radius, scales, dynamic_radius_config
             )
             all_graphs['test'] = {
                 'encoder': encoder_test,
@@ -120,7 +179,7 @@ class GraphBuilder:
             if 'train' in data_splits:
                 print("Building train graphs...")
                 encoder_train, decoder_train = self.build_graphs_for_split(
-                    data_splits['train']['x'], latent_queries, gno_radius, scales
+                    data_splits['train']['x'], latent_queries, gno_radius, scales, dynamic_radius_config
                 )
                 all_graphs['train'] = {
                     'encoder': encoder_train,
@@ -130,7 +189,7 @@ class GraphBuilder:
             if 'val' in data_splits:
                 print("Building val graphs...")
                 encoder_val, decoder_val = self.build_graphs_for_split(
-                    data_splits['val']['x'], latent_queries, gno_radius, scales
+                    data_splits['val']['x'], latent_queries, gno_radius, scales, dynamic_radius_config
                 )
                 all_graphs['val'] = {
                     'encoder': encoder_val,
