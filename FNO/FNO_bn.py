@@ -41,9 +41,7 @@ class SpectralConv1d(nn.Module):
         x = torch.fft.irfft(out_ft, n=x.size(-1))
         return x
     
-#---------------------
-# Time-conditional BN:
-#---------------------
+
 class FILM(torch.nn.Module):
     def __init__(self,
                 channels,
@@ -68,13 +66,14 @@ class FILM(torch.nn.Module):
 
         x = self.norm(x)
         time = time.reshape(-1,1).type_as(x)
-        scale     = self.inp2scale(time)
-        bias      = self.inp2bias(time)
+        scale = self.inp2scale(time)
+        bias = self.inp2bias(time)
         scale = scale.unsqueeze(2).expand_as(x)
-        bias  = bias.unsqueeze(2).expand_as(x)
+        bias = bias.unsqueeze(2).expand_as(x)
 
         return x * (1. + scale) + bias
     
+
 class FNO1d_bn(nn.Module):
     def __init__(self, modes, width, use_bn = True):
         super(FNO1d_bn, self).__init__()
@@ -95,7 +94,7 @@ class FNO1d_bn(nn.Module):
         self.modes1 = modes
         self.width = width
         self.padding = 1  # pad the domain if input is non-periodic
-        self.linear_p = nn.Linear(3, self.width)  # input channel is 2: (u0(x), x) --> GRID IS INCLUDED!
+        self.linear_p = nn.Linear(3, self.width)  
 
         self.spect1 = SpectralConv1d(self.width, self.width, self.modes1)
         self.spect2 = SpectralConv1d(self.width, self.width, self.modes1)
@@ -103,15 +102,14 @@ class FNO1d_bn(nn.Module):
         self.lin0 = nn.Conv1d(self.width, self.width, 1)
         self.lin1 = nn.Conv1d(self.width, self.width, 1)
         self.lin2 = nn.Conv1d(self.width, self.width, 1)
+        # Batch Normalization
         self.batch_norm1  = FILM(self.width, use_bn)
         self.batch_norm2  = FILM(self.width, use_bn)
         self.batch_norm3  = FILM(self.width, use_bn)
 
-
         self.linear_q = nn.Linear(self.width, 32)
         self.output_layer = nn.Linear(32, 1)
 
-        # Batch Normalization
         self.activation = torch.nn.Tanh()
 
     def fourier_layer(self, x, time, spectral_layer, conv_layer, batch_norm_layer):
@@ -125,9 +123,9 @@ class FNO1d_bn(nn.Module):
     def forward(self, x, time):
         # grid = self.get_grid(x.shape, x.device)
         # x = torch.cat((x, grid), dim=-1)
-        time_expanded = time.reshape(-1, 1, 1).expand(-1, x.shape[1], 1)  # (batch, spatial_points, 1)
+        time_expanded = time.reshape(-1, 1, 1).expand(-1, x.shape[1], 1)
         # Concatenate: (u0(x), grid, time)
-        x = torch.cat([x, time_expanded], dim=-1)  # (batch, spatial_points, 3)
+        x = torch.cat([x, time_expanded], dim=-1) 
 
         x = self.linear_p(x)
         x = x.permute(0, 2, 1)

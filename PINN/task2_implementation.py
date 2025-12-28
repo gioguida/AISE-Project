@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from data_generation import Poisson_data_generator
 
 torch.autograd.set_detect_anomaly(True)
-torch.manual_seed(41)
+torch.manual_seed(0)
 
 # ============================================================================
 # CONFIGURATION
@@ -21,7 +21,7 @@ class Config:
     
     # Model architecture
     N_HIDDEN_LAYERS = 4
-    WIDTH = 50
+    WIDTH = 128
     
     # Problem complexity
     K = 4  # Number of frequency modes (1, 4, 8, 16)
@@ -45,7 +45,7 @@ class Config:
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # Mesh type
-    MESH_TYPE = "grid"  # "grid" or "random"
+    MESH_TYPE = "random"  # "grid" or "random"
     
     # Visualization
     PLOT_DPI = 150
@@ -163,8 +163,9 @@ class PINN(MLP):
             
         elif self.mesh == "random":
             # Random boundary points using Sobol sequences
-            x_b = self.soboleng.draw(self.num_boundary_points, 1).to(self.device)
-            y_b = self.soboleng.draw(self.num_boundary_points, 1).to(self.device)
+            samples = self.soboleng.draw(self.num_boundary_points).to(self.device)
+            x_b = samples[:, 0]
+            y_b = samples[:, 1]
             
             x_b = x_b * (self.domain_bounds[0][1] - self.domain_bounds[0][0]) + self.domain_bounds[0][0]
             y_b = y_b * (self.domain_bounds[1][1] - self.domain_bounds[1][0]) + self.domain_bounds[1][0]
@@ -193,13 +194,10 @@ class PINN(MLP):
             interior_points = torch.cat([X.reshape(-1, 1), Y.reshape(-1, 1)], dim=1)
             
         elif self.mesh == "random":
-            X_interior = self.soboleng.draw(self.num_interior_points, 1).to(self.device)
-            Y_interior = self.soboleng.draw(self.num_interior_points, 1).to(self.device)
+            interior_points = self.soboleng.draw(self.num_interior_points).to(self.device)
             
-            X_interior = X_interior * (self.domain_bounds[0][1] - self.domain_bounds[0][0]) + self.domain_bounds[0][0]
-            Y_interior = Y_interior * (self.domain_bounds[1][1] - self.domain_bounds[1][0]) + self.domain_bounds[1][0]
-            
-            interior_points = torch.cat([X_interior, Y_interior], dim=1)
+            interior_points[:, 0] = interior_points[:, 0] * (self.domain_bounds[0][1] - self.domain_bounds[0][0]) + self.domain_bounds[0][0]
+            interior_points[:, 1] = interior_points[:, 1] * (self.domain_bounds[1][1] - self.domain_bounds[1][0]) + self.domain_bounds[1][0]
         
         return interior_points, torch.zeros((interior_points.shape[0], 1), device=self.device)
     

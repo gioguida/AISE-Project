@@ -8,7 +8,7 @@ from pathlib import Path
 import json
 
 # Import from refactored code
-from refactored_pinn import (
+from task2_implementation import (
     Config,
     Poisson_data_generator,
     train_pinn,
@@ -566,9 +566,9 @@ def visualize_single_landscape(model, model_type, K, loss_computer,
     Returns:
         dict: Landscape data and analysis
     """
-    print(f"\n{'─'*70}")
+    print(f"\n{'-'*70}")
     print(f"Visualizing {model_type.upper()} landscape (K={K})")
-    print(f"{'─'*70}")
+    print(f"{'-'*70}")
     
     # Step 1: Get converged parameters
     print("[1/5] Extracting parameters...")
@@ -581,7 +581,7 @@ def visualize_single_landscape(model, model_type, K, loss_computer,
     delta, eta = generate_directions(model, landscape_config.DIRECTION_METHOD)
     print(f"  Direction delta norm: {torch.norm(delta).item():.6f}")
     print(f"  Direction eta norm: {torch.norm(eta).item():.6f}")
-    print(f"  Orthogonality (δ·η): {torch.dot(delta, eta).item():.6f}")
+    print(f"  Orthogonality (delta*eta): {torch.dot(delta, eta).item():.6f}")
     
     # Step 3: Compute landscape
     print("[3/5] Computing loss landscape...")
@@ -597,7 +597,7 @@ def visualize_single_landscape(model, model_type, K, loss_computer,
         device=config.DEVICE
     )
     
-    print(f"  Loss at θ*: {loss_surface[landscape_config.N_POINTS//2, landscape_config.N_POINTS//2]:.6e}")
+    print(f"  Loss at theta*: {loss_surface[landscape_config.N_POINTS//2, landscape_config.N_POINTS//2]:.6e}")
     print(f"  Min loss: {loss_surface.min():.6e}")
     print(f"  Max loss: {loss_surface.max():.6e}")
     
@@ -624,7 +624,7 @@ def visualize_single_landscape(model, model_type, K, loss_computer,
         filename=filename_2d,
         center_loss=analysis['center_loss']
     )
-    print(f"  ✓ 2D contour saved: {filename_2d}")
+    print(f"  2D contour saved: {filename_2d}")
     
     # 3D surface
     filename_3d = os.path.join(
@@ -636,7 +636,7 @@ def visualize_single_landscape(model, model_type, K, loss_computer,
         title=f'{model_type.upper()} Loss Landscape (K={K})',
         filename=filename_3d
     )
-    print(f"  ✓ 3D surface saved: {filename_3d}")
+    print(f"  3D surface saved: {filename_3d}")
     
     # Save landscape data
     data_file = os.path.join(
@@ -648,9 +648,9 @@ def visualize_single_landscape(model, model_type, K, loss_computer,
              betas=betas, 
              loss_surface=loss_surface,
              analysis=analysis)
-    print(f"  ✓ Data saved: {data_file}")
+    print(f"  Data saved: {data_file}")
     
-    print(f"✓ {model_type.upper()} landscape complete\n")
+    print(f"{model_type.upper()} landscape complete\n")
     
     return {
         'alphas': alphas,
@@ -719,7 +719,7 @@ def run_landscape_visualization_suite():
         log("\nGenerating problem data...")
         data_generator = Poisson_data_generator(config.N, config.K)
         force, solution = data_generator.generate()
-        log("✓ Data generated")
+        log("  Data generated")
         
         # ────────────────────────────────────────────────────────────────
         # Train models
@@ -731,12 +731,12 @@ def run_landscape_visualization_suite():
         # Train PINN
         log("\nTraining PINN...")
         pinn_model, pinn_history = train_pinn(config, data_generator, verbose=False)
-        log(f"✓ PINN trained - Final loss: {pinn_history[-1]:.6e}")
+        log(f"  PINN trained - Final loss: {pinn_history[-1]:.6e}")
         
         # Train Data-Driven
         log("\nTraining Data-Driven model...")
         dd_model, dd_history = train_data_driven(config, data_generator, verbose=False)
-        log(f"✓ Data-Driven trained - Final loss: {dd_history[-1]:.6e}")
+        log(f"  Data-Driven trained - Final loss: {dd_history[-1]:.6e}")
         
         # ────────────────────────────────────────────────────────────────
         # Prepare loss computers
@@ -764,7 +764,7 @@ def run_landscape_visualization_suite():
         )
         dd_loss_fn = create_data_driven_loss_computer(dd_model, coords, targets)
         
-        log("✓ Loss functions prepared")
+        log("  Loss functions prepared")
         
         # ────────────────────────────────────────────────────────────────
         # Visualize PINN landscape
@@ -804,7 +804,7 @@ def run_landscape_visualization_suite():
         comp_file = create_comparison_plot(
             all_landscapes[K], K, LandscapeConfig.OUTPUT_DIR
         )
-        log(f"✓ Comparison saved: {comp_file}")
+        log(f"  Comparison saved: {comp_file}")
     
     # ────────────────────────────────────────────────────────────────
     # Generate Summary Analysis
@@ -886,7 +886,7 @@ def run_landscape_visualization_suite():
     with open(json_file, 'w') as f:
         json.dump(summary_data, f, indent=2, default=str)
     
-    log(f"\n✓ Summary JSON saved: {json_file}")
+    log(f"\n  Summary JSON saved: {json_file}")
     
     # ────────────────────────────────────────────────────────────────
     # Final summary
@@ -895,11 +895,11 @@ def run_landscape_visualization_suite():
     log("VISUALIZATION COMPLETE")
     log("="*80)
     log(f"\nAll results saved to: {LandscapeConfig.OUTPUT_DIR}/")
-    log(f"  • 2D contours: {LandscapeConfig.PLOTS_2D_DIR}/")
-    log(f"  • 3D surfaces: {LandscapeConfig.PLOTS_3D_DIR}/")
-    log(f"  • Raw data: {LandscapeConfig.DATA_DIR}/")
-    log(f"  • Analysis: {LandscapeConfig.RESULTS_FILE}")
-    log(f"  • Summary JSON: {json_file}")
+    log(f"   2D contours: {LandscapeConfig.PLOTS_2D_DIR}/")
+    log(f"   3D surfaces: {LandscapeConfig.PLOTS_3D_DIR}/")
+    log(f"   Raw data: {LandscapeConfig.DATA_DIR}/")
+    log(f"   Analysis: {LandscapeConfig.RESULTS_FILE}")
+    log(f"   Summary JSON: {json_file}")
     
     log("\n" + "="*80)
     log("Thank you for running the loss landscape analysis!")
@@ -916,11 +916,7 @@ def run_landscape_visualization_suite():
 
 if __name__ == "__main__":
     print("\nStarting Loss Landscape Visualization...")
-    print("This will train models and compute loss landscapes.")
-    print("This may take 10-20 minutes depending on your hardware.\n")
     
     landscapes, analyses = run_landscape_visualization_suite()
     
     print("\nLoss landscape visualization complete!")
-    print(f"Check '{LandscapeConfig.RESULTS_FILE}' for detailed analysis")
-    print(f"Check '{LandscapeConfig.OUTPUT_DIR}/' for all visualizations\n")

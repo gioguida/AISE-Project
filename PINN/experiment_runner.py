@@ -214,7 +214,7 @@ def task2_model_training(logger, exp_config):
         logger.log(f"  • Adam epochs: {config.PINN_EPOCHS_ADAM}, LBFGS epochs: {config.PINN_EPOCHS_LBFGS}")
         logger.log(f"  • Lambda_u (PDE weight): {config.PINN_LAMBDA_U}")
         
-        pinn_model, pinn_history = train_pinn(config, data_generator, verbose=False)
+        pinn_model, pinn_history = train_pinn(config, data_generator, verbose=True)
         
         logger.log(f"  ✓ PINN training completed")
         logger.log(f"  • Final loss: {pinn_history[-1]:.6e}")
@@ -256,7 +256,7 @@ def task2_model_training(logger, exp_config):
         logger.log(f"  • Adam epochs: {config.DD_EPOCHS_ADAM}, LBFGS epochs: {config.DD_EPOCHS_LBFGS}")
         logger.log(f"  • Batch size: {config.DD_BATCH_SIZE}")
         
-        dd_model, dd_history = train_data_driven(config, data_generator, verbose=False)
+        dd_model, dd_history = train_data_driven(config, data_generator, verbose=True)
         
         logger.log(f"  ✓ Data-Driven training completed")
         logger.log(f"  • Final loss: {dd_history[-1]:.6e}")
