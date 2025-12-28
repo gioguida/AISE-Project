@@ -1,0 +1,53 @@
+{
+  "experiment_date": "2025-12-28 15:04:08",
+  "configuration": {
+    "N": 64,
+    "K_levels": [
+      1,
+      4,
+      16
+    ],
+    "seed": 42
+  },
+  "results": {
+    "1": {
+      "complexity_label": "Low",
+      "pinn": {
+        "error": 0.3941108363022873,
+        "final_loss": 6.316015060292557e-06,
+        "iterations": 2511
+      },
+      "data_driven": {
+        "error": 60.32392110158702,
+        "final_loss": 14096.98046875,
+        "iterations": 13163
+      }
+    },
+    "4": {
+      "complexity_label": "Medium",
+      "pinn": {
+        "error": 8.371081510363974,
+        "final_loss": 0.00014020309026818722,
+        "iterations": 2511
+      },
+      "data_driven": {
+        "error": 70.25669289464582,
+        "final_loss": 0.0003913382824975997,
+        "iterations": 28859
+      }
+    },
+    "16": {
+      "complexity_label": "High",
+      "pinn": {
+        "error": 1674.9293257393588,
+        "final_loss": 1.2031835317611694,
+        "iterations": 2511
+      },
+      "data_driven": {
+        "error": 121.30422795439088,
+        "final_loss": 0.00031664944253861904,
+        "iterations": 29057
+      }
+    }
+  }
+}
