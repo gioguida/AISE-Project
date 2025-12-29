@@ -36,10 +36,10 @@ class Config:
     # Training parameters - Data-Driven
     DD_EPOCHS_ADAM = 4000
     DD_EPOCHS_LBFGS = 100
-    DD_LR_ADAM = 0.01
+    DD_LR_ADAM = 0.001
     DD_LR_LBFGS = 0.5
     DD_BATCH_SIZE = 1024
-    DD_SCALE_FACTOR = 1.0  # Scale solution for better training
+    DD_SCALE_FACTOR = 100.0  # Scale solution for better training
     
     # Device
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -114,9 +114,10 @@ class DataDrivenModel(MLP):
                 optimizer.step(closure=closure)
             
             if verbose and epoch % 50 == 0:
-                print(f'Epoch {epoch:4d}, Loss: {history[-1]:.6e}')
+                if history:
+                    print(f'Epoch {epoch:4d}, Loss: {history[-1]:.6e}')
         
-        if verbose:
+        if verbose and history:
             print(f'Final Loss: {history[-1]:.6e}')
         
         return history
@@ -138,7 +139,7 @@ class PINN(MLP):
         self.domain_bounds = ([0.0, 1.0], [0.0, 1.0])
         self.space_dimension = 2
         self.num_boundary_points = self.N
-        self.num_interior_points = (self.N - 1) ** 2
+        self.num_interior_points = (self.N - 2) ** 2
         
         self.soboleng = torch.quasirandom.SobolEngine(dimension=self.space_dimension)
         self.training_set_b, self.training_set_int = self.assemble_datasets()
@@ -273,9 +274,10 @@ class PINN(MLP):
                 optimizer.step(closure=closure)
             
             if verbose and epoch % 50 == 0:
-                print(f'Epoch {epoch:4d}, Loss: {history[-1]:.6e}')
+                if history:
+                    print(f'Epoch {epoch:4d}, Loss: {history[-1]:.6e}')
         
-        if verbose:
+        if verbose and history:
             print(f'Final Loss: {history[-1]:.6e}')
         
         return history

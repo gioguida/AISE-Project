@@ -1,0 +1,37 @@
+Retraining Data-Driven Models - 2025-12-29 10:31:48.245728
+================================================================================
+
+Loaded existing results from JSON.
+
+============================================================
+Processing K=1 (Low)
+============================================================
+Found existing PINN model, loading for comparison...
+PINN Error: 0.19%
+
+Training Data-Driven model...
+Data-Driven Error: 0.01%
+Generating comparison plots...
+
+============================================================
+Processing K=4 (Medium)
+============================================================
+Found existing PINN model, loading for comparison...
+PINN Error: 6.77%
+
+Training Data-Driven model...
+Data-Driven Error: 0.02%
+Generating comparison plots...
+
+============================================================
+Processing K=16 (High)
+============================================================
+Found existing PINN model, loading for comparison...
+PINN Error: 521.71%
+
+Training Data-Driven model...
+Data-Driven Error: 1.53%
+Generating comparison plots...
+
+Updated results saved to results/experiment_results.json
+Retraining completed.
