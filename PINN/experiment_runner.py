@@ -19,7 +19,9 @@ from task2_implementation import (
     train_data_driven,
     evaluate_model,
     plot_training_history, 
-    plot_solution_comparison
+    plot_solution_comparison,
+    PINN,
+    DataDrivenModel
 )
 
 
@@ -194,6 +196,9 @@ def task2_model_training(logger, exp_config):
     config = Config()
     config.N = exp_config.N
     
+    # Ensure models directory exists
+    os.makedirs(exp_config.MODELS_DIR, exist_ok=True)
+    
     for K in exp_config.K_LEVELS:
         complexity_label = exp_config.K_LABELS[K]
         logger.subsection(f"Complexity Level: {complexity_label} (K = {K})")
@@ -207,18 +212,40 @@ def task2_model_training(logger, exp_config):
         force, solution = data_generator.generate()
         
         # ────────────────────────────────────────────────────────────────
-        # Train PINN
+        # Train or Load PINN
         # ────────────────────────────────────────────────────────────────
-        logger.log(f"\n[2/5] Training PINN model...")
-        logger.log(f"  • Architecture: {config.N_HIDDEN_LAYERS} hidden layers, width {config.WIDTH}")
-        logger.log(f"  • Adam epochs: {config.PINN_EPOCHS_ADAM}, LBFGS epochs: {config.PINN_EPOCHS_LBFGS}")
-        logger.log(f"  • Lambda_u (PDE weight): {config.PINN_LAMBDA_U}")
+        pinn_path = os.path.join(exp_config.MODELS_DIR, f'pinn_K{K}.pt')
+        pinn_loaded = False
         
-        pinn_model, pinn_history = train_pinn(config, data_generator, verbose=True)
-        
-        logger.log(f"  ✓ PINN training completed")
-        logger.log(f"  • Final loss: {pinn_history[-1]:.6e}")
-        logger.log(f"  • Total iterations: {len(pinn_history)}")
+        if os.path.exists(pinn_path):
+            logger.log(f"\n[2/5] Loading PINN model from {pinn_path}...")
+            pinn_model = PINN(
+                config.N_HIDDEN_LAYERS, 
+                config.WIDTH, 
+                config.N, 
+                config.DEVICE,
+                mesh=config.MESH_TYPE,
+                lambda_u=config.PINN_LAMBDA_U
+            )
+            pinn_model.load_state_dict(torch.load(pinn_path, map_location=config.DEVICE))
+            pinn_history = [] # History not available when loading
+            pinn_loaded = True
+            logger.log(f"  ✓ PINN model loaded successfully")
+        else:
+            logger.log(f"\n[2/5] Training PINN model...")
+            logger.log(f"  • Architecture: {config.N_HIDDEN_LAYERS} hidden layers, width {config.WIDTH}")
+            logger.log(f"  • Adam epochs: {config.PINN_EPOCHS_ADAM}, LBFGS epochs: {config.PINN_EPOCHS_LBFGS}")
+            logger.log(f"  • Lambda_u (PDE weight): {config.PINN_LAMBDA_U}")
+            
+            pinn_model, pinn_history = train_pinn(config, data_generator, verbose=True)
+            
+            logger.log(f"  ✓ PINN training completed")
+            logger.log(f"  • Final loss: {pinn_history[-1]:.6e}")
+            logger.log(f"  • Total iterations: {len(pinn_history)}")
+            
+            # Save model
+            torch.save(pinn_model.state_dict(), pinn_path)
+            logger.log(f"  ✓ Model saved to {pinn_path}")
         
         # Evaluate PINN
         U_pred_pinn, U_exact, error_pinn = evaluate_model(
@@ -232,35 +259,51 @@ def task2_model_training(logger, exp_config):
             'history': pinn_history,
             'prediction': U_pred_pinn,
             'error': error_pinn,
-            'final_loss': pinn_history[-1]
+            'final_loss': pinn_history[-1] if pinn_history else 0.0
         }
         
-        # Save PINN loss curve
-        plt.figure(figsize=(8, 5), dpi=150)
-        plt.plot(pinn_history, linewidth=1.5, color='#2E86AB')
-        plt.xlabel('Iteration', fontsize=11)
-        plt.ylabel('Loss', fontsize=11)
-        plt.title(f'PINN Training History (K={K})', fontweight='bold', fontsize=12)
-        plt.yscale('log')
-        plt.grid(True, alpha=0.3, linestyle='--')
-        plt.tight_layout()
-        loss_path = os.path.join(exp_config.PLOTS_DIR, f'pinn_loss_K{K}.png')
-        plt.savefig(loss_path, dpi=150, bbox_inches='tight')
-        plt.close()
+        # Save PINN loss curve only if trained
+        if not pinn_loaded and pinn_history:
+            plt.figure(figsize=(8, 5), dpi=150)
+            plt.plot(pinn_history, linewidth=1.5, color='#2E86AB')
+            plt.xlabel('Iteration', fontsize=11)
+            plt.ylabel('Loss', fontsize=11)
+            plt.title(f'PINN Training History (K={K})', fontweight='bold', fontsize=12)
+            plt.yscale('log')
+            plt.grid(True, alpha=0.3, linestyle='--')
+            plt.tight_layout()
+            loss_path = os.path.join(exp_config.PLOTS_DIR, f'pinn_loss_K{K}.png')
+            plt.savefig(loss_path, dpi=150, bbox_inches='tight')
+            plt.close()
         
         # ────────────────────────────────────────────────────────────────
-        # Train Data-Driven
+        # Train or Load Data-Driven
         # ────────────────────────────────────────────────────────────────
-        logger.log(f"\n[3/5] Training Data-Driven model...")
-        logger.log(f"  • Architecture: {config.N_HIDDEN_LAYERS} hidden layers, width {config.WIDTH}")
-        logger.log(f"  • Adam epochs: {config.DD_EPOCHS_ADAM}, LBFGS epochs: {config.DD_EPOCHS_LBFGS}")
-        logger.log(f"  • Batch size: {config.DD_BATCH_SIZE}")
+        dd_path = os.path.join(exp_config.MODELS_DIR, f'data_driven_K{K}.pt')
+        dd_loaded = False
         
-        dd_model, dd_history = train_data_driven(config, data_generator, verbose=True)
-        
-        logger.log(f"  ✓ Data-Driven training completed")
-        logger.log(f"  • Final loss: {dd_history[-1]:.6e}")
-        logger.log(f"  • Total iterations: {len(dd_history)}")
+        if os.path.exists(dd_path):
+            logger.log(f"\n[3/5] Loading Data-Driven model from {dd_path}...")
+            dd_model = DataDrivenModel(config.N_HIDDEN_LAYERS, config.WIDTH).to(config.DEVICE)
+            dd_model.load_state_dict(torch.load(dd_path, map_location=config.DEVICE))
+            dd_history = [] # History not available when loading
+            dd_loaded = True
+            logger.log(f"  ✓ Data-Driven model loaded successfully")
+        else:
+            logger.log(f"\n[3/5] Training Data-Driven model...")
+            logger.log(f"  • Architecture: {config.N_HIDDEN_LAYERS} hidden layers, width {config.WIDTH}")
+            logger.log(f"  • Adam epochs: {config.DD_EPOCHS_ADAM}, LBFGS epochs: {config.DD_EPOCHS_LBFGS}")
+            logger.log(f"  • Batch size: {config.DD_BATCH_SIZE}")
+            
+            dd_model, dd_history = train_data_driven(config, data_generator, verbose=True)
+            
+            logger.log(f"  ✓ Data-Driven training completed")
+            logger.log(f"  • Final loss: {dd_history[-1]:.6e}")
+            logger.log(f"  • Total iterations: {len(dd_history)}")
+            
+            # Save model
+            torch.save(dd_model.state_dict(), dd_path)
+            logger.log(f"  ✓ Model saved to {dd_path}")
         
         # Evaluate Data-Driven
         U_pred_dd, U_exact, error_dd = evaluate_model(
@@ -274,21 +317,22 @@ def task2_model_training(logger, exp_config):
             'history': dd_history,
             'prediction': U_pred_dd,
             'error': error_dd,
-            'final_loss': dd_history[-1]
+            'final_loss': dd_history[-1] if dd_history else 0.0
         }
         
-        # Save Data-Driven loss curve
-        plt.figure(figsize=(8, 5), dpi=150)
-        plt.plot(dd_history, linewidth=1.5, color='#A23B72')
-        plt.xlabel('Iteration', fontsize=11)
-        plt.ylabel('Loss', fontsize=11)
-        plt.title(f'Data-Driven Training History (K={K})', fontweight='bold', fontsize=12)
-        plt.yscale('log')
-        plt.grid(True, alpha=0.3, linestyle='--')
-        plt.tight_layout()
-        loss_path = os.path.join(exp_config.PLOTS_DIR, f'data_driven_loss_K{K}.png')
-        plt.savefig(loss_path, dpi=150, bbox_inches='tight')
-        plt.close()
+        # Save Data-Driven loss curve only if trained
+        if not dd_loaded and dd_history:
+            plt.figure(figsize=(8, 5), dpi=150)
+            plt.plot(dd_history, linewidth=1.5, color='#A23B72')
+            plt.xlabel('Iteration', fontsize=11)
+            plt.ylabel('Loss', fontsize=11)
+            plt.title(f'Data-Driven Training History (K={K})', fontweight='bold', fontsize=12)
+            plt.yscale('log')
+            plt.grid(True, alpha=0.3, linestyle='--')
+            plt.tight_layout()
+            loss_path = os.path.join(exp_config.PLOTS_DIR, f'data_driven_loss_K{K}.png')
+            plt.savefig(loss_path, dpi=150, bbox_inches='tight')
+            plt.close()
         
         # ────────────────────────────────────────────────────────────────
         # Generate comparison plots
@@ -357,20 +401,6 @@ def task2_model_training(logger, exp_config):
         plt.close()
         
         logger.log(f"  ✓ Comparison plot saved to: {comp_path}")
-        
-        # ────────────────────────────────────────────────────────────────
-        # Save models
-        # ────────────────────────────────────────────────────────────────
-        logger.log(f"\n[5/5] Saving models...")
-        
-        os.makedirs(exp_config.MODELS_DIR, exist_ok=True)
-        
-        torch.save(pinn_model.state_dict(), 
-                  os.path.join(exp_config.MODELS_DIR, f'pinn_K{K}.pt'))
-        torch.save(dd_model.state_dict(), 
-                  os.path.join(exp_config.MODELS_DIR, f'data_driven_K{K}.pt'))
-        
-        logger.log(f"  ✓ Models saved")
         
         logger.log(f"\n{'─'*80}")
         logger.log(f"✓ Completed K={K} ({complexity_label} complexity)")

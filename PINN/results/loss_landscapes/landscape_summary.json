@@ -1,0 +1,108 @@
+{
+  "date": "2025-12-29 22:48:03",
+  "configuration": {
+    "N": 64,
+    "n_points": 100,
+    "alpha_range": [
+      -20.0,
+      20.0
+    ],
+    "beta_range": [
+      -20.0,
+      20.0
+    ],
+    "direction_method": "filter_normalized"
+  },
+  "analyses": {
+    "1": {
+      "pinn": {
+        "model_type": "pinn",
+        "K": 1,
+        "center_loss": 0.005408942699432373,
+        "min_loss": 0.0032957668881863356,
+        "max_loss": 269.8558044433594,
+        "loss_range": 269.8525086764712,
+        "mean_gradient": 2.0659512802158573,
+        "max_gradient": 23.73700178443395,
+        "mean_curvature": 0.10623602380156517,
+        "max_curvature": 1.88092041015625,
+        "local_minima_count": 1,
+        "sharpness": 0.013112081272993237
+      },
+      "data_driven": {
+        "model_type": "data_driven",
+        "K": 1,
+        "center_loss": 0.009223840199410915,
+        "min_loss": 0.007577540818601847,
+        "max_loss": 100.23313903808594,
+        "loss_range": 100.22556149726734,
+        "mean_gradient": 1.089922934739887,
+        "max_gradient": 2.8994906970801866,
+        "mean_curvature": 0.015789533138275146,
+        "max_curvature": 0.056720733642578125,
+        "local_minima_count": 1,
+        "sharpness": 0.025394695403520018
+      }
+    },
+    "4": {
+      "pinn": {
+        "model_type": "pinn",
+        "K": 4,
+        "center_loss": 0.008138478733599186,
+        "min_loss": 0.007891627959907055,
+        "max_loss": 201.10208129882812,
+        "loss_range": 201.09418967086822,
+        "mean_gradient": 1.9079898860885791,
+        "max_gradient": 14.669691447474216,
+        "mean_curvature": 0.07190660332264379,
+        "max_curvature": 1.532623291015625,
+        "local_minima_count": 1,
+        "sharpness": 0.023641797131858766
+      },
+      "data_driven": {
+        "model_type": "data_driven",
+        "K": 4,
+        "center_loss": 1.435342788696289,
+        "min_loss": 1.3160765171051025,
+        "max_loss": 16.45047378540039,
+        "loss_range": 15.134397268295288,
+        "mean_gradient": 0.23724020152085412,
+        "max_gradient": 0.6434731033624181,
+        "mean_curvature": 0.0036323784232139586,
+        "max_curvature": 0.015653610229492188,
+        "local_minima_count": 1,
+        "sharpness": 0.0038943886756896973
+      }
+    },
+    "16": {
+      "pinn": {
+        "model_type": "pinn",
+        "K": 16,
+        "center_loss": 0.3444940149784088,
+        "min_loss": 0.33880379796028137,
+        "max_loss": 2089.716552734375,
+        "loss_range": 2089.3777489364147,
+        "mean_gradient": 31.861842885475784,
+        "max_gradient": 87.99487695840362,
+        "mean_curvature": 0.6782547300040722,
+        "max_curvature": 6.65771484375,
+        "local_minima_count": 1,
+        "sharpness": 0.8636650182306767
+      },
+      "data_driven": {
+        "model_type": "data_driven",
+        "K": 16,
+        "center_loss": 0.029287463054060936,
+        "min_loss": 0.027880946174263954,
+        "max_loss": 2.6743791103363037,
+        "loss_range": 2.6464981641620398,
+        "mean_gradient": 0.035717820679560836,
+        "max_gradient": 0.08020066752505589,
+        "mean_curvature": 0.0004958521869033576,
+        "max_curvature": 0.0014162063598632812,
+        "local_minima_count": 1,
+        "sharpness": 0.0008884156122803688
+      }
+    }
+  }
+}

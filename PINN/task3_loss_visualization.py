@@ -13,6 +13,8 @@ from task2_implementation import (
     Poisson_data_generator,
     train_pinn,
     train_data_driven,
+    PINN,
+    DataDrivenModel
 )
 
 
@@ -24,28 +26,28 @@ class LandscapeConfig:
     """Configuration for loss landscape visualization"""
     
     # Complexity levels to visualize
-    K_LEVELS = [1, 4, 16]  # Low, Medium, High
+    K_LEVELS = [1, 4, 16] # Low, Medium, High
     K_LABELS = {1: "Low", 4: "Medium", 16: "High"}
     
     # Grid resolution
     N = 64
     
     # Landscape sampling parameters
-    ALPHA_RANGE = (-1.0, 1.0)  # Range for first direction
-    BETA_RANGE = (-1.0, 1.0)   # Range for second direction
-    N_POINTS = 30              # Grid resolution (30x30 = 900 evaluations)
+    ALPHA_RANGE = (-5.0, 5.0)  # Range for first direction
+    BETA_RANGE = (-5.0, 5.0)   # Range for second direction
+    N_POINTS = 150              # Grid resolution (150x150 = 22500 evaluations)
     
     # Direction generation method
     DIRECTION_METHOD = "filter_normalized"  # "random", "filter_normalized"
     
     # Output directories
-    OUTPUT_DIR = "results/loss_landscapes"
-    PLOTS_2D_DIR = "results/loss_landscapes/2d_contours"
-    PLOTS_3D_DIR = "results/loss_landscapes/3d_surfaces"
-    DATA_DIR = "results/loss_landscapes/data"
+    OUTPUT_DIR = "results/loss_landscapes_residual"
+    PLOTS_2D_DIR = "results/loss_landscapes_residual/2d_contours"
+    PLOTS_3D_DIR = "results/loss_landscapes_residual/3d_surfaces"
+    DATA_DIR = "results/loss_landscapes_residual/data"
     
     # Results file
-    RESULTS_FILE = "results/loss_landscapes/landscape_analysis.txt"
+    RESULTS_FILE = "results/loss_landscapes_residual/landscape_analysis.txt"
     
     # Random seed
     SEED = 42
@@ -169,18 +171,16 @@ def generate_directions(model, method="filter_normalized"):
 # LOSS COMPUTATION
 # ============================================================================
 
-def create_pinn_loss_computer(pinn_model, data_generator, config):
+def create_pinn_loss_computer(pinn_model, data_generator, config, only_residual=True):
     """
     Create loss computation function for PINN
-    
-    Returns:
-        Function that computes PINN loss for current model state
+    MODIFIED: Returns only the PDE residual to visualize the roughness.
     """
-    # Get boundary and interior data from model
+    # Get boundary and interior data
     inp_b, u_b = next(iter(pinn_model.training_set_b))
     inp_int, _ = next(iter(pinn_model.training_set_int))
     
-    # Create forcing term function
+    # Forcing term wrapper
     def forcing_term(x):
         x_np = x[:, 0].detach().cpu().numpy()
         y_np = x[:, 1].detach().cpu().numpy()
@@ -188,8 +188,21 @@ def create_pinn_loss_computer(pinn_model, data_generator, config):
         return torch.tensor(f_np, dtype=torch.float32, device=x.device).reshape(-1)
     
     def compute_loss():
-        """Compute PINN loss"""
-        return pinn_model.compute_loss(inp_b, u_b, inp_int, forcing_term)
+        # Re-implement logic here to isolate components
+        # 1. Boundary Loss (We ignore this now)
+        u_pred_b = pinn_model.apply_boundary_conditions(inp_b)
+        r_b = u_pred_b.reshape(-1) - u_b.reshape(-1)
+        loss_b = torch.mean(r_b ** 2)
+
+        # 2. PDE Residual (The "Rough" part)
+        r_int = pinn_model.compute_pde_residual(inp_int, forcing_term)
+        loss_int = torch.mean(r_int ** 2)
+        
+        if only_residual:
+            # THIS IS THE KEY CHANGE
+            return loss_int
+        else:
+            return loss_b * pinn_model.lambda_u + loss_int
     
     return compute_loss
 
@@ -233,8 +246,12 @@ def compute_loss_at_point(model, theta_star, delta, eta, alpha, beta,
     
     # Compute loss
     model.eval()
-    with torch.no_grad():
-        loss = loss_computer()
+    
+    # We cannot use torch.no_grad() here because PINN loss computation 
+    # requires gradients with respect to input coordinates (for PDE residual)
+    # Even though we don't need gradients w.r.t parameters, the graph must be built
+    # for the inputs.
+    loss = loss_computer()
     
     return loss.item()
 
@@ -349,7 +366,9 @@ def plot_2d_contour(alphas, betas, loss_surface, title, filename,
     plt.legend(fontsize=10)
     plt.tight_layout()
     
+    # Save as PNG and PDF
     plt.savefig(filename, dpi=200, bbox_inches='tight')
+    plt.savefig(filename.replace('.png', '.pdf'), bbox_inches='tight')
     plt.close()
 
 
@@ -401,7 +420,12 @@ def plot_3d_surface(alphas, betas, loss_surface, title, filename):
     ax.view_init(elev=25, azim=45)
     
     plt.tight_layout()
+    
+    # Save as PNG and PDF
     plt.savefig(filename, dpi=200, bbox_inches='tight')
+    plt.savefig(filename.replace('.png', '.pdf'), bbox_inches='tight')
+    
+    # Plot saved, closing to allow continuous execution
     plt.close()
 
 
@@ -419,21 +443,26 @@ def create_comparison_plot(landscapes_data, K, output_dir):
     model_types = ['pinn', 'data_driven']
     titles = ['PINN Loss Landscape', 'Data-Driven Loss Landscape']
     
+    # Determine common loss range for fair comparison
+    all_losses = []
+    for model_type in model_types:
+        all_losses.append(landscapes_data[model_type]['loss_surface'].flatten())
+    all_losses = np.concatenate(all_losses)
+    
+    loss_min = all_losses.min()
+    loss_max = all_losses.max()
+    
+    if loss_min > 0:
+        levels = np.logspace(np.log10(loss_min), np.log10(loss_max), 30)
+    else:
+        levels = 30
+    
     for idx, (model_type, title) in enumerate(zip(model_types, titles)):
         alphas = landscapes_data[model_type]['alphas']
         betas = landscapes_data[model_type]['betas']
         loss_surface = landscapes_data[model_type]['loss_surface']
         
-        # Use log scale
-        loss_min = loss_surface.min()
-        loss_max = loss_surface.max()
-        
-        if loss_min > 0:
-            levels = np.logspace(np.log10(loss_min), np.log10(loss_max), 25)
-        else:
-            levels = 25
-        
-        # Contour plot
+        # Contour plot with common levels
         contour = axes[idx].contourf(alphas, betas, loss_surface.T, 
                                      levels=levels, cmap='viridis')
         plt.colorbar(contour, ax=axes[idx], label='Loss')
@@ -457,6 +486,7 @@ def create_comparison_plot(landscapes_data, K, output_dir):
     
     filename = os.path.join(output_dir, f'comparison_K{K}.png')
     plt.savefig(filename, dpi=200, bbox_inches='tight')
+    plt.savefig(filename.replace('.png', '.pdf'), bbox_inches='tight')
     plt.close()
     
     return filename
@@ -676,7 +706,7 @@ def run_landscape_visualization_suite():
         os.makedirs(directory, exist_ok=True)
     
     # Initialize results file
-    results_file = open(LandscapeConfig.RESULTS_FILE, 'w')
+    results_file = open(LandscapeConfig.RESULTS_FILE, 'w', encoding='utf-8')
     
     def log(message):
         """Log to both console and file"""
@@ -722,21 +752,42 @@ def run_landscape_visualization_suite():
         log("  Data generated")
         
         # ────────────────────────────────────────────────────────────────
-        # Train models
+        # Load models
         # ────────────────────────────────────────────────────────────────
         log("\n" + "─"*70)
-        log("TRAINING MODELS")
+        log("LOADING MODELS")
         log("─"*70)
         
-        # Train PINN
-        log("\nTraining PINN...")
-        pinn_model, pinn_history = train_pinn(config, data_generator, verbose=False)
-        log(f"  PINN trained - Final loss: {pinn_history[-1]:.6e}")
+        # Load PINN
+        log("\nLoading PINN...")
+        pinn_path = os.path.join("results/models", f"pinn_K{K}.pt")
+        if os.path.exists(pinn_path):
+            pinn_model = PINN(
+                config.N_HIDDEN_LAYERS, 
+                config.WIDTH, 
+                config.N, 
+                config.DEVICE,
+                mesh=config.MESH_TYPE,
+                lambda_u=config.PINN_LAMBDA_U
+            )
+            pinn_model.load_state_dict(torch.load(pinn_path, map_location=config.DEVICE))
+            log(f"  PINN loaded from {pinn_path}")
+        else:
+            log(f"  PINN model not found at {pinn_path}. Training new model...")
+            pinn_model, pinn_history = train_pinn(config, data_generator, verbose=False)
+            log(f"  PINN trained - Final loss: {pinn_history[-1]:.6e}")
         
-        # Train Data-Driven
-        log("\nTraining Data-Driven model...")
-        dd_model, dd_history = train_data_driven(config, data_generator, verbose=False)
-        log(f"  Data-Driven trained - Final loss: {dd_history[-1]:.6e}")
+        # Load Data-Driven
+        log("\nLoading Data-Driven model...")
+        dd_path = os.path.join("results/models", f"data_driven_K{K}.pt")
+        if os.path.exists(dd_path):
+            dd_model = DataDrivenModel(config.N_HIDDEN_LAYERS, config.WIDTH).to(config.DEVICE)
+            dd_model.load_state_dict(torch.load(dd_path, map_location=config.DEVICE))
+            log(f"  Data-Driven model loaded from {dd_path}")
+        else:
+            log(f"  Data-Driven model not found at {dd_path}. Training new model...")
+            dd_model, dd_history = train_data_driven(config, data_generator, verbose=False)
+            log(f"  Data-Driven trained - Final loss: {dd_history[-1]:.6e}")
         
         # ────────────────────────────────────────────────────────────────
         # Prepare loss computers

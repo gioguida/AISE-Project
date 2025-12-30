@@ -1,0 +1,88 @@
+================================================================================
+AISE 2026 - Loss Landscape Visualization (Task 3 - BONUS)
+================================================================================
+Date: 2025-12-30 00:09:50
+Configuration:
+  • Grid resolution: 64
+  • Landscape grid: 150x150
+  • alpha range: (-5.0, 5.0)
+  • beta range: (-5.0, 5.0)
+  • Direction method: filter_normalized
+================================================================================
+
+
+================================================================================
+COMPLEXITY LEVEL: High (K=16)
+================================================================================
+
+Generating problem data...
+  Data generated
+
+──────────────────────────────────────────────────────────────────────
+LOADING MODELS
+──────────────────────────────────────────────────────────────────────
+
+Loading PINN...
+  PINN loaded from results/models\pinn_K16.pt
+
+Loading Data-Driven model...
+  Data-Driven model loaded from results/models\data_driven_K16.pt
+
+──────────────────────────────────────────────────────────────────────
+PREPARING LOSS FUNCTIONS
+──────────────────────────────────────────────────────────────────────
+  Loss functions prepared
+
+──────────────────────────────────────────────────────────────────────
+PINN LOSS LANDSCAPE
+──────────────────────────────────────────────────────────────────────
+
+──────────────────────────────────────────────────────────────────────
+DATA-DRIVEN LOSS LANDSCAPE
+──────────────────────────────────────────────────────────────────────
+
+──────────────────────────────────────────────────────────────────────
+CREATING COMPARISON PLOT
+──────────────────────────────────────────────────────────────────────
+  Comparison saved: results/loss_landscapes_residual\comparison_K16.png
+
+================================================================================
+SUMMARY ANALYSIS
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+LANDSCAPE CHARACTERISTICS COMPARISON
+────────────────────────────────────────────────────────────────────────────────
+K     | Model        | Sharpness    | Mean Grad    | Mean Curv    | Local Min 
+────────────────────────────────────────────────────────────────────────────────
+16    | pinn         | 6.2349e-01   | 1.3788e+00   | 1.4650e-02   | 1         
+16    | data_driven  | 2.1014e-04   | 5.1932e-04   | 1.0422e-06   | 1         
+
+────────────────────────────────────────────────────────────────────────────────
+KEY OBSERVATIONS
+────────────────────────────────────────────────────────────────────────────────
+
+1. Sharpness Comparison:
+   K=16: PINN/DD sharpness ratio = 2966.98x
+
+2. Gradient Magnitude (Roughness):
+   K=16: PINN/DD gradient ratio = 2655.09x
+
+3. Complexity Impact:
+
+  Summary JSON saved: results/loss_landscapes_residual\landscape_summary.json
+
+================================================================================
+VISUALIZATION COMPLETE
+================================================================================
+
+All results saved to: results/loss_landscapes_residual/
+   2D contours: results/loss_landscapes_residual/2d_contours/
+   3D surfaces: results/loss_landscapes_residual/3d_surfaces/
+   Raw data: results/loss_landscapes_residual/data/
+   Analysis: results/loss_landscapes_residual/landscape_analysis.txt
+   Summary JSON: results/loss_landscapes_residual\landscape_summary.json
+
+================================================================================
+Thank you for running the loss landscape analysis!
+================================================================================
