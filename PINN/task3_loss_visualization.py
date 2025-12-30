@@ -26,19 +26,19 @@ class LandscapeConfig:
     """Configuration for loss landscape visualization"""
     
     # Complexity levels to visualize
-    K_LEVELS = [1, 4, 16] # Low, Medium, High
+    K_LEVELS = [16] # [1, 4, 16] # Low, Medium, High
     K_LABELS = {1: "Low", 4: "Medium", 16: "High"}
     
     # Grid resolution
     N = 64
     
     # Landscape sampling parameters
-    ALPHA_RANGE = (-5.0, 5.0)  # Range for first direction
-    BETA_RANGE = (-5.0, 5.0)   # Range for second direction
-    N_POINTS = 150              # Grid resolution (150x150 = 22500 evaluations)
+    ALPHA_RANGE = (-0.5, 0.5)  # Range for first direction
+    BETA_RANGE = (-0.5, 0.5)   # Range for second direction
+    N_POINTS = 30              # Grid resolution (150x150 = 22500 evaluations)
     
     # Direction generation method
-    DIRECTION_METHOD = "filter_normalized"  # "random", "filter_normalized"
+    DIRECTION_METHOD = "gradient"  # "random", "filter_normalized", "gradient"
     
     # Output directories
     OUTPUT_DIR = "results/loss_landscapes_residual"
@@ -147,14 +147,64 @@ def generate_filter_normalized_directions(model):
     
     return delta, eta
 
+def generate_gradient_directions(model, loss_computer, device):
+    """
+    Generates directions based on the local gradient.
+    This guarantees we slice through the steepest, roughest part of the landscape.
+    """
+    print("   -> Computing gradients for direction generation...")
+    
+    # 1. Compute Gradient (Direction of Steepest Ascent)
+    model.eval()
+    model.zero_grad()
+    
+    # We must enable grad tracking just for this calculation
+    # (Even if model is in eval mode, we need dLoss/dParams)
+    params_list = list(model.parameters())
+    
+    # Compute loss
+    loss = loss_computer()
+    loss.backward()
+    
+    # Collect gradient into a single vector
+    grads = []
+    for param in model.parameters():
+        if param.grad is not None:
+            grads.append(param.grad.view(-1).clone())
+        else:
+            grads.append(torch.zeros_like(param.data.view(-1)))
+    
+    # Create Delta (Gradient Direction)
+    delta = torch.cat(grads)
+    
+    # Check if gradient is effectively zero (perfect minimum)
+    grad_norm = torch.norm(delta)
+    if grad_norm < 1e-7:
+        print("   -> Warning: Gradient is near zero. Using random direction instead.")
+        delta = torch.randn_like(delta)
+    
+    delta = delta / (torch.norm(delta) + 1e-10) # Normalize
+    
+    # 2. Create Eta (Random Orthogonal Direction)
+    eta = torch.randn_like(delta)
+    
+    # Gram-Schmidt orthogonalization: eta = eta - proj_delta(eta)
+    projection = torch.dot(eta, delta) * delta
+    eta = eta - projection
+    eta = eta / (torch.norm(eta) + 1e-10) # Normalize
+    
+    return delta, eta
 
-def generate_directions(model, method="filter_normalized"):
+
+def generate_directions(model, method="filter_normalized", loss_computer=None, device='cpu'):
     """
     Generate direction vectors using specified method
     
     Parameters:
         model: Neural network model
-        method: "random" or "filter_normalized"
+        method: "random", "filter_normalized", or "gradient"
+        loss_computer: Function to compute loss (required for "gradient")
+        device: torch device (required for "gradient")
     
     Returns:
         delta, eta: Two direction vectors
@@ -163,6 +213,10 @@ def generate_directions(model, method="filter_normalized"):
         return generate_random_directions(model)
     elif method == "filter_normalized":
         return generate_filter_normalized_directions(model)
+    elif method == "gradient":
+        if loss_computer is None:
+            raise ValueError("loss_computer is required for gradient direction method")
+        return generate_gradient_directions(model, loss_computer, device)
     else:
         raise ValueError(f"Unknown direction method: {method}")
 
@@ -608,7 +662,7 @@ def visualize_single_landscape(model, model_type, K, loss_computer,
     
     # Step 2: Generate directions
     print(f"[2/5] Generating direction vectors ({landscape_config.DIRECTION_METHOD})...")
-    delta, eta = generate_directions(model, landscape_config.DIRECTION_METHOD)
+    delta, eta = generate_directions(model, landscape_config.DIRECTION_METHOD, loss_computer, config.DEVICE)
     print(f"  Direction delta norm: {torch.norm(delta).item():.6f}")
     print(f"  Direction eta norm: {torch.norm(eta).item():.6f}")
     print(f"  Orthogonality (delta*eta): {torch.dot(delta, eta).item():.6f}")

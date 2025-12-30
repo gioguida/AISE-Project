@@ -1,47 +1,47 @@
 {
-  "date": "2025-12-30 02:00:10",
+  "date": "2025-12-30 11:31:58",
   "configuration": {
     "N": 64,
-    "n_points": 150,
+    "n_points": 30,
     "alpha_range": [
-      -5.0,
-      5.0
+      -0.5,
+      0.5
     ],
     "beta_range": [
-      -5.0,
-      5.0
+      -0.5,
+      0.5
     ],
-    "direction_method": "filter_normalized"
+    "direction_method": "gradient"
   },
   "analyses": {
     "16": {
       "pinn": {
         "model_type": "pinn",
         "K": 16,
-        "center_loss": 0.057179633527994156,
-        "min_loss": 0.057179633527994156,
-        "max_loss": 186.65493774414062,
-        "loss_range": 186.59775811061263,
-        "mean_gradient": 1.3788438072052727,
-        "max_gradient": 3.3284821394597617,
-        "mean_curvature": 0.01465038062201606,
-        "max_curvature": 0.02060222625732422,
+        "center_loss": 1.1493852138519287,
+        "min_loss": 1.140014886856079,
+        "max_loss": 841.037353515625,
+        "loss_range": 839.8973386287689,
+        "mean_gradient": 51.53809322983843,
+        "max_gradient": 97.02820032392357,
+        "mean_curvature": 0.06629331469535828,
+        "max_curvature": 0.1666259765625,
         "local_minima_count": 1,
-        "sharpness": 0.6234949380159378
+        "sharpness": 363.1322385519743
       },
       "data_driven": {
         "model_type": "data_driven",
         "K": 16,
-        "center_loss": 0.028269674628973007,
-        "min_loss": 0.02808273769915104,
-        "max_loss": 0.09149517118930817,
-        "loss_range": 0.06341243349015713,
-        "mean_gradient": 0.0005193203510997825,
-        "max_gradient": 0.00127948840444146,
-        "mean_curvature": 1.0421665178404915e-06,
-        "max_curvature": 5.334615707397461e-06,
+        "center_loss": 0.037263963371515274,
+        "min_loss": 0.02395448461174965,
+        "max_loss": 2.282686471939087,
+        "loss_range": 2.2587319873273373,
+        "mean_gradient": 0.14156241138529907,
+        "max_gradient": 0.2822514536242555,
+        "mean_curvature": 0.00013640430238511826,
+        "max_curvature": 0.00016478821635246277,
         "local_minima_count": 1,
-        "sharpness": 0.0002101445570588112
+        "sharpness": 0.9509074352681637
       }
     }
   }

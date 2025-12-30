@@ -201,7 +201,9 @@ class LandscapeAdapter:
                 
                 # Plot
                 print("Plotting PINN surface...")
-                plot_2D.plot_2d_contour(surf_file, 'train_loss', vmin=0.1, vmax=10, vlevel=0.5, show=False)
+                with h5py.File(surf_file, 'r') as f:
+                    max_loss = np.max(f['train_loss'][:])
+                plot_2D.plot_2d_contour(surf_file, 'train_loss', vmin=0.1, vmax=max_loss, vlevel=0.5, show=False)
                 
             
             # ---------------------------------------------------------
@@ -259,7 +261,9 @@ class LandscapeAdapter:
                 
                 # Plot
                 print("Plotting Data-Driven surface...")
-                plot_2D.plot_2d_contour(surf_file, 'train_loss', vmin=0.1, vmax=10, vlevel=0.5, show=False)
+                with h5py.File(surf_file, 'r') as f:
+                    max_loss = np.max(f['train_loss'][:])
+                plot_2D.plot_2d_contour(surf_file, 'train_loss', vmin=0.1, vmax=max_loss, vlevel=0.5, show=False)
 
 if __name__ == "__main__":
     adapter = LandscapeAdapter()

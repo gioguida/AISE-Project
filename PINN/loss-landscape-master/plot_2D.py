@@ -12,7 +12,7 @@ from os.path import exists
 import seaborn as sns
 
 
-def plot_2d_contour(surf_file, surf_name='train_loss', vmin=None, vmax=None, vlevel=None, show=False):
+def plot_2d_contour(surf_file, surf_name='train_loss', vmin=0.1, vmax=10, vlevel=0.5, show=False):
     """Plot 2D contour map and 3D surface."""
 
     f = h5py.File(surf_file, 'r')
@@ -39,40 +39,20 @@ def plot_2d_contour(surf_file, surf_name='train_loss', vmin=None, vmax=None, vle
         print('The length of coordinates is not enough for plotting contours')
         return
 
-    # Set vmin, vmax, vlevel if not provided
-    if vmin is None:
-        vmin = np.min(Z)
-    if vmax is None:
-        vmax = np.max(Z)
-    
-    if vlevel is None:
-        # Create 20 levels automatically
-        levels = np.linspace(vmin, vmax, 20)
-    else:
-        levels = np.arange(vmin, vmax, vlevel)
-
     # --------------------------------------------------------------------
     # Plot 2D contours
     # --------------------------------------------------------------------
     fig = plt.figure()
-    # Ensure levels cover the range even if Z is small
-    if len(levels) > 1:
-        CS = plt.contour(X, Y, Z, cmap='summer', levels=levels)
-        plt.clabel(CS, inline=1, fontsize=8)
-    else:
-        print("Warning: Not enough levels for contour plot")
-        
+    CS = plt.contour(X, Y, Z, cmap='summer', levels=np.arange(vmin, vmax, vlevel))
+    plt.clabel(CS, inline=1, fontsize=8)
     fig.savefig(surf_file + '_' + surf_name + '_2dcontour' + '.pdf', dpi=300,
                 bbox_inches='tight', format='pdf')
-    plt.close(fig)
 
     fig = plt.figure()
     print(surf_file + '_' + surf_name + '_2dcontourf' + '.pdf')
-    # Use extend='both' to color values outside levels
-    CS = plt.contourf(X, Y, Z, cmap='summer', levels=levels, extend='both')
+    CS = plt.contourf(X, Y, Z, cmap='summer', levels=np.arange(vmin, vmax, vlevel))
     fig.savefig(surf_file + '_' + surf_name + '_2dcontourf' + '.pdf', dpi=300,
                 bbox_inches='tight', format='pdf')
-    plt.close(fig)
 
     # --------------------------------------------------------------------
     # Plot 2D heatmaps
@@ -83,26 +63,16 @@ def plot_2d_contour(surf_file, surf_name='train_loss', vmin=None, vmax=None, vle
     sns_plot.invert_yaxis()
     sns_plot.get_figure().savefig(surf_file + '_' + surf_name + '_2dheat.pdf',
                                   dpi=300, bbox_inches='tight', format='pdf')
-    plt.close(fig)
 
     # --------------------------------------------------------------------
     # Plot 3D surface
     # --------------------------------------------------------------------
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    
-    # Use vmin/vmax for color mapping to ensure consistency
-    norm = plt.Normalize(vmin, vmax)
-    
-    surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False, norm=norm)
-    
-    # Enforce Z-axis limits to match the global scale
-    ax.set_zlim(vmin, vmax)
-    
+    ax = Axes3D(fig)
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
     fig.colorbar(surf, shrink=0.5, aspect=5)
     fig.savefig(surf_file + '_' + surf_name + '_3dsurface.pdf', dpi=300,
                 bbox_inches='tight', format='pdf')
-    plt.close(fig)
 
     f.close()
     if show: plt.show()

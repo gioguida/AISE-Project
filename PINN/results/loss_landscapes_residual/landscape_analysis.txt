@@ -1,13 +1,13 @@
 ================================================================================
 AISE 2026 - Loss Landscape Visualization (Task 3 - BONUS)
 ================================================================================
-Date: 2025-12-30 00:09:50
+Date: 2025-12-30 11:24:04
 Configuration:
   • Grid resolution: 64
-  • Landscape grid: 150x150
-  • alpha range: (-5.0, 5.0)
-  • beta range: (-5.0, 5.0)
-  • Direction method: filter_normalized
+  • Landscape grid: 30x30
+  • alpha range: (-0.5, 0.5)
+  • beta range: (-0.5, 0.5)
+  • Direction method: gradient
 ================================================================================
 
 
@@ -55,18 +55,18 @@ LANDSCAPE CHARACTERISTICS COMPARISON
 ────────────────────────────────────────────────────────────────────────────────
 K     | Model        | Sharpness    | Mean Grad    | Mean Curv    | Local Min 
 ────────────────────────────────────────────────────────────────────────────────
-16    | pinn         | 6.2349e-01   | 1.3788e+00   | 1.4650e-02   | 1         
-16    | data_driven  | 2.1014e-04   | 5.1932e-04   | 1.0422e-06   | 1         
+16    | pinn         | 3.6313e+02   | 5.1538e+01   | 6.6293e-02   | 1         
+16    | data_driven  | 9.5091e-01   | 1.4156e-01   | 1.3640e-04   | 1         
 
 ────────────────────────────────────────────────────────────────────────────────
 KEY OBSERVATIONS
 ────────────────────────────────────────────────────────────────────────────────
 
 1. Sharpness Comparison:
-   K=16: PINN/DD sharpness ratio = 2966.98x
+   K=16: PINN/DD sharpness ratio = 381.88x
 
 2. Gradient Magnitude (Roughness):
-   K=16: PINN/DD gradient ratio = 2655.09x
+   K=16: PINN/DD gradient ratio = 364.07x
 
 3. Complexity Impact:
 
