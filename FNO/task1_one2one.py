@@ -15,11 +15,18 @@ class Config:
     WIDTH = 64
 
     LR_ADAM = 0.001
-    EPOCHS_ADAM = 250
+    EPOCHS_ADAM = 200
+    # StepLR scheduler parameters
     STEP_SIZE_SCHEDULER = 50
     GAMMA_SCHEDULER = 0.5
+    # ReduceLROnPlateau scheduler parameters
+    FACTOR_SCHEDULER = 0.5          # Multiply LR by 0.5
+    PATIENCE_SCHEDULER = 5          # Wait 5 epochs before reducing
+    MIN_LR_SCHEDULER = 1e-6  
 
     BATCH_SIZE = 20
+
+    RE_TRAIN = True  # Whether to retrain the model or load existing weights
 
 
 # Set random seed for reproducibility
@@ -56,7 +63,14 @@ def create_dataloaders(config):
 
 def create_optimizer_and_scheduler(model, config):
     optimizer = torch.optim.Adam(model.parameters(), lr=config.LR_ADAM, weight_decay=1e-5)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=config.STEP_SIZE_SCHEDULER, gamma=config.GAMMA_SCHEDULER)
+    # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=config.STEP_SIZE_SCHEDULER, gamma=config.GAMMA_SCHEDULER)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, 
+        mode='min',           # Minimize validation loss
+        factor=config.FACTOR_SCHEDULER,         # Multiply LR by 0.5
+        patience=config.PATIENCE_SCHEDULER,          # Wait 5 epochs before reducing
+        min_lr=config.MIN_LR_SCHEDULER         # Don't go below this
+    )
     return optimizer, scheduler
 
 
@@ -89,7 +103,6 @@ def train_fno(config, verbose=True):
             history['train_loss'].append(loss_f.item())
         train_mse /= len(training_set)
 
-        scheduler.step()
         with torch.no_grad():
             fno.eval()
             test_relative_l2 = 0.0
@@ -99,6 +112,8 @@ def train_fno(config, verbose=True):
                 test_relative_l2 += loss_f.item()
             test_relative_l2 /= len(test_set)
             history['test_relative_l2'].append(test_relative_l2)
+        
+        scheduler.step(test_relative_l2)
 
         if verbose and epoch % freq_print == 0:
             print("######### Epoch:", epoch, " ######### Train Loss:", train_mse, " ######### Relative L2 Test Norm:", test_relative_l2)
@@ -125,27 +140,34 @@ def eval_model(model, config):
     return relative_l2
 
 def run_experiment(config):
-    model, history = train_fno(config)
-    save_model(model, "fno_1d_model.pth")
+    if config.RE_TRAIN:
+        print("Training model from scratch...")
+        model, history = train_fno(config)
+        save_model(model, "models/fno_1d_model.pth")
+
+        # Plot training history
+        plt.figure(figsize=(8, 5))
+        plt.plot(history['train_loss'])
+        plt.title('Training Loss')
+        plt.xlabel('Iteration')
+        plt.ylabel('MSE Loss')
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.show()
+
+        plt.figure(figsize=(8, 5))
+        plt.plot(history['test_relative_l2'])
+        plt.title('Test Relative L2 Error')
+        plt.xlabel('Epoch')
+        plt.ylabel('Relative L2 Error (%)')
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.show()
+    else:
+        model = FNO1d(config.MODES, config.WIDTH).to(config.DEVICE)
+        model.load_state_dict(torch.load("models/fno_1d_model.pth", map_location=torch.device(config.DEVICE)))
     test_relative_l2 = eval_model(model, config)
     print("Final Test Relative L2 Error: ", test_relative_l2)
 
-    # Plot training history
-    plt.figure(figsize=(12, 5))
-    plt.subplot(1, 2, 1)
-    plt.plot(history['train_loss'])
-    plt.title('Training Loss')
-    plt.xlabel('Iteration')
-    plt.ylabel('MSE Loss')
-
-    plt.subplot(1, 2, 2)
-    plt.plot(history['test_relative_l2'])
-    plt.title('Test Relative L2 Error')
-    plt.xlabel('Epoch')
-    plt.ylabel('Relative L2 Error (%)')
-
-    plt.tight_layout()
-    plt.show()
+    
 
 def main():
     config = Config()

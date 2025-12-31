@@ -49,21 +49,25 @@ def plot_resolution_invariance(resolutions, test_relative_l2):
     plt.ylabel('Relative L2 Error (%)') 
     plt.xticks(resolutions)
     plt.title('FNO Performance Across Different Resolutions')
+    plt.grid(True, linestyle='--', alpha=0.7)
     # add a mark on the training resolution
     plt.axvline(x=128, color='r', linestyle='--')
     plt.show()
     
-def perform_experiment(config, model_path="fno_1d_model.pth"):
+def perform_experiment(config, model_path="models/fno_1d_model.pth"):
     model = import_model(config, model_path)
     resolutions, test_relative_l2 = test_resolution_invariance(model, config)
     plot_resolution_invariance(resolutions, test_relative_l2)
 
-if __name__ == "__main__":
-    class Config:
-        DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        MODES = 16
-        WIDTH = 64
+class Config:
+    DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    MODES = 16
+    WIDTH = 64
 
+def main():
     config = Config()
     print("Using device:", config.DEVICE)
     perform_experiment(config)
+
+if __name__ == "__main__":
+    main()
