@@ -48,13 +48,14 @@ def plot_resolution_invariance(resolutions, test_relative_l2):
     plt.xlabel('Resolution (Number of Spatial Points)')
     plt.ylabel('Relative L2 Error (%)') 
     plt.xticks(resolutions)
-    plt.title('FNO Performance Across Different Resolutions')
+    plt.title('FNO Performance Across Different Resolutions', fontweight="bold")
     plt.grid(True, linestyle='--', alpha=0.7)
     # add a mark on the training resolution
     plt.axvline(x=128, color='r', linestyle='--')
     plt.show()
     
-def perform_experiment(config, model_path="models/fno_1d_model.pth"):
+def perform_experiment(config):
+    model_path = f"models/fno_{config.MODES}_model.pth"
     model = import_model(config, model_path)
     resolutions, test_relative_l2 = test_resolution_invariance(model, config)
     plot_resolution_invariance(resolutions, test_relative_l2)

@@ -26,7 +26,8 @@ class Config:
 
     BATCH_SIZE = 20
 
-    RE_TRAIN = True  # Whether to retrain the model or load existing weights
+    RE_TRAIN = False  # Whether to retrain the model or load existing weights
+    SAVE_MODEL = True # Whether to save the model after training
 
 
 # Set random seed for reproducibility
@@ -143,12 +144,13 @@ def run_experiment(config):
     if config.RE_TRAIN:
         print("Training model from scratch...")
         model, history = train_fno(config)
-        save_model(model, "models/fno_1d_model.pth")
+        if config.SAVE_MODEL:
+            save_model(model, f"models/fno_{config.MODES}_model.pth")
 
         # Plot training history
         plt.figure(figsize=(8, 5))
         plt.plot(history['train_loss'])
-        plt.title('Training Loss')
+        plt.title('Training Loss', fontweight="bold")
         plt.xlabel('Iteration')
         plt.ylabel('MSE Loss')
         plt.grid(True, linestyle='--', alpha=0.7)
@@ -156,14 +158,14 @@ def run_experiment(config):
 
         plt.figure(figsize=(8, 5))
         plt.plot(history['test_relative_l2'])
-        plt.title('Test Relative L2 Error')
+        plt.title('Test Relative L2 Error', fontweight="bold")
         plt.xlabel('Epoch')
         plt.ylabel('Relative L2 Error (%)')
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.show()
     else:
         model = FNO1d(config.MODES, config.WIDTH).to(config.DEVICE)
-        model.load_state_dict(torch.load("models/fno_1d_model.pth", map_location=torch.device(config.DEVICE)))
+        model.load_state_dict(torch.load(f"models/fno_{config.MODES}_model.pth", map_location=torch.device(config.DEVICE)))
     test_relative_l2 = eval_model(model, config)
     print("Final Test Relative L2 Error: ", test_relative_l2)
 

@@ -58,8 +58,8 @@ def run_zero_shot(config):
     print("\n--- Zero-shot Test on Unknown Data ---")
     model_pretrained = FNO1d_bn(config.MODES, config.WIDTH).to(config.DEVICE)
     try:
-        model_pretrained.load_state_dict(torch.load("models/fno1d_bn_model.pth", map_location=torch.device(config.DEVICE)))
-        print("Loaded fno1d_bn_model.pth")
+        model_pretrained.load_state_dict(torch.load(f"models/fno_{config.MODES}_bn_model.pth", map_location=torch.device(config.DEVICE)))
+        print(f"Loaded models/fno_{config.MODES}_bn_model.pth")
     except FileNotFoundError:
         print("Pre-trained model not found. Please run task3_all2all.py first.")
         return None, None, None
@@ -91,7 +91,7 @@ def run_finetuning(config, training_set, testing_set, model_pretrained):
         # Plot training history
         plt.figure(figsize=(8, 5))
         plt.plot(history_finetune['train_loss'])
-        plt.title('Training Loss (Finetuning)')
+        plt.title('Training Loss (Finetuning)', fontweight="bold")
         plt.xlabel('Epoch')
         plt.ylabel('MSE Loss')
         plt.grid(True, linestyle='--', alpha=0.7)
@@ -99,23 +99,23 @@ def run_finetuning(config, training_set, testing_set, model_pretrained):
 
         plt.figure(figsize=(8, 5))
         plt.plot(history_finetune['test_relative_l2'])
-        plt.title('Test Relative L2 Error (Finetuning)')
+        plt.title('Test Relative L2 Error (Finetuning)', fontweight="bold")
         plt.xlabel('Epoch')
         plt.ylabel('Relative L2 Error (%)')
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.show()
         
         if config.SAVE_FINETUNED_MODEL:
-            torch.save(model_finetuned.state_dict(), "models/fno1d_bn_finetuned.pth")
-            print("Saved finetuned model to fno1d_bn_finetuned.pth")
+            torch.save(model_finetuned.state_dict(), f"models/fno_{config.MODES}_bn_finetuned.pth")
+            print(f"Saved finetuned model to models/fno_{config.MODES}_bn_finetuned.pth")
     else:
         print("Loading finetuned model from file (TRAIN_FINETUNE=False)...")
         model_finetuned = FNO1d_bn(config.MODES, config.WIDTH).to(config.DEVICE)
         try:
-            model_finetuned.load_state_dict(torch.load("models/fno1d_bn_finetuned.pth", map_location=torch.device(config.DEVICE)))
-            print("Loaded fno1d_bn_finetuned.pth")
+            model_finetuned.load_state_dict(torch.load(f"models/fno_{config.MODES}_bn_finetuned.pth", map_location=torch.device(config.DEVICE)))
+            print(f"Loaded models/fno_{config.MODES}_bn_finetuned.pth")
         except FileNotFoundError:
-            print("File fno1d_bn_finetuned.pth not found. Cannot test.")
+            print(f"File models/fno_{config.MODES}_bn_finetuned.pth not found. Cannot test.")
             return None
 
     print("\n--- Testing Finetuned Model ---")
@@ -141,7 +141,7 @@ def run_scratch(config, training_set, testing_set):
         # Plot training history
         plt.figure(figsize=(8, 5))
         plt.plot(history_scratch['train_loss'])
-        plt.title('Training Loss (Scratch)')
+        plt.title('Training Loss (Scratch)', fontweight="bold")
         plt.xlabel('Epoch')
         plt.ylabel('MSE Loss')
         plt.grid(True, linestyle='--', alpha=0.7)
@@ -149,23 +149,23 @@ def run_scratch(config, training_set, testing_set):
 
         plt.figure(figsize=(8, 5))
         plt.plot(history_scratch['test_relative_l2'])
-        plt.title('Test Relative L2 Error (Scratch)')
+        plt.title('Test Relative L2 Error (Scratch)', fontweight="bold")
         plt.xlabel('Epoch')
         plt.ylabel('Relative L2 Error (%)')
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.show()
         
         if config.SAVE_SCRATCH_MODEL:
-            torch.save(model_scratch.state_dict(), "models/fno1d_bn_scratch.pth")
-            print("Saved scratch model to fno1d_bn_scratch.pth")
+            torch.save(model_scratch.state_dict(), f"models/fno_{config.MODES}_bn_scratch.pth")
+            print(f"Saved scratch model to models/fno_{config.MODES}_bn_scratch.pth")
     else:
         print("Loading scratch model from file (TRAIN_SCRATCH=False)...")
         model_scratch = FNO1d_bn(config.MODES, config.WIDTH).to(config.DEVICE)
         try:
-            model_scratch.load_state_dict(torch.load("models/fno1d_bn_scratch.pth", map_location=torch.device(config.DEVICE)))
-            print("Loaded fno1d_bn_scratch.pth")
+            model_scratch.load_state_dict(torch.load(f"models/fno_{config.MODES}_bn_scratch.pth", map_location=torch.device(config.DEVICE)))
+            print(f"Loaded models/fno_{config.MODES}_bn_scratch.pth")
         except FileNotFoundError:
-            print("File fno1d_bn_scratch.pth not found. Cannot test.")
+            print(f"File models/fno_{config.MODES}_bn_scratch.pth not found. Cannot test.")
             return None
 
     print("\n--- Testing Model Trained from Scratch ---")
@@ -208,7 +208,7 @@ def run_experiment_finetuning(config):
         if errors_scratch is not None:
             plt.plot(time_steps, errors_scratch, marker='^', label='Trained from Scratch')
         
-        plt.title('Relative L2 Error Comparison on Unknown Data')
+        plt.title('Relative L2 Error Comparison on Unknown Data', fontweight="bold")
         plt.xlabel('Time Steps')
         plt.xticks(time_steps)
         plt.ylabel('Relative L2 Error (%)')

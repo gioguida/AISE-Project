@@ -1,0 +1,66 @@
+
+========================================
+Running Task 1: 16 One-to-One...
+========================================
+
+Using device: cpu
+Final Test Relative L2 Error:  0.9898778540747506
+
+========================================
+Running Task 2: 16 Resolution Invariance...
+========================================
+
+Using device: cpu
+Resolution 128: Relative L2 = 1.54%
+Resolution 96: Relative L2 = 2.18%
+Resolution 64: Relative L2 = 4.05%
+Resolution 32: Relative L2 = 16.07%
+Saved graph to results/Task_2_16_Resolution_Invariance_fig_1.pdf
+
+========================================
+Running Task 3: 16 All-to-All...
+========================================
+
+using device: cpu
+Relative L2 Error at t=0.25: 1.5738%
+Relative L2 Error at t=0.5: 1.4889%
+Relative L2 Error at t=0.75: 1.5232%
+Relative L2 Error at t=1.0: 1.8480%
+Saved graph to results/Task_3_16_All-to-All_fig_1.pdf
+
+========================================
+Running Task 4: 16 Finetuning...
+========================================
+
+Using device: cpu
+
+--- Zero-shot Test on Unknown Data ---
+Loaded models/fno_16_bn_model.pth
+Relative L2 Error at t=0.25: 7.2598%
+Relative L2 Error at t=0.5: 8.4500%
+Relative L2 Error at t=0.75: 9.0877%
+Relative L2 Error at t=1.0: 9.4975%
+Zero-shot errors: [7.259768486022949, 8.4500150680542, 9.087733268737793, 9.497542381286621]
+
+--- Finetuning Model ---
+Loading finetuned model from file (TRAIN_FINETUNE=False)...
+Loaded models/fno_16_bn_finetuned.pth
+
+--- Testing Finetuned Model ---
+Relative L2 Error at t=0.25: 5.2644%
+Relative L2 Error at t=0.5: 5.8335%
+Relative L2 Error at t=0.75: 6.3953%
+Relative L2 Error at t=1.0: 7.0463%
+Finetuned errors: [5.264403343200684, 5.833497047424316, 6.395338535308838, 7.04625940322876]
+
+--- Training from Scratch on Finetune Dataset ---
+Loading scratch model from file (TRAIN_SCRATCH=False)...
+Loaded models/fno_16_bn_scratch.pth
+
+--- Testing Model Trained from Scratch ---
+Relative L2 Error at t=0.25: 10.9357%
+Relative L2 Error at t=0.5: 10.8692%
+Relative L2 Error at t=0.75: 11.8286%
+Relative L2 Error at t=1.0: 12.7794%
+Scratch errors: [10.93566608428955, 10.86915111541748, 11.828598022460938, 12.779411315917969]
+Saved graph to results/Task_4_16_Finetuning_fig_1.pdf

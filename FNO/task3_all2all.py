@@ -196,7 +196,7 @@ def train_all2all(config, model, training_set, testing_set, save_model=True, ver
         
         # save trained model
     if save_model:
-        torch.save(model.state_dict(), "models/fno1d_bn_model.pth")
+        torch.save(model.state_dict(), f"models/fno_{config.MODES}_bn_model.pth")
 
     return model, history
 
@@ -289,7 +289,7 @@ def run_experiment_all2all(config):
         # Plot training history
         plt.figure(figsize=(8, 5))
         plt.plot(history['train_loss'])
-        plt.title('Training Loss (All2All)')
+        plt.title('Training Loss (All2All)', fontweight="bold")
         plt.xlabel('Epoch')
         plt.ylabel('MSE Loss')
         plt.grid(True, linestyle='--', alpha=0.7)
@@ -297,19 +297,19 @@ def run_experiment_all2all(config):
 
         plt.figure(figsize=(8, 5))
         plt.plot(history['test_relative_l2'])
-        plt.title('Test Relative L2 Error (All2All)')
+        plt.title('Test Relative L2 Error (All2All)', fontweight="bold")
         plt.xlabel('Epoch')
         plt.ylabel('Relative L2 Error (%)')
         plt.grid(True, linestyle='--', alpha=0.7)
         plt.show()
     else:
-        model.load_state_dict(torch.load("models/fno1d_bn_model.pth", map_location=torch.device(config.DEVICE)))
+        model.load_state_dict(torch.load(f"models/fno_{config.MODES}_bn_model.pth", map_location=torch.device(config.DEVICE)))
 
     time_steps, relative_l2_errors = test_at_all_times(config, model)
     # plot relative L2 errors over time steps
     plt.figure(figsize=(8, 5))
     plt.plot(time_steps, relative_l2_errors, marker='o')
-    plt.title('Relative L2 Error over Time Steps')
+    plt.title('Relative L2 Error over Time Steps', fontweight="bold")
     plt.xlabel('Time Steps')
     plt.xticks(time_steps)
     plt.ylabel('Relative L2 Error (%)')

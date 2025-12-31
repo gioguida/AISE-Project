@@ -13,18 +13,68 @@ import task2_resolution_invariance
 import task3_all2all
 import task4_finetuning
 
+class GlobalConfig:
+    # Model Architecture
+    MODES = 12
+    WIDTH = 64
+
+    # Task 1: One-to-One
+    TASK1_RETRAIN = True
+    TASK1_SAVE = True
+
+    # Task 3: All-to-All
+    TASK3_RETRAIN = True
+    TASK3_SAVE = True
+
+    # Task 4: Finetuning
+    TASK4_TRAIN_FINETUNE = True
+    TASK4_SAVE_FINETUNE = True
+    
+    TASK4_TRAIN_SCRATCH = True
+    TASK4_SAVE_SCRATCH = True
+
+def configure_tasks(config):
+    """Apply global configuration to individual task modules."""
+    
+    # Task 1
+    task1_one2one.Config.MODES = config.MODES
+    task1_one2one.Config.WIDTH = config.WIDTH
+    task1_one2one.Config.RE_TRAIN = config.TASK1_RETRAIN
+    task1_one2one.Config.SAVE_MODEL = config.TASK1_SAVE
+
+    # Task 2 (Uses same model architecture as Task 1)
+    task2_resolution_invariance.Config.MODES = config.MODES
+    task2_resolution_invariance.Config.WIDTH = config.WIDTH
+
+    # Task 3
+    task3_all2all.Config_all2all.MODES = config.MODES
+    task3_all2all.Config_all2all.WIDTH = config.WIDTH
+    task3_all2all.Config_all2all.RE_TRAIN = config.TASK3_RETRAIN
+    task3_all2all.Config_all2all.SAVE_MODEL = config.TASK3_SAVE
+
+    # Task 4
+    task4_finetuning.Config_finetune.MODES = config.MODES
+    task4_finetuning.Config_finetune.WIDTH = config.WIDTH
+    task4_finetuning.Config_finetune.TRAIN_FINETUNE = config.TASK4_TRAIN_FINETUNE
+    task4_finetuning.Config_finetune.SAVE_FINETUNED_MODEL = config.TASK4_SAVE_FINETUNE
+    task4_finetuning.Config_finetune.TRAIN_SCRATCH = config.TASK4_TRAIN_SCRATCH
+    task4_finetuning.Config_finetune.SAVE_SCRATCH_MODEL = config.TASK4_SAVE_SCRATCH
+
 def run_tasks():
+    # Apply configuration
+    configure_tasks(GlobalConfig)
+
     tasks = [
-        (task1_one2one, "Task 1: One-to-One"),
-        (task2_resolution_invariance, "Task 2: Resolution Invariance"),
-        (task3_all2all, "Task 3: All-to-All"),
-        (task4_finetuning, "Task 4: Finetuning")
+        (task1_one2one, f"Task 1: {GlobalConfig.MODES} One-to-One"),
+        (task2_resolution_invariance, f"Task 2: {GlobalConfig.MODES} Resolution Invariance"),
+        (task3_all2all, f"Task 3: {GlobalConfig.MODES} All-to-All"),
+        (task4_finetuning, f"Task 4: {GlobalConfig.MODES} Finetuning")
     ]
 
     # Ensure results directory exists
     os.makedirs("results", exist_ok=True)
 
-    output_filename = "results/all_outputs.txt"
+    output_filename = f"results/all_outputs_{GlobalConfig.MODES}.txt"
 
     print(f"Starting execution of {len(tasks)} tasks...")
     print(f"Outputs will be saved to {output_filename}")

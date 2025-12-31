@@ -1,0 +1,675 @@
+
+========================================
+Running Task 1: 12 One-to-One...
+========================================
+
+Using device: cpu
+Training model from scratch...
+######### Epoch: 0  ######### Train Loss: 0.07747872788100861  ######### Relative L2 Test Norm: 25.521327427455358
+######### Epoch: 1  ######### Train Loss: 0.010851680341427429  ######### Relative L2 Test Norm: 10.609096254621234
+######### Epoch: 2  ######### Train Loss: 0.0024716040262809168  ######### Relative L2 Test Norm: 7.277345861707415
+######### Epoch: 3  ######### Train Loss: 0.0013159875077410387  ######### Relative L2 Test Norm: 4.268617936543056
+######### Epoch: 4  ######### Train Loss: 0.0009181986142021532  ######### Relative L2 Test Norm: 3.016859940120152
+######### Epoch: 5  ######### Train Loss: 0.0006614882454764134  ######### Relative L2 Test Norm: 4.446385145187378
+######### Epoch: 6  ######### Train Loss: 0.0006618139426651536  ######### Relative L2 Test Norm: 3.7830643313271657
+######### Epoch: 7  ######### Train Loss: 0.0006640548946541877  ######### Relative L2 Test Norm: 2.9866577216557095
+######### Epoch: 8  ######### Train Loss: 0.000721257758973829  ######### Relative L2 Test Norm: 4.191645758492606
+######### Epoch: 9  ######### Train Loss: 0.0012666177423782826  ######### Relative L2 Test Norm: 4.3287843976702005
+######### Epoch: 10  ######### Train Loss: 0.00038477554223321093  ######### Relative L2 Test Norm: 8.109141145433698
+######### Epoch: 11  ######### Train Loss: 0.0005290802340683653  ######### Relative L2 Test Norm: 2.631755896977016
+######### Epoch: 12  ######### Train Loss: 0.0007367469247233552  ######### Relative L2 Test Norm: 3.1620884282248363
+######### Epoch: 13  ######### Train Loss: 0.0006793782838660543  ######### Relative L2 Test Norm: 2.7539729731423512
+######### Epoch: 14  ######### Train Loss: 0.0007716804225660431  ######### Relative L2 Test Norm: 7.293478965759277
+######### Epoch: 15  ######### Train Loss: 0.0014237146127785449  ######### Relative L2 Test Norm: 3.129915884562901
+######### Epoch: 16  ######### Train Loss: 0.00040844681895508146  ######### Relative L2 Test Norm: 2.8461434159960066
+######### Epoch: 17  ######### Train Loss: 0.0007344606547121657  ######### Relative L2 Test Norm: 5.4891670772007535
+######### Epoch: 18  ######### Train Loss: 0.00032232212064487755  ######### Relative L2 Test Norm: 1.7215862274169922
+######### Epoch: 19  ######### Train Loss: 0.0001508045200423042  ######### Relative L2 Test Norm: 1.5297912870134627
+######### Epoch: 20  ######### Train Loss: 0.00014317378729454224  ######### Relative L2 Test Norm: 1.6281344720295496
+######### Epoch: 21  ######### Train Loss: 0.0001581994037433805  ######### Relative L2 Test Norm: 2.5531000069209506
+######### Epoch: 22  ######### Train Loss: 0.00016364197843079007  ######### Relative L2 Test Norm: 1.2830337285995483
+######### Epoch: 23  ######### Train Loss: 0.00013205510493627607  ######### Relative L2 Test Norm: 1.7806992019925798
+######### Epoch: 24  ######### Train Loss: 0.00015138950101782728  ######### Relative L2 Test Norm: 1.5033337559018816
+######### Epoch: 25  ######### Train Loss: 0.00010482249539423859  ######### Relative L2 Test Norm: 1.3474443299429757
+######### Epoch: 26  ######### Train Loss: 0.00011542739440091491  ######### Relative L2 Test Norm: 1.7978272948946272
+######### Epoch: 27  ######### Train Loss: 0.00013015231678974276  ######### Relative L2 Test Norm: 2.312200205666678
+######### Epoch: 28  ######### Train Loss: 0.0001253648936024267  ######### Relative L2 Test Norm: 1.556725995881217
+######### Epoch: 29  ######### Train Loss: 8.759918595247794e-05  ######### Relative L2 Test Norm: 1.279323731149946
+######### Epoch: 30  ######### Train Loss: 8.07270711308005e-05  ######### Relative L2 Test Norm: 1.434253113610404
+######### Epoch: 31  ######### Train Loss: 8.910575462113439e-05  ######### Relative L2 Test Norm: 1.225967458316258
+######### Epoch: 32  ######### Train Loss: 0.00010866009244217331  ######### Relative L2 Test Norm: 2.4812501839229038
+######### Epoch: 33  ######### Train Loss: 0.0001525780317723939  ######### Relative L2 Test Norm: 1.3954674857003349
+######### Epoch: 34  ######### Train Loss: 0.0001103482875175989  ######### Relative L2 Test Norm: 1.2209882055010115
+######### Epoch: 35  ######### Train Loss: 8.292356184168826e-05  ######### Relative L2 Test Norm: 1.2476550851549422
+######### Epoch: 36  ######### Train Loss: 8.468869992401988e-05  ######### Relative L2 Test Norm: 1.6857959032058716
+######### Epoch: 37  ######### Train Loss: 8.020905555055763e-05  ######### Relative L2 Test Norm: 1.3190031903130668
+######### Epoch: 38  ######### Train Loss: 8.825423114663303e-05  ######### Relative L2 Test Norm: 1.9383338008608137
+######### Epoch: 39  ######### Train Loss: 0.00012738433242003128  ######### Relative L2 Test Norm: 1.3080238444464547
+######### Epoch: 40  ######### Train Loss: 7.920500901001596e-05  ######### Relative L2 Test Norm: 1.167376024382455
+######### Epoch: 41  ######### Train Loss: 7.977810316963139e-05  ######### Relative L2 Test Norm: 1.318825466292245
+######### Epoch: 42  ######### Train Loss: 8.091962906921533e-05  ######### Relative L2 Test Norm: 1.5177890062332153
+######### Epoch: 43  ######### Train Loss: 7.975448925907795e-05  ######### Relative L2 Test Norm: 1.2954575504575456
+######### Epoch: 44  ######### Train Loss: 8.875233365520566e-05  ######### Relative L2 Test Norm: 1.3377320766448975
+######### Epoch: 45  ######### Train Loss: 6.871689171160912e-05  ######### Relative L2 Test Norm: 1.2201553923743111
+######### Epoch: 46  ######### Train Loss: 8.511901530884922e-05  ######### Relative L2 Test Norm: 1.339870469910758
+######### Epoch: 47  ######### Train Loss: 6.22278719744757e-05  ######### Relative L2 Test Norm: 1.442411916596549
+######### Epoch: 48  ######### Train Loss: 6.569949335663786e-05  ######### Relative L2 Test Norm: 1.2639982189450945
+######### Epoch: 49  ######### Train Loss: 6.463647007247066e-05  ######### Relative L2 Test Norm: 1.1692551033837455
+######### Epoch: 50  ######### Train Loss: 6.136180407058698e-05  ######### Relative L2 Test Norm: 1.0745885542460851
+######### Epoch: 51  ######### Train Loss: 6.438974682728607e-05  ######### Relative L2 Test Norm: 1.1968993970326014
+######### Epoch: 52  ######### Train Loss: 6.362283119625108e-05  ######### Relative L2 Test Norm: 1.1324488435472762
+######### Epoch: 53  ######### Train Loss: 6.284041812530352e-05  ######### Relative L2 Test Norm: 1.0822066579546248
+######### Epoch: 54  ######### Train Loss: 5.7508557172416026e-05  ######### Relative L2 Test Norm: 1.0700506823403495
+######### Epoch: 55  ######### Train Loss: 5.929835781269223e-05  ######### Relative L2 Test Norm: 1.1080062900270735
+######### Epoch: 56  ######### Train Loss: 5.7307489581804614e-05  ######### Relative L2 Test Norm: 1.3551313366208757
+######### Epoch: 57  ######### Train Loss: 5.910969880810276e-05  ######### Relative L2 Test Norm: 1.219439012663705
+######### Epoch: 58  ######### Train Loss: 6.752668451344316e-05  ######### Relative L2 Test Norm: 1.4824834210532052
+######### Epoch: 59  ######### Train Loss: 8.119595615705923e-05  ######### Relative L2 Test Norm: 1.4994355951036726
+######### Epoch: 60  ######### Train Loss: 5.8781460910932554e-05  ######### Relative L2 Test Norm: 1.1093892369951521
+######### Epoch: 61  ######### Train Loss: 5.388598852872607e-05  ######### Relative L2 Test Norm: 1.0814406701496668
+######### Epoch: 62  ######### Train Loss: 5.1004044297979606e-05  ######### Relative L2 Test Norm: 1.0904346023287093
+######### Epoch: 63  ######### Train Loss: 5.38353310030988e-05  ######### Relative L2 Test Norm: 1.1420257432120187
+######### Epoch: 64  ######### Train Loss: 5.108558994274622e-05  ######### Relative L2 Test Norm: 1.0096829789025443
+######### Epoch: 65  ######### Train Loss: 5.411094004487565e-05  ######### Relative L2 Test Norm: 1.0176426427704948
+######### Epoch: 66  ######### Train Loss: 5.098366336124645e-05  ######### Relative L2 Test Norm: 1.1017751693725586
+######### Epoch: 67  ######### Train Loss: 4.9026070708070896e-05  ######### Relative L2 Test Norm: 1.0277605141912187
+######### Epoch: 68  ######### Train Loss: 4.684779423769214e-05  ######### Relative L2 Test Norm: 1.0768985407693046
+######### Epoch: 69  ######### Train Loss: 5.013494935085943e-05  ######### Relative L2 Test Norm: 1.1036484837532043
+######### Epoch: 70  ######### Train Loss: 4.7912455381894965e-05  ######### Relative L2 Test Norm: 1.000403106212616
+######### Epoch: 71  ######### Train Loss: 5.1022162027108534e-05  ######### Relative L2 Test Norm: 0.981242835521698
+######### Epoch: 72  ######### Train Loss: 4.769141238424569e-05  ######### Relative L2 Test Norm: 1.1069237674985613
+######### Epoch: 73  ######### Train Loss: 4.737131103656093e-05  ######### Relative L2 Test Norm: 1.1379741430282593
+######### Epoch: 74  ######### Train Loss: 4.79338168938389e-05  ######### Relative L2 Test Norm: 1.0386958122253418
+######### Epoch: 75  ######### Train Loss: 5.411087158790906e-05  ######### Relative L2 Test Norm: 1.5196266344615392
+######### Epoch: 76  ######### Train Loss: 5.706470959082183e-05  ######### Relative L2 Test Norm: 1.0986698525292533
+######### Epoch: 77  ######### Train Loss: 5.144491975583011e-05  ######### Relative L2 Test Norm: 1.0204863548278809
+######### Epoch: 78  ######### Train Loss: 4.370097286272749e-05  ######### Relative L2 Test Norm: 0.9892113889966693
+######### Epoch: 79  ######### Train Loss: 4.394151847009198e-05  ######### Relative L2 Test Norm: 1.0378031986100333
+######### Epoch: 80  ######### Train Loss: 4.532604543783236e-05  ######### Relative L2 Test Norm: 1.0260304638317652
+######### Epoch: 81  ######### Train Loss: 4.547844190920632e-05  ######### Relative L2 Test Norm: 1.0017895272799902
+######### Epoch: 82  ######### Train Loss: 4.301800611126684e-05  ######### Relative L2 Test Norm: 0.958122968673706
+######### Epoch: 83  ######### Train Loss: 4.2936760669712945e-05  ######### Relative L2 Test Norm: 0.9759229421615601
+######### Epoch: 84  ######### Train Loss: 4.339933929469016e-05  ######### Relative L2 Test Norm: 1.0151214599609375
+######### Epoch: 85  ######### Train Loss: 4.518449528544667e-05  ######### Relative L2 Test Norm: 0.9662150910922459
+######### Epoch: 86  ######### Train Loss: 4.4338714220570044e-05  ######### Relative L2 Test Norm: 1.0960359232766288
+######### Epoch: 87  ######### Train Loss: 4.522537234991502e-05  ######### Relative L2 Test Norm: 1.0021633846419198
+######### Epoch: 88  ######### Train Loss: 4.2992452913145266e-05  ######### Relative L2 Test Norm: 1.0123643704823084
+######### Epoch: 89  ######### Train Loss: 4.207058327665436e-05  ######### Relative L2 Test Norm: 0.93866913659232
+######### Epoch: 90  ######### Train Loss: 4.250377640766181e-05  ######### Relative L2 Test Norm: 0.9451252392360142
+######### Epoch: 91  ######### Train Loss: 4.068065940233422e-05  ######### Relative L2 Test Norm: 0.9498272708484105
+######### Epoch: 92  ######### Train Loss: 4.461214064996546e-05  ######### Relative L2 Test Norm: 0.96758462701525
+######### Epoch: 93  ######### Train Loss: 4.1416113162995316e-05  ######### Relative L2 Test Norm: 0.9722169467381069
+######### Epoch: 94  ######### Train Loss: 4.1625594838898484e-05  ######### Relative L2 Test Norm: 0.9299120562417167
+######### Epoch: 95  ######### Train Loss: 4.023751059251551e-05  ######### Relative L2 Test Norm: 0.9241323811667306
+######### Epoch: 96  ######### Train Loss: 4.121250531870128e-05  ######### Relative L2 Test Norm: 0.9405858942440578
+######### Epoch: 97  ######### Train Loss: 4.066931510001618e-05  ######### Relative L2 Test Norm: 0.971899322101048
+######### Epoch: 98  ######### Train Loss: 4.11710191376467e-05  ######### Relative L2 Test Norm: 0.9333471996443612
+######### Epoch: 99  ######### Train Loss: 4.1956823749317736e-05  ######### Relative L2 Test Norm: 1.0099600383213587
+######### Epoch: 100  ######### Train Loss: 4.088398418389261e-05  ######### Relative L2 Test Norm: 0.928530786718641
+######### Epoch: 101  ######### Train Loss: 4.1807579306735606e-05  ######### Relative L2 Test Norm: 0.9234220044953483
+######### Epoch: 102  ######### Train Loss: 3.992256107756895e-05  ######### Relative L2 Test Norm: 0.9497519901820591
+######### Epoch: 103  ######### Train Loss: 3.989221924992027e-05  ######### Relative L2 Test Norm: 0.9355470197541373
+######### Epoch: 104  ######### Train Loss: 4.137250813913012e-05  ######### Relative L2 Test Norm: 0.9490643313952855
+######### Epoch: 105  ######### Train Loss: 3.9871060870119924e-05  ######### Relative L2 Test Norm: 0.9452619467462812
+######### Epoch: 106  ######### Train Loss: 3.9939619770078796e-05  ######### Relative L2 Test Norm: 0.929088158266885
+######### Epoch: 107  ######### Train Loss: 4.0985350411714396e-05  ######### Relative L2 Test Norm: 0.9220015747206551
+######### Epoch: 108  ######### Train Loss: 3.936067766447265e-05  ######### Relative L2 Test Norm: 0.9512919613293239
+######### Epoch: 109  ######### Train Loss: 4.218073053589951e-05  ######### Relative L2 Test Norm: 0.9009813751493182
+######### Epoch: 110  ######### Train Loss: 3.9565060153388636e-05  ######### Relative L2 Test Norm: 0.9178041900907244
+######### Epoch: 111  ######### Train Loss: 4.034884740086944e-05  ######### Relative L2 Test Norm: 0.9695095675332206
+######### Epoch: 112  ######### Train Loss: 4.06364268271248e-05  ######### Relative L2 Test Norm: 1.0057009969438826
+######### Epoch: 113  ######### Train Loss: 3.8964122985327355e-05  ######### Relative L2 Test Norm: 0.9295958365712848
+######### Epoch: 114  ######### Train Loss: 4.1669065869707716e-05  ######### Relative L2 Test Norm: 0.9861580729484558
+######### Epoch: 115  ######### Train Loss: 4.272529692501009e-05  ######### Relative L2 Test Norm: 0.913053640297481
+######### Epoch: 116  ######### Train Loss: 3.8204565288861675e-05  ######### Relative L2 Test Norm: 0.9072617292404175
+######### Epoch: 117  ######### Train Loss: 3.871820556993883e-05  ######### Relative L2 Test Norm: 0.8963102868625096
+######### Epoch: 118  ######### Train Loss: 3.812708844354627e-05  ######### Relative L2 Test Norm: 0.9146128637450082
+######### Epoch: 119  ######### Train Loss: 3.788852200159454e-05  ######### Relative L2 Test Norm: 0.9079179338046482
+######### Epoch: 120  ######### Train Loss: 3.8200431320617027e-05  ######### Relative L2 Test Norm: 0.9036153384617397
+######### Epoch: 121  ######### Train Loss: 3.882855816510318e-05  ######### Relative L2 Test Norm: 0.9071819611958095
+######### Epoch: 122  ######### Train Loss: 3.8182875082034465e-05  ######### Relative L2 Test Norm: 0.9191084929874965
+######### Epoch: 123  ######### Train Loss: 3.838327372180244e-05  ######### Relative L2 Test Norm: 0.9157759972981044
+######### Epoch: 124  ######### Train Loss: 3.703463146219012e-05  ######### Relative L2 Test Norm: 0.9086156061717442
+######### Epoch: 125  ######### Train Loss: 3.68683998623545e-05  ######### Relative L2 Test Norm: 0.8901218686785016
+######### Epoch: 126  ######### Train Loss: 3.705502166877313e-05  ######### Relative L2 Test Norm: 0.9107504997934613
+######### Epoch: 127  ######### Train Loss: 3.714837127797811e-05  ######### Relative L2 Test Norm: 0.8960512621062142
+######### Epoch: 128  ######### Train Loss: 3.7439959739388614e-05  ######### Relative L2 Test Norm: 0.8963089755603245
+######### Epoch: 129  ######### Train Loss: 3.68096501076182e-05  ######### Relative L2 Test Norm: 0.8979399459702628
+######### Epoch: 130  ######### Train Loss: 3.703705484580356e-05  ######### Relative L2 Test Norm: 0.8945169278553554
+######### Epoch: 131  ######### Train Loss: 3.699346236247108e-05  ######### Relative L2 Test Norm: 0.9009747420038495
+######### Epoch: 132  ######### Train Loss: 3.866872590991149e-05  ######### Relative L2 Test Norm: 0.887513245855059
+######### Epoch: 133  ######### Train Loss: 3.636771802680764e-05  ######### Relative L2 Test Norm: 0.8991565704345703
+######### Epoch: 134  ######### Train Loss: 3.6830272777548926e-05  ######### Relative L2 Test Norm: 0.8890644226755414
+######### Epoch: 135  ######### Train Loss: 3.6817714072430346e-05  ######### Relative L2 Test Norm: 0.8882074185780117
+######### Epoch: 136  ######### Train Loss: 3.651692169954073e-05  ######### Relative L2 Test Norm: 0.8867976665496826
+######### Epoch: 137  ######### Train Loss: 3.6396308027738436e-05  ######### Relative L2 Test Norm: 0.8856438568660191
+######### Epoch: 138  ######### Train Loss: 3.6332079546879795e-05  ######### Relative L2 Test Norm: 0.8871183225086757
+######### Epoch: 139  ######### Train Loss: 3.652577452857468e-05  ######### Relative L2 Test Norm: 0.8839708907263619
+######### Epoch: 140  ######### Train Loss: 3.61468852973373e-05  ######### Relative L2 Test Norm: 0.8879091399056571
+######### Epoch: 141  ######### Train Loss: 4.5670704489216754e-05  ######### Relative L2 Test Norm: 0.8957137720925468
+######### Epoch: 142  ######### Train Loss: 3.7723457773189206e-05  ######### Relative L2 Test Norm: 0.8949516245297023
+######### Epoch: 143  ######### Train Loss: 3.638918869560607e-05  ######### Relative L2 Test Norm: 0.887812784739903
+######### Epoch: 144  ######### Train Loss: 3.617829319269871e-05  ######### Relative L2 Test Norm: 0.8874284284455436
+######### Epoch: 145  ######### Train Loss: 3.615757861133226e-05  ######### Relative L2 Test Norm: 0.8865560122898647
+######### Epoch: 146  ######### Train Loss: 3.6544108227714714e-05  ######### Relative L2 Test Norm: 0.8854965226990836
+######### Epoch: 147  ######### Train Loss: 3.589725096949573e-05  ######### Relative L2 Test Norm: 0.8856856226921082
+######### Epoch: 148  ######### Train Loss: 3.937795110267381e-05  ######### Relative L2 Test Norm: 0.8856617552893502
+######### Epoch: 149  ######### Train Loss: 3.63716910844512e-05  ######### Relative L2 Test Norm: 0.8866445166724068
+######### Epoch: 150  ######### Train Loss: 3.618377174391823e-05  ######### Relative L2 Test Norm: 0.888139716216496
+######### Epoch: 151  ######### Train Loss: 3.5957130351632186e-05  ######### Relative L2 Test Norm: 0.8905053990227836
+######### Epoch: 152  ######### Train Loss: 3.573893832253816e-05  ######### Relative L2 Test Norm: 0.8836540920393807
+######### Epoch: 153  ######### Train Loss: 3.5800102348450586e-05  ######### Relative L2 Test Norm: 0.8873105815478733
+######### Epoch: 154  ######### Train Loss: 3.611685304769288e-05  ######### Relative L2 Test Norm: 0.8872493846075875
+######### Epoch: 155  ######### Train Loss: 3.650329811604864e-05  ######### Relative L2 Test Norm: 0.885562104838235
+######### Epoch: 156  ######### Train Loss: 3.6104775587703516e-05  ######### Relative L2 Test Norm: 0.8872685176985604
+######### Epoch: 157  ######### Train Loss: 3.884013613759844e-05  ######### Relative L2 Test Norm: 0.8850511482783726
+######### Epoch: 158  ######### Train Loss: 3.5925921268314524e-05  ######### Relative L2 Test Norm: 0.8865979995046344
+######### Epoch: 159  ######### Train Loss: 3.612311691260682e-05  ######### Relative L2 Test Norm: 0.8880470820835659
+######### Epoch: 160  ######### Train Loss: 3.5947495794411785e-05  ######### Relative L2 Test Norm: 0.8870693360056195
+######### Epoch: 161  ######### Train Loss: 3.632961485121856e-05  ######### Relative L2 Test Norm: 0.883475090776171
+######### Epoch: 162  ######### Train Loss: 3.706314933319495e-05  ######### Relative L2 Test Norm: 0.8868746416909354
+######### Epoch: 163  ######### Train Loss: 3.5836739698424935e-05  ######### Relative L2 Test Norm: 0.8803673471723285
+######### Epoch: 164  ######### Train Loss: 3.562727848615256e-05  ######### Relative L2 Test Norm: 0.8816380756241935
+######### Epoch: 165  ######### Train Loss: 3.58675962126234e-05  ######### Relative L2 Test Norm: 0.8864279559680394
+######### Epoch: 166  ######### Train Loss: 3.5827149618993506e-05  ######### Relative L2 Test Norm: 0.8824510063443866
+######### Epoch: 167  ######### Train Loss: 3.5952325176297636e-05  ######### Relative L2 Test Norm: 0.882302497114454
+######### Epoch: 168  ######### Train Loss: 3.5697791330536486e-05  ######### Relative L2 Test Norm: 0.8887620483125959
+######### Epoch: 169  ######### Train Loss: 3.581154218269288e-05  ######### Relative L2 Test Norm: 0.8795143025262016
+######### Epoch: 170  ######### Train Loss: 3.571342603418788e-05  ######### Relative L2 Test Norm: 0.8838974918637957
+######### Epoch: 171  ######### Train Loss: 3.5632939968239116e-05  ######### Relative L2 Test Norm: 0.8800306064741952
+######### Epoch: 172  ######### Train Loss: 3.559366807446797e-05  ######### Relative L2 Test Norm: 0.8827855587005615
+######### Epoch: 173  ######### Train Loss: 3.5952955735970485e-05  ######### Relative L2 Test Norm: 0.8819225345339093
+######### Epoch: 174  ######### Train Loss: 3.638434929178822e-05  ######### Relative L2 Test Norm: 0.8818330083574567
+######### Epoch: 175  ######### Train Loss: 3.6193137685376525e-05  ######### Relative L2 Test Norm: 0.8832112295286996
+######### Epoch: 176  ######### Train Loss: 3.5835370436661135e-05  ######### Relative L2 Test Norm: 0.8815502779824393
+######### Epoch: 177  ######### Train Loss: 3.5571350963437e-05  ######### Relative L2 Test Norm: 0.880394092627934
+######### Epoch: 178  ######### Train Loss: 3.585992215868408e-05  ######### Relative L2 Test Norm: 0.884084974016462
+######### Epoch: 179  ######### Train Loss: 3.606861439318611e-05  ######### Relative L2 Test Norm: 0.8809662546430316
+######### Epoch: 180  ######### Train Loss: 3.6225145182610366e-05  ######### Relative L2 Test Norm: 0.8830653258732387
+######### Epoch: 181  ######### Train Loss: 3.641323136295026e-05  ######### Relative L2 Test Norm: 0.8806448493685041
+######### Epoch: 182  ######### Train Loss: 3.5617068760984694e-05  ######### Relative L2 Test Norm: 0.8777979952948434
+######### Epoch: 183  ######### Train Loss: 3.687201604826931e-05  ######### Relative L2 Test Norm: 0.8835564681461879
+######### Epoch: 184  ######### Train Loss: 3.569699709679788e-05  ######### Relative L2 Test Norm: 0.8812370300292969
+######### Epoch: 185  ######### Train Loss: 3.5805830853300555e-05  ######### Relative L2 Test Norm: 0.8858330079487392
+######### Epoch: 186  ######### Train Loss: 3.562567662111878e-05  ######### Relative L2 Test Norm: 0.8811604806355068
+######### Epoch: 187  ######### Train Loss: 3.602124561789074e-05  ######### Relative L2 Test Norm: 0.8887152246066502
+######### Epoch: 188  ######### Train Loss: 3.57264730505099e-05  ######### Relative L2 Test Norm: 0.8796428527150836
+######### Epoch: 189  ######### Train Loss: 3.5868456577120996e-05  ######### Relative L2 Test Norm: 0.8795248355184283
+######### Epoch: 190  ######### Train Loss: 3.537872985012095e-05  ######### Relative L2 Test Norm: 0.8806683676583427
+######### Epoch: 191  ######### Train Loss: 3.597998254288261e-05  ######### Relative L2 Test Norm: 0.8799365929194859
+######### Epoch: 192  ######### Train Loss: 3.550569884352556e-05  ######### Relative L2 Test Norm: 0.8797308887754168
+######### Epoch: 193  ######### Train Loss: 3.608128634788535e-05  ######### Relative L2 Test Norm: 0.8826489107949393
+######### Epoch: 194  ######### Train Loss: 3.5450676512902224e-05  ######### Relative L2 Test Norm: 0.8766062770571027
+######### Epoch: 195  ######### Train Loss: 3.91339941555858e-05  ######### Relative L2 Test Norm: 0.8831269826207843
+######### Epoch: 196  ######### Train Loss: 3.682560904613078e-05  ######### Relative L2 Test Norm: 0.8821419647761753
+######### Epoch: 197  ######### Train Loss: 3.5998452351402826e-05  ######### Relative L2 Test Norm: 0.8843697479793003
+######### Epoch: 198  ######### Train Loss: 3.5327865239546205e-05  ######### Relative L2 Test Norm: 0.8803144437926156
+######### Epoch: 199  ######### Train Loss: 3.5195854322340055e-05  ######### Relative L2 Test Norm: 0.8805843165942601
+Saved graph to results/Task_1_12_One-to-One_fig_1.pdf
+Saved graph to results/Task_1_12_One-to-One_fig_2.pdf
+Final Test Relative L2 Error:  0.8805843165942601
+
+========================================
+Running Task 2: 12 Resolution Invariance...
+========================================
+
+Using device: cpu
+Resolution 128: Relative L2 = 1.16%
+Resolution 96: Relative L2 = 1.60%
+Resolution 64: Relative L2 = 3.04%
+Resolution 32: Relative L2 = 7.38%
+Saved graph to results/Task_2_12_Resolution_Invariance_fig_1.pdf
+
+========================================
+Running Task 3: 12 All-to-All...
+========================================
+
+using device: cpu
+######### Epoch: 0  ######### Train Loss: 0.06684937580721453  ######### Relative L2 Test Norm: 10.146693706512451
+######### Epoch: 1  ######### Train Loss: 0.01571230185800232  ######### Relative L2 Test Norm: 13.523927052815756
+######### Epoch: 2  ######### Train Loss: 0.012658553081564605  ######### Relative L2 Test Norm: 7.322052796681722
+######### Epoch: 3  ######### Train Loss: 0.008182118901459035  ######### Relative L2 Test Norm: 5.954928874969482
+######### Epoch: 4  ######### Train Loss: 0.007690423232270404  ######### Relative L2 Test Norm: 4.416379610697429
+######### Epoch: 5  ######### Train Loss: 0.005833203728252556  ######### Relative L2 Test Norm: 7.756235917409261
+######### Epoch: 6  ######### Train Loss: 0.005901824237662367  ######### Relative L2 Test Norm: 4.844205379486084
+######### Epoch: 7  ######### Train Loss: 0.006386589574685786  ######### Relative L2 Test Norm: 5.300844510396321
+######### Epoch: 8  ######### Train Loss: 0.004949034425953869  ######### Relative L2 Test Norm: 7.064437707265218
+######### Epoch: 9  ######### Train Loss: 0.004421917603758629  ######### Relative L2 Test Norm: 6.055636723836263
+######### Epoch: 10  ######### Train Loss: 0.004308232135372236  ######### Relative L2 Test Norm: 9.723833719889322
+######### Epoch: 11  ######### Train Loss: 0.0031886726021184584  ######### Relative L2 Test Norm: 5.606714089711507
+######### Epoch: 12  ######### Train Loss: 0.002676727108337218  ######### Relative L2 Test Norm: 4.007635911305745
+######### Epoch: 13  ######### Train Loss: 0.002129426333704032  ######### Relative L2 Test Norm: 3.5020214716593423
+######### Epoch: 14  ######### Train Loss: 0.002101961748849135  ######### Relative L2 Test Norm: 3.194828510284424
+######### Epoch: 15  ######### Train Loss: 0.002613125016068807  ######### Relative L2 Test Norm: 4.731970389684041
+######### Epoch: 16  ######### Train Loss: 0.002234809830406448  ######### Relative L2 Test Norm: 3.8921279907226562
+######### Epoch: 17  ######### Train Loss: 0.0019596991049184  ######### Relative L2 Test Norm: 4.127753973007202
+######### Epoch: 18  ######### Train Loss: 0.0016385536844609305  ######### Relative L2 Test Norm: 4.334298292795817
+######### Epoch: 19  ######### Train Loss: 0.001160290510597406  ######### Relative L2 Test Norm: 4.278579791386922
+######### Epoch: 20  ######### Train Loss: 0.0014204951869032812  ######### Relative L2 Test Norm: 4.218175888061523
+######### Epoch: 21  ######### Train Loss: 0.001265915921612759  ######### Relative L2 Test Norm: 5.285382429758708
+######### Epoch: 22  ######### Train Loss: 0.0012152318722655764  ######### Relative L2 Test Norm: 3.2363835175832114
+######### Epoch: 23  ######### Train Loss: 0.0009076890728465514  ######### Relative L2 Test Norm: 2.3919296264648438
+######### Epoch: 24  ######### Train Loss: 0.0009592345802957424  ######### Relative L2 Test Norm: 3.2129940191904702
+######### Epoch: 25  ######### Train Loss: 0.0009694089421827812  ######### Relative L2 Test Norm: 2.5530965328216553
+######### Epoch: 26  ######### Train Loss: 0.0009211228672938887  ######### Relative L2 Test Norm: 2.501365343729655
+######### Epoch: 27  ######### Train Loss: 0.0009500638781901217  ######### Relative L2 Test Norm: 2.606642802556356
+######### Epoch: 28  ######### Train Loss: 0.0008489851788908709  ######### Relative L2 Test Norm: 2.4419298569361367
+######### Epoch: 29  ######### Train Loss: 0.0008732824899198022  ######### Relative L2 Test Norm: 2.6790183782577515
+######### Epoch: 30  ######### Train Loss: 0.0007204892826848663  ######### Relative L2 Test Norm: 1.8640121618906658
+######### Epoch: 31  ######### Train Loss: 0.000620144034292025  ######### Relative L2 Test Norm: 2.3460782368977866
+######### Epoch: 32  ######### Train Loss: 0.0007215181034553097  ######### Relative L2 Test Norm: 2.531293034553528
+######### Epoch: 33  ######### Train Loss: 0.0005915103844017722  ######### Relative L2 Test Norm: 2.6394264300664267
+######### Epoch: 34  ######### Train Loss: 0.0006673016825516243  ######### Relative L2 Test Norm: 2.4061671098073325
+######### Epoch: 35  ######### Train Loss: 0.0006439861503167776  ######### Relative L2 Test Norm: 2.042471925417582
+######### Epoch: 36  ######### Train Loss: 0.0006208858674654038  ######### Relative L2 Test Norm: 2.1235392888387046
+######### Epoch: 37  ######### Train Loss: 0.000594348647427978  ######### Relative L2 Test Norm: 1.985607624053955
+######### Epoch: 38  ######### Train Loss: 0.0005023948755479068  ######### Relative L2 Test Norm: 1.8205442428588867
+######### Epoch: 39  ######### Train Loss: 0.0005475985084558488  ######### Relative L2 Test Norm: 2.070318897565206
+######### Epoch: 40  ######### Train Loss: 0.0006015440649207449  ######### Relative L2 Test Norm: 2.217904488245646
+######### Epoch: 41  ######### Train Loss: 0.0005174161418835865  ######### Relative L2 Test Norm: 2.2837713956832886
+######### Epoch: 42  ######### Train Loss: 0.0005840846115461318  ######### Relative L2 Test Norm: 2.374907294909159
+######### Epoch: 43  ######### Train Loss: 0.0005124017428897787  ######### Relative L2 Test Norm: 1.8493345181147258
+######### Epoch: 44  ######### Train Loss: 0.0005422597982033039  ######### Relative L2 Test Norm: 1.962012489636739
+######### Epoch: 45  ######### Train Loss: 0.00047819831379456443  ######### Relative L2 Test Norm: 1.8618136246999104
+######### Epoch: 46  ######### Train Loss: 0.00045245535438880323  ######### Relative L2 Test Norm: 1.6085057258605957
+######### Epoch: 47  ######### Train Loss: 0.00048274308483087225  ######### Relative L2 Test Norm: 1.6437097787857056
+######### Epoch: 48  ######### Train Loss: 0.000465745550536667  ######### Relative L2 Test Norm: 1.7284841140111287
+######### Epoch: 49  ######### Train Loss: 0.00046190744869818446  ######### Relative L2 Test Norm: 1.9950003226598103
+######### Epoch: 50  ######### Train Loss: 0.0004270718029147247  ######### Relative L2 Test Norm: 1.5585206747055054
+######### Epoch: 51  ######### Train Loss: 0.0004605137217367883  ######### Relative L2 Test Norm: 1.915325403213501
+######### Epoch: 52  ######### Train Loss: 0.00044133603059890445  ######### Relative L2 Test Norm: 1.6169790029525757
+######### Epoch: 53  ######### Train Loss: 0.0004951191674990695  ######### Relative L2 Test Norm: 1.7702752749125164
+######### Epoch: 54  ######### Train Loss: 0.0005223002266575349  ######### Relative L2 Test Norm: 1.6940592924753826
+######### Epoch: 55  ######### Train Loss: 0.0004540241297945613  ######### Relative L2 Test Norm: 2.1666740576426187
+######### Epoch: 56  ######### Train Loss: 0.00046433039096882567  ######### Relative L2 Test Norm: 1.7880867719650269
+######### Epoch: 57  ######### Train Loss: 0.00038309893116093006  ######### Relative L2 Test Norm: 1.5346598625183105
+######### Epoch: 58  ######### Train Loss: 0.00043473970290506256  ######### Relative L2 Test Norm: 1.5025458733240764
+######### Epoch: 59  ######### Train Loss: 0.000391964672053291  ######### Relative L2 Test Norm: 1.668891469637553
+######### Epoch: 60  ######### Train Loss: 0.00041229165744880445  ######### Relative L2 Test Norm: 1.7241723537445068
+######### Epoch: 61  ######### Train Loss: 0.00039033188058965604  ######### Relative L2 Test Norm: 1.5440155665079753
+######### Epoch: 62  ######### Train Loss: 0.00037926886088825997  ######### Relative L2 Test Norm: 1.4726208051045735
+######### Epoch: 63  ######### Train Loss: 0.000353797126263089  ######### Relative L2 Test Norm: 1.4698501030604045
+######### Epoch: 64  ######### Train Loss: 0.0004125645569729386  ######### Relative L2 Test Norm: 1.4607493082682292
+######### Epoch: 65  ######### Train Loss: 0.00040554962452006295  ######### Relative L2 Test Norm: 1.6955469051996868
+######### Epoch: 66  ######### Train Loss: 0.0003775956291065086  ######### Relative L2 Test Norm: 1.7378359238306682
+######### Epoch: 67  ######### Train Loss: 0.00040997515006893084  ######### Relative L2 Test Norm: 1.406092604001363
+######### Epoch: 68  ######### Train Loss: 0.00038685520321450894  ######### Relative L2 Test Norm: 1.5908786058425903
+######### Epoch: 69  ######### Train Loss: 0.0003738730349141406  ######### Relative L2 Test Norm: 1.5327491362889607
+######### Epoch: 70  ######### Train Loss: 0.0004209607457596576  ######### Relative L2 Test Norm: 1.5120846033096313
+######### Epoch: 71  ######### Train Loss: 0.0004445984655831126  ######### Relative L2 Test Norm: 1.4468437035878499
+######### Epoch: 72  ######### Train Loss: 0.00039639178776269547  ######### Relative L2 Test Norm: 1.4302618106206257
+######### Epoch: 73  ######### Train Loss: 0.0003456509362877114  ######### Relative L2 Test Norm: 1.4903026819229126
+######### Epoch: 74  ######### Train Loss: 0.0003538682010912453  ######### Relative L2 Test Norm: 1.4432683785756428
+######### Epoch: 75  ######### Train Loss: 0.0003778837708523497  ######### Relative L2 Test Norm: 1.4269590377807617
+######### Epoch: 76  ######### Train Loss: 0.00040016763832682043  ######### Relative L2 Test Norm: 1.509387731552124
+######### Epoch: 77  ######### Train Loss: 0.0003664853009468061  ######### Relative L2 Test Norm: 1.5137370824813843
+######### Epoch: 78  ######### Train Loss: 0.0003993013071522  ######### Relative L2 Test Norm: 1.4002892971038818
+######### Epoch: 79  ######### Train Loss: 0.0003552666903487989  ######### Relative L2 Test Norm: 1.4458240667978923
+######### Epoch: 80  ######### Train Loss: 0.00038729040261387127  ######### Relative L2 Test Norm: 1.5103946129480998
+######### Epoch: 81  ######### Train Loss: 0.00035061250000580915  ######### Relative L2 Test Norm: 1.4202522039413452
+######### Epoch: 82  ######### Train Loss: 0.00035425279857008717  ######### Relative L2 Test Norm: 1.573009451230367
+######### Epoch: 83  ######### Train Loss: 0.0003637818475908716  ######### Relative L2 Test Norm: 1.4162766734759014
+######### Epoch: 84  ######### Train Loss: 0.0003683417256979737  ######### Relative L2 Test Norm: 1.4175852139790852
+######### Epoch: 85  ######### Train Loss: 0.00032655843860993625  ######### Relative L2 Test Norm: 1.4036312103271484
+######### Epoch: 86  ######### Train Loss: 0.0003149803178530419  ######### Relative L2 Test Norm: 1.4244397481282551
+######### Epoch: 87  ######### Train Loss: 0.0003412564712562016  ######### Relative L2 Test Norm: 1.4246525367101033
+######### Epoch: 88  ######### Train Loss: 0.0003653885858511785  ######### Relative L2 Test Norm: 1.423946738243103
+######### Epoch: 89  ######### Train Loss: 0.0003656834127468755  ######### Relative L2 Test Norm: 1.4031289021174114
+######### Epoch: 90  ######### Train Loss: 0.0003319785153507837  ######### Relative L2 Test Norm: 1.3718947172164917
+######### Epoch: 91  ######### Train Loss: 0.00031150932372838727  ######### Relative L2 Test Norm: 1.3344029784202576
+######### Epoch: 92  ######### Train Loss: 0.0003725104363184073  ######### Relative L2 Test Norm: 1.4135620594024658
+######### Epoch: 93  ######### Train Loss: 0.00034395728307572425  ######### Relative L2 Test Norm: 1.3403711120287578
+######### Epoch: 94  ######### Train Loss: 0.00033532501583977137  ######### Relative L2 Test Norm: 1.3375669916470845
+######### Epoch: 95  ######### Train Loss: 0.00036322192663647  ######### Relative L2 Test Norm: 1.3740861217180889
+######### Epoch: 96  ######### Train Loss: 0.0003803286057518562  ######### Relative L2 Test Norm: 1.363774796326955
+######### Epoch: 97  ######### Train Loss: 0.0003710605180458515  ######### Relative L2 Test Norm: 1.427352746327718
+######### Epoch: 98  ######### Train Loss: 0.00038079235673649237  ######### Relative L2 Test Norm: 1.3751697540283203
+######### Epoch: 99  ######### Train Loss: 0.0003453335533777135  ######### Relative L2 Test Norm: 1.5047836303710938
+######### Epoch: 100  ######### Train Loss: 0.00033160804468934657  ######### Relative L2 Test Norm: 1.3371881246566772
+######### Epoch: 101  ######### Train Loss: 0.00033310742892354026  ######### Relative L2 Test Norm: 1.4210553169250488
+######### Epoch: 102  ######### Train Loss: 0.00035126307702739725  ######### Relative L2 Test Norm: 1.3685963948567708
+######### Epoch: 103  ######### Train Loss: 0.00035301804809932945  ######### Relative L2 Test Norm: 1.344340980052948
+######### Epoch: 104  ######### Train Loss: 0.00034463719512132227  ######### Relative L2 Test Norm: 1.3640564481417339
+######### Epoch: 105  ######### Train Loss: 0.0003367204528331058  ######### Relative L2 Test Norm: 1.3369975884755452
+######### Epoch: 106  ######### Train Loss: 0.0003128789021502598  ######### Relative L2 Test Norm: 1.3610748052597046
+######### Epoch: 107  ######### Train Loss: 0.00035034909433306893  ######### Relative L2 Test Norm: 1.366925338904063
+######### Epoch: 108  ######### Train Loss: 0.00033829595104180045  ######### Relative L2 Test Norm: 1.3823341131210327
+######### Epoch: 109  ######### Train Loss: 0.00033890503655129576  ######### Relative L2 Test Norm: 1.3682786226272583
+######### Epoch: 110  ######### Train Loss: 0.00034452166564733486  ######### Relative L2 Test Norm: 1.3658130168914795
+######### Epoch: 111  ######### Train Loss: 0.0003326747155369958  ######### Relative L2 Test Norm: 1.3348320325215657
+######### Epoch: 112  ######### Train Loss: 0.0003678249477161444  ######### Relative L2 Test Norm: 1.4247385263442993
+######### Epoch: 113  ######### Train Loss: 0.0003175326211930951  ######### Relative L2 Test Norm: 1.4041800896326702
+######### Epoch: 114  ######### Train Loss: 0.0003259346598497359  ######### Relative L2 Test Norm: 1.3305519620577495
+######### Epoch: 115  ######### Train Loss: 0.00034753312011162054  ######### Relative L2 Test Norm: 1.3916225830713909
+######### Epoch: 116  ######### Train Loss: 0.0003225407829631877  ######### Relative L2 Test Norm: 1.3564955194791157
+######### Epoch: 117  ######### Train Loss: 0.00031927593518048524  ######### Relative L2 Test Norm: 1.3428170879681904
+######### Epoch: 118  ######### Train Loss: 0.00034956139297719345  ######### Relative L2 Test Norm: 1.3229527274767559
+######### Epoch: 119  ######### Train Loss: 0.0003368877882166998  ######### Relative L2 Test Norm: 1.3885621825853984
+######### Epoch: 120  ######### Train Loss: 0.0003054710989090381  ######### Relative L2 Test Norm: 1.3786187569300334
+######### Epoch: 121  ######### Train Loss: 0.00032166995042643977  ######### Relative L2 Test Norm: 1.3485651810963948
+######### Epoch: 122  ######### Train Loss: 0.00032786415213195144  ######### Relative L2 Test Norm: 1.3441818753878276
+######### Epoch: 123  ######### Train Loss: 0.00035589602230174934  ######### Relative L2 Test Norm: 1.4819738864898682
+######### Epoch: 124  ######### Train Loss: 0.0003564093913155375  ######### Relative L2 Test Norm: 1.3807241519292195
+######### Epoch: 125  ######### Train Loss: 0.00034839511972677427  ######### Relative L2 Test Norm: 1.3362592657407124
+######### Epoch: 126  ######### Train Loss: 0.00031837127462495116  ######### Relative L2 Test Norm: 1.3483537236849468
+######### Epoch: 127  ######### Train Loss: 0.0003486363600131881  ######### Relative L2 Test Norm: 1.3460744420687358
+######### Epoch: 128  ######### Train Loss: 0.00033385745318810224  ######### Relative L2 Test Norm: 1.3524348934491475
+######### Epoch: 129  ######### Train Loss: 0.0003385503676327062  ######### Relative L2 Test Norm: 1.3684479196866353
+######### Epoch: 130  ######### Train Loss: 0.0003267663276346866  ######### Relative L2 Test Norm: 1.3722975254058838
+######### Epoch: 131  ######### Train Loss: 0.0003433910702369758  ######### Relative L2 Test Norm: 1.3381024599075317
+######### Epoch: 132  ######### Train Loss: 0.00031964091867848766  ######### Relative L2 Test Norm: 1.391892631848653
+######### Epoch: 133  ######### Train Loss: 0.0003893106100804289  ######### Relative L2 Test Norm: 1.3647283713022869
+######### Epoch: 134  ######### Train Loss: 0.0003335246658025426  ######### Relative L2 Test Norm: 1.3279779553413391
+######### Epoch: 135  ######### Train Loss: 0.00031413240594702074  ######### Relative L2 Test Norm: 1.343781550725301
+######### Epoch: 136  ######### Train Loss: 0.00034909500664070947  ######### Relative L2 Test Norm: 1.3576940496762593
+######### Epoch: 137  ######### Train Loss: 0.0003417217238165904  ######### Relative L2 Test Norm: 1.381118377049764
+######### Epoch: 138  ######### Train Loss: 0.00034720855746854794  ######### Relative L2 Test Norm: 1.3863558173179626
+######### Epoch: 139  ######### Train Loss: 0.0003252024804169196  ######### Relative L2 Test Norm: 1.3892808357874553
+######### Epoch: 140  ######### Train Loss: 0.0003404429988222546  ######### Relative L2 Test Norm: 1.392139196395874
+######### Epoch: 141  ######### Train Loss: 0.0003303858489744016  ######### Relative L2 Test Norm: 1.3549744486808777
+######### Epoch: 142  ######### Train Loss: 0.00034216505373478866  ######### Relative L2 Test Norm: 1.3355599443117778
+######### Epoch: 143  ######### Train Loss: 0.0003188735518051544  ######### Relative L2 Test Norm: 1.3569804430007935
+######### Epoch: 144  ######### Train Loss: 0.0003208105043086107  ######### Relative L2 Test Norm: 1.3323224186897278
+######### Epoch: 145  ######### Train Loss: 0.00032094819107442163  ######### Relative L2 Test Norm: 1.3437811930974324
+######### Epoch: 146  ######### Train Loss: 0.00034984019621333575  ######### Relative L2 Test Norm: 1.3763792912165325
+######### Epoch: 147  ######### Train Loss: 0.00032705114736018  ######### Relative L2 Test Norm: 1.437699278195699
+######### Epoch: 148  ######### Train Loss: 0.00033058894732675983  ######### Relative L2 Test Norm: 1.42318461338679
+######### Epoch: 149  ######### Train Loss: 0.0003281373694335343  ######### Relative L2 Test Norm: 1.3699723084767659
+######### Epoch: 150  ######### Train Loss: 0.0003270527193308226  ######### Relative L2 Test Norm: 1.3287513454755147
+######### Epoch: 151  ######### Train Loss: 0.00033460181603004455  ######### Relative L2 Test Norm: 1.3232795397440593
+######### Epoch: 152  ######### Train Loss: 0.00032008859197958374  ######### Relative L2 Test Norm: 1.3656304478645325
+######### Epoch: 153  ######### Train Loss: 0.0003151901024466497  ######### Relative L2 Test Norm: 1.3412774403889973
+######### Epoch: 154  ######### Train Loss: 0.0003058376996705192  ######### Relative L2 Test Norm: 1.3278977473576863
+######### Epoch: 155  ######### Train Loss: 0.000338858043505752  ######### Relative L2 Test Norm: 1.364859700202942
+######### Epoch: 156  ######### Train Loss: 0.0003324679399156594  ######### Relative L2 Test Norm: 1.3533235987027485
+######### Epoch: 157  ######### Train Loss: 0.00035711279488168655  ######### Relative L2 Test Norm: 1.3455232381820679
+######### Epoch: 158  ######### Train Loss: 0.0003470467298029689  ######### Relative L2 Test Norm: 1.3393171032269795
+######### Epoch: 159  ######### Train Loss: 0.0003635905806731898  ######### Relative L2 Test Norm: 1.371361215909322
+######### Epoch: 160  ######### Train Loss: 0.0003382606317245518  ######### Relative L2 Test Norm: 1.412478009859721
+######### Epoch: 161  ######### Train Loss: 0.0003364616371982265  ######### Relative L2 Test Norm: 1.3640520373980205
+######### Epoch: 162  ######### Train Loss: 0.0003656012639112305  ######### Relative L2 Test Norm: 1.3852951129277546
+######### Epoch: 163  ######### Train Loss: 0.0003292378167316201  ######### Relative L2 Test Norm: 1.3127047022183735
+######### Epoch: 164  ######### Train Loss: 0.0003645757609774591  ######### Relative L2 Test Norm: 1.3315181136131287
+######### Epoch: 165  ######### Train Loss: 0.00035866453936250764  ######### Relative L2 Test Norm: 1.3321730891863506
+######### Epoch: 166  ######### Train Loss: 0.0003784523472859291  ######### Relative L2 Test Norm: 1.4141194025675456
+######### Epoch: 167  ######### Train Loss: 0.0003408513086469611  ######### Relative L2 Test Norm: 1.3338983058929443
+######### Epoch: 168  ######### Train Loss: 0.00033742145969881674  ######### Relative L2 Test Norm: 1.32924489180247
+######### Epoch: 169  ######### Train Loss: 0.00033325219601465506  ######### Relative L2 Test Norm: 1.35938960313797
+######### Epoch: 170  ######### Train Loss: 0.0003349721169797704  ######### Relative L2 Test Norm: 1.3234640161196392
+######### Epoch: 171  ######### Train Loss: 0.0003211872228348511  ######### Relative L2 Test Norm: 1.3784300287564595
+######### Epoch: 172  ######### Train Loss: 0.000317916907624749  ######### Relative L2 Test Norm: 1.3225789666175842
+######### Epoch: 173  ######### Train Loss: 0.00032666520437487636  ######### Relative L2 Test Norm: 1.3762973546981812
+######### Epoch: 174  ######### Train Loss: 0.00031594500269420677  ######### Relative L2 Test Norm: 1.3502369324366252
+######### Epoch: 175  ######### Train Loss: 0.00033229834989469966  ######### Relative L2 Test Norm: 1.3110571106274922
+######### Epoch: 176  ######### Train Loss: 0.0003856219438603148  ######### Relative L2 Test Norm: 1.4267057180404663
+######### Epoch: 177  ######### Train Loss: 0.0003577827350454754  ######### Relative L2 Test Norm: 1.3552074631055195
+######### Epoch: 178  ######### Train Loss: 0.00030273921565822094  ######### Relative L2 Test Norm: 1.3096023003260295
+######### Epoch: 179  ######### Train Loss: 0.0003200458628271008  ######### Relative L2 Test Norm: 1.3315890431404114
+######### Epoch: 180  ######### Train Loss: 0.0003216502842406044  ######### Relative L2 Test Norm: 1.3382527828216553
+######### Epoch: 181  ######### Train Loss: 0.00032316337292286333  ######### Relative L2 Test Norm: 1.3425049583117168
+######### Epoch: 182  ######### Train Loss: 0.0003041237379875383  ######### Relative L2 Test Norm: 1.4019339084625244
+######### Epoch: 183  ######### Train Loss: 0.00031954692749422973  ######### Relative L2 Test Norm: 1.4401316245396931
+######### Epoch: 184  ######### Train Loss: 0.0003711892923092819  ######### Relative L2 Test Norm: 1.399106542269389
+######### Epoch: 185  ######### Train Loss: 0.0003296796952781733  ######### Relative L2 Test Norm: 1.411406675974528
+######### Epoch: 186  ######### Train Loss: 0.00033333344563288845  ######### Relative L2 Test Norm: 1.4245498975118
+######### Epoch: 187  ######### Train Loss: 0.0003351939902131562  ######### Relative L2 Test Norm: 1.3546655376752217
+######### Epoch: 188  ######### Train Loss: 0.00037549156077147926  ######### Relative L2 Test Norm: 1.3652775287628174
+######### Epoch: 189  ######### Train Loss: 0.0003687052752866293  ######### Relative L2 Test Norm: 1.3255276282628377
+######### Epoch: 190  ######### Train Loss: 0.00031230387558025543  ######### Relative L2 Test Norm: 1.351773162682851
+######### Epoch: 191  ######### Train Loss: 0.00034415244663250634  ######### Relative L2 Test Norm: 1.3230663736661274
+######### Epoch: 192  ######### Train Loss: 0.0003440701590079698  ######### Relative L2 Test Norm: 1.4114972154299419
+######### Epoch: 193  ######### Train Loss: 0.0003093621666266699  ######### Relative L2 Test Norm: 1.3798165718714397
+######### Epoch: 194  ######### Train Loss: 0.00036566401904565283  ######### Relative L2 Test Norm: 1.333530326684316
+######### Epoch: 195  ######### Train Loss: 0.0003271555853643804  ######### Relative L2 Test Norm: 1.4025533199310303
+######### Epoch: 196  ######### Train Loss: 0.00032351964655390474  ######### Relative L2 Test Norm: 1.4216399590174358
+######### Epoch: 197  ######### Train Loss: 0.0003452933200605912  ######### Relative L2 Test Norm: 1.3818527857462566
+######### Epoch: 198  ######### Train Loss: 0.00032195400053751654  ######### Relative L2 Test Norm: 1.328044851620992
+######### Epoch: 199  ######### Train Loss: 0.00033103968708019237  ######### Relative L2 Test Norm: 1.3441409866015117
+Saved graph to results/Task_3_12_All-to-All_fig_1.pdf
+Saved graph to results/Task_3_12_All-to-All_fig_2.pdf
+Relative L2 Error at t=0.25: 2.1899%
+Relative L2 Error at t=0.5: 2.2466%
+Relative L2 Error at t=0.75: 2.1731%
+Relative L2 Error at t=1.0: 2.6926%
+Saved graph to results/Task_3_12_All-to-All_fig_3.pdf
+
+========================================
+Running Task 4: 12 Finetuning...
+========================================
+
+Using device: cpu
+
+--- Zero-shot Test on Unknown Data ---
+Loaded models/fno_12_bn_model.pth
+Relative L2 Error at t=0.25: 9.2847%
+Relative L2 Error at t=0.5: 11.4137%
+Relative L2 Error at t=0.75: 12.7077%
+Relative L2 Error at t=1.0: 13.3339%
+Zero-shot errors: [9.284736633300781, 11.41369915008545, 12.707659721374512, 13.333895683288574]
+
+--- Finetuning Model ---
+Training finetuned model...
+######### Epoch: 0  ######### Train Loss: 0.053594205225817856  ######### Relative L2 Test Norm: 35.17404060363769
+######### Epoch: 1  ######### Train Loss: 0.012677831272594631  ######### Relative L2 Test Norm: 23.195474243164064
+######### Epoch: 2  ######### Train Loss: 0.005828964407555759  ######### Relative L2 Test Norm: 18.983276748657225
+######### Epoch: 3  ######### Train Loss: 0.006046544446144253  ######### Relative L2 Test Norm: 20.8224347114563
+######### Epoch: 4  ######### Train Loss: 0.005876122240442783  ######### Relative L2 Test Norm: 14.909412002563476
+######### Epoch: 5  ######### Train Loss: 0.004498838557628915  ######### Relative L2 Test Norm: 14.74376106262207
+######### Epoch: 6  ######### Train Loss: 0.004159101203549653  ######### Relative L2 Test Norm: 14.177685165405274
+######### Epoch: 7  ######### Train Loss: 0.0036070318485144524  ######### Relative L2 Test Norm: 12.287273406982422
+######### Epoch: 8  ######### Train Loss: 0.0028659195289947093  ######### Relative L2 Test Norm: 15.594960403442382
+######### Epoch: 9  ######### Train Loss: 0.005021534371189773  ######### Relative L2 Test Norm: 14.18004264831543
+######### Epoch: 10  ######### Train Loss: 0.006147033278830349  ######### Relative L2 Test Norm: 19.46397457122803
+######### Epoch: 11  ######### Train Loss: 0.004611686267890036  ######### Relative L2 Test Norm: 14.139598655700684
+######### Epoch: 12  ######### Train Loss: 0.0033234499278478324  ######### Relative L2 Test Norm: 13.03486270904541
+######### Epoch: 13  ######### Train Loss: 0.0035369645978789777  ######### Relative L2 Test Norm: 11.283510208129883
+######### Epoch: 14  ######### Train Loss: 0.003023319598287344  ######### Relative L2 Test Norm: 10.68050413131714
+######### Epoch: 15  ######### Train Loss: 0.0029238273797091096  ######### Relative L2 Test Norm: 11.529797744750976
+######### Epoch: 16  ######### Train Loss: 0.00279926365474239  ######### Relative L2 Test Norm: 11.424070453643798
+######### Epoch: 17  ######### Train Loss: 0.002905428648227826  ######### Relative L2 Test Norm: 11.769096183776856
+######### Epoch: 18  ######### Train Loss: 0.002033433099859394  ######### Relative L2 Test Norm: 10.297458457946778
+######### Epoch: 19  ######### Train Loss: 0.0034488802339183167  ######### Relative L2 Test Norm: 17.393000411987305
+######### Epoch: 20  ######### Train Loss: 0.0032698141789296643  ######### Relative L2 Test Norm: 10.448480224609375
+######### Epoch: 21  ######### Train Loss: 0.002200507343513891  ######### Relative L2 Test Norm: 13.075538444519044
+######### Epoch: 22  ######### Train Loss: 0.0032687378523405643  ######### Relative L2 Test Norm: 15.007131004333496
+######### Epoch: 23  ######### Train Loss: 0.0024808021087665113  ######### Relative L2 Test Norm: 11.230756664276123
+######### Epoch: 24  ######### Train Loss: 0.004031800309894607  ######### Relative L2 Test Norm: 14.82577075958252
+######### Epoch: 25  ######### Train Loss: 0.002491754622315057  ######### Relative L2 Test Norm: 11.267407035827636
+######### Epoch: 26  ######### Train Loss: 0.0019508659053826705  ######### Relative L2 Test Norm: 8.966115236282349
+######### Epoch: 27  ######### Train Loss: 0.0016006342135369777  ######### Relative L2 Test Norm: 8.037831449508667
+######### Epoch: 28  ######### Train Loss: 0.0014343405986437575  ######### Relative L2 Test Norm: 8.470785760879517
+######### Epoch: 29  ######### Train Loss: 0.0013347135594813154  ######### Relative L2 Test Norm: 7.779804325103759
+######### Epoch: 30  ######### Train Loss: 0.0012122722691856325  ######### Relative L2 Test Norm: 9.757169818878173
+######### Epoch: 31  ######### Train Loss: 0.0016429146053269506  ######### Relative L2 Test Norm: 9.159850978851319
+######### Epoch: 32  ######### Train Loss: 0.0015427003323566168  ######### Relative L2 Test Norm: 11.26768217086792
+######### Epoch: 33  ######### Train Loss: 0.0022191050491528587  ######### Relative L2 Test Norm: 11.708291339874268
+######### Epoch: 34  ######### Train Loss: 0.0019086351938312873  ######### Relative L2 Test Norm: 11.362771892547608
+######### Epoch: 35  ######### Train Loss: 0.0015609639085596427  ######### Relative L2 Test Norm: 10.655457687377929
+######### Epoch: 36  ######### Train Loss: 0.0012211414170451463  ######### Relative L2 Test Norm: 8.228519201278687
+######### Epoch: 37  ######### Train Loss: 0.001135754442657344  ######### Relative L2 Test Norm: 7.803680372238159
+######### Epoch: 38  ######### Train Loss: 0.0013468256278429181  ######### Relative L2 Test Norm: 10.044586563110352
+######### Epoch: 39  ######### Train Loss: 0.0011835888217319734  ######### Relative L2 Test Norm: 7.729120445251465
+######### Epoch: 40  ######### Train Loss: 0.00099713847739622  ######### Relative L2 Test Norm: 9.370346832275391
+######### Epoch: 41  ######### Train Loss: 0.0013372904402785934  ######### Relative L2 Test Norm: 7.191574192047119
+######### Epoch: 42  ######### Train Loss: 0.0009819963757763616  ######### Relative L2 Test Norm: 7.780644369125366
+######### Epoch: 43  ######### Train Loss: 0.0012345216018729843  ######### Relative L2 Test Norm: 7.00186448097229
+######### Epoch: 44  ######### Train Loss: 0.001464468240737915  ######### Relative L2 Test Norm: 8.008724975585938
+######### Epoch: 45  ######### Train Loss: 0.0008621698041679337  ######### Relative L2 Test Norm: 8.358184623718262
+######### Epoch: 46  ######### Train Loss: 0.0008151108704623766  ######### Relative L2 Test Norm: 7.689705467224121
+######### Epoch: 47  ######### Train Loss: 0.0008712709648534655  ######### Relative L2 Test Norm: 6.908186626434326
+######### Epoch: 48  ######### Train Loss: 0.0010743168968474492  ######### Relative L2 Test Norm: 8.13029499053955
+######### Epoch: 49  ######### Train Loss: 0.0010750520144938492  ######### Relative L2 Test Norm: 9.436154079437255
+######### Epoch: 50  ######### Train Loss: 0.001452990632969886  ######### Relative L2 Test Norm: 7.51480131149292
+######### Epoch: 51  ######### Train Loss: 0.0010552667969022877  ######### Relative L2 Test Norm: 8.743330335617065
+######### Epoch: 52  ######### Train Loss: 0.0009050580876646564  ######### Relative L2 Test Norm: 6.523472499847412
+######### Epoch: 53  ######### Train Loss: 0.0008786952806985937  ######### Relative L2 Test Norm: 7.368271398544311
+######### Epoch: 54  ######### Train Loss: 0.0009639221490942873  ######### Relative L2 Test Norm: 8.24415979385376
+######### Epoch: 55  ######### Train Loss: 0.0008899502470740117  ######### Relative L2 Test Norm: 7.538790464401245
+######### Epoch: 56  ######### Train Loss: 0.0013886175933294  ######### Relative L2 Test Norm: 7.637255525588989
+######### Epoch: 57  ######### Train Loss: 0.0014769636298296973  ######### Relative L2 Test Norm: 8.04616174697876
+######### Epoch: 58  ######### Train Loss: 0.0011609294495428912  ######### Relative L2 Test Norm: 8.558562517166138
+######### Epoch: 59  ######### Train Loss: 0.00095136590389302  ######### Relative L2 Test Norm: 7.341234540939331
+######### Epoch: 60  ######### Train Loss: 0.0009871860034763812  ######### Relative L2 Test Norm: 6.648524379730224
+######### Epoch: 61  ######### Train Loss: 0.0010810327454237267  ######### Relative L2 Test Norm: 7.013053607940674
+######### Epoch: 62  ######### Train Loss: 0.0008321628905832767  ######### Relative L2 Test Norm: 7.627997875213623
+######### Epoch: 63  ######### Train Loss: 0.0010340705870476087  ######### Relative L2 Test Norm: 7.306668376922607
+######### Epoch: 64  ######### Train Loss: 0.001453473283618223  ######### Relative L2 Test Norm: 6.6999366760253904
+######### Epoch: 65  ######### Train Loss: 0.0008318316489749122  ######### Relative L2 Test Norm: 7.156006956100464
+######### Epoch: 66  ######### Train Loss: 0.0009444287090445869  ######### Relative L2 Test Norm: 6.631244564056397
+######### Epoch: 67  ######### Train Loss: 0.0006392503542883788  ######### Relative L2 Test Norm: 6.289718103408814
+######### Epoch: 68  ######### Train Loss: 0.0009330886430689133  ######### Relative L2 Test Norm: 6.5202864646911625
+######### Epoch: 69  ######### Train Loss: 0.0009697861969470978  ######### Relative L2 Test Norm: 7.409237718582153
+######### Epoch: 70  ######### Train Loss: 0.0009074346045963467  ######### Relative L2 Test Norm: 6.553651332855225
+######### Epoch: 71  ######### Train Loss: 0.000656147090921877  ######### Relative L2 Test Norm: 6.085861444473267
+######### Epoch: 72  ######### Train Loss: 0.0007106517034117133  ######### Relative L2 Test Norm: 6.5132519721984865
+######### Epoch: 73  ######### Train Loss: 0.0007726775518676731  ######### Relative L2 Test Norm: 6.163265609741211
+######### Epoch: 74  ######### Train Loss: 0.0008381573563383427  ######### Relative L2 Test Norm: 6.179930114746094
+######### Epoch: 75  ######### Train Loss: 0.0005787991263787262  ######### Relative L2 Test Norm: 6.172067356109619
+######### Epoch: 76  ######### Train Loss: 0.0005943306037806906  ######### Relative L2 Test Norm: 6.202582216262817
+######### Epoch: 77  ######### Train Loss: 0.0010683272790629416  ######### Relative L2 Test Norm: 6.801494503021241
+######### Epoch: 78  ######### Train Loss: 0.0011595203308388592  ######### Relative L2 Test Norm: 6.219602298736572
+######### Epoch: 79  ######### Train Loss: 0.0005358271140721626  ######### Relative L2 Test Norm: 6.343548345565796
+######### Epoch: 80  ######### Train Loss: 0.0007537987592513673  ######### Relative L2 Test Norm: 6.285419225692749
+######### Epoch: 81  ######### Train Loss: 0.0007200797736004461  ######### Relative L2 Test Norm: 6.148541259765625
+######### Epoch: 82  ######### Train Loss: 0.0008719676879991312  ######### Relative L2 Test Norm: 6.214302110671997
+######### Epoch: 83  ######### Train Loss: 0.0007731104080448859  ######### Relative L2 Test Norm: 6.098220539093018
+######### Epoch: 84  ######### Train Loss: 0.0008894876969861798  ######### Relative L2 Test Norm: 6.207298231124878
+######### Epoch: 85  ######### Train Loss: 0.00043076043730252425  ######### Relative L2 Test Norm: 6.040757012367249
+######### Epoch: 86  ######### Train Loss: 0.0009252275893231853  ######### Relative L2 Test Norm: 6.037963438034057
+######### Epoch: 87  ######### Train Loss: 0.001023233399610035  ######### Relative L2 Test Norm: 6.024958324432373
+######### Epoch: 88  ######### Train Loss: 0.0007285386076546274  ######### Relative L2 Test Norm: 6.223809909820557
+######### Epoch: 89  ######### Train Loss: 0.00070964117985568  ######### Relative L2 Test Norm: 6.190090918540955
+######### Epoch: 90  ######### Train Loss: 0.0008075132252997718  ######### Relative L2 Test Norm: 5.900483703613281
+######### Epoch: 91  ######### Train Loss: 0.0011511342119774782  ######### Relative L2 Test Norm: 6.412268018722534
+######### Epoch: 92  ######### Train Loss: 0.0006278121953073423  ######### Relative L2 Test Norm: 6.2846009731292725
+######### Epoch: 93  ######### Train Loss: 0.0006174356021801941  ######### Relative L2 Test Norm: 6.077912521362305
+######### Epoch: 94  ######### Train Loss: 0.0007703090544964652  ######### Relative L2 Test Norm: 6.215442514419555
+######### Epoch: 95  ######### Train Loss: 0.0008453528527752497  ######### Relative L2 Test Norm: 6.118043327331543
+######### Epoch: 96  ######### Train Loss: 0.0006282256428676192  ######### Relative L2 Test Norm: 6.189021587371826
+######### Epoch: 97  ######### Train Loss: 0.0007493316166801378  ######### Relative L2 Test Norm: 6.1896239757537845
+######### Epoch: 98  ######### Train Loss: 0.0006242662522708998  ######### Relative L2 Test Norm: 6.138277292251587
+######### Epoch: 99  ######### Train Loss: 0.0006894958321936428  ######### Relative L2 Test Norm: 6.10753812789917
+Saved graph to results/Task_4_12_Finetuning_fig_1.pdf
+Saved graph to results/Task_4_12_Finetuning_fig_2.pdf
+Saved finetuned model to models/fno_12_bn_finetuned.pth
+
+--- Testing Finetuned Model ---
+Relative L2 Error at t=0.25: 6.4048%
+Relative L2 Error at t=0.5: 7.3933%
+Relative L2 Error at t=0.75: 7.5384%
+Relative L2 Error at t=1.0: 8.9027%
+Finetuned errors: [6.404781341552734, 7.393282890319824, 7.538352012634277, 8.902719497680664]
+
+--- Training from Scratch on Finetune Dataset ---
+Training model from scratch...
+######### Epoch: 0  ######### Train Loss: 0.044943441869691014  ######### Relative L2 Test Norm: 38.18461952209473
+######### Epoch: 1  ######### Train Loss: 0.0216092387214303  ######### Relative L2 Test Norm: 23.34847068786621
+######### Epoch: 2  ######### Train Loss: 0.01606472316198051  ######### Relative L2 Test Norm: 20.794258308410644
+######### Epoch: 3  ######### Train Loss: 0.014457333437167107  ######### Relative L2 Test Norm: 23.18212537765503
+######### Epoch: 4  ######### Train Loss: 0.013111723877955228  ######### Relative L2 Test Norm: 19.844083881378175
+######### Epoch: 5  ######### Train Loss: 0.011278058798052371  ######### Relative L2 Test Norm: 22.940624046325684
+######### Epoch: 6  ######### Train Loss: 0.01104250126518309  ######### Relative L2 Test Norm: 17.870012474060058
+######### Epoch: 7  ######### Train Loss: 0.010111275687813759  ######### Relative L2 Test Norm: 20.222765731811524
+######### Epoch: 8  ######### Train Loss: 0.007351317524444312  ######### Relative L2 Test Norm: 16.40775442123413
+######### Epoch: 9  ######### Train Loss: 0.012080042518209665  ######### Relative L2 Test Norm: 22.96008129119873
+######### Epoch: 10  ######### Train Loss: 0.009092885360587388  ######### Relative L2 Test Norm: 17.96576557159424
+######### Epoch: 11  ######### Train Loss: 0.0071799976518377665  ######### Relative L2 Test Norm: 14.263506317138672
+######### Epoch: 12  ######### Train Loss: 0.00783627696800977  ######### Relative L2 Test Norm: 19.60016460418701
+######### Epoch: 13  ######### Train Loss: 0.006267874373588711  ######### Relative L2 Test Norm: 15.98311252593994
+######### Epoch: 14  ######### Train Loss: 0.005256442649988457  ######### Relative L2 Test Norm: 14.27788028717041
+######### Epoch: 15  ######### Train Loss: 0.006005293386988342  ######### Relative L2 Test Norm: 15.96836290359497
+######### Epoch: 16  ######### Train Loss: 0.006785712321288884  ######### Relative L2 Test Norm: 17.83872184753418
+######### Epoch: 17  ######### Train Loss: 0.007195682486053556  ######### Relative L2 Test Norm: 17.467523193359376
+######### Epoch: 18  ######### Train Loss: 0.0045954059925861655  ######### Relative L2 Test Norm: 13.78301944732666
+######### Epoch: 19  ######### Train Loss: 0.004863274734816514  ######### Relative L2 Test Norm: 11.690104389190674
+######### Epoch: 20  ######### Train Loss: 0.0029867029981687663  ######### Relative L2 Test Norm: 13.600111198425292
+######### Epoch: 21  ######### Train Loss: 0.004389665927737952  ######### Relative L2 Test Norm: 13.544686126708985
+######### Epoch: 22  ######### Train Loss: 0.003935239237034693  ######### Relative L2 Test Norm: 14.019468593597413
+######### Epoch: 23  ######### Train Loss: 0.005557324917754158  ######### Relative L2 Test Norm: 14.53363494873047
+######### Epoch: 24  ######### Train Loss: 0.0041665841301437466  ######### Relative L2 Test Norm: 12.49554443359375
+######### Epoch: 25  ######### Train Loss: 0.003718252177350223  ######### Relative L2 Test Norm: 12.689821815490722
+######### Epoch: 26  ######### Train Loss: 0.004290202326956205  ######### Relative L2 Test Norm: 13.122440719604493
+######### Epoch: 27  ######### Train Loss: 0.003608520139823668  ######### Relative L2 Test Norm: 12.13536205291748
+######### Epoch: 28  ######### Train Loss: 0.004009089182363823  ######### Relative L2 Test Norm: 14.651235103607178
+######### Epoch: 29  ######### Train Loss: 0.0036683983518742023  ######### Relative L2 Test Norm: 11.604480838775634
+######### Epoch: 30  ######### Train Loss: 0.002886158775072545  ######### Relative L2 Test Norm: 12.197020721435546
+######### Epoch: 31  ######### Train Loss: 0.003736458218190819  ######### Relative L2 Test Norm: 12.346699523925782
+######### Epoch: 32  ######### Train Loss: 0.0022330441744998096  ######### Relative L2 Test Norm: 13.055169296264648
+######### Epoch: 33  ######### Train Loss: 0.0033061728114262222  ######### Relative L2 Test Norm: 12.366897201538086
+######### Epoch: 34  ######### Train Loss: 0.003445104736601934  ######### Relative L2 Test Norm: 12.63130693435669
+######### Epoch: 35  ######### Train Loss: 0.0029617134132422507  ######### Relative L2 Test Norm: 10.975068378448487
+######### Epoch: 36  ######### Train Loss: 0.002926720085088164  ######### Relative L2 Test Norm: 12.80895700454712
+######### Epoch: 37  ######### Train Loss: 0.0032303358922945334  ######### Relative L2 Test Norm: 12.237330627441406
+######### Epoch: 38  ######### Train Loss: 0.0025531795050483196  ######### Relative L2 Test Norm: 11.489481449127197
+######### Epoch: 39  ######### Train Loss: 0.0031051832949742673  ######### Relative L2 Test Norm: 12.291141033172607
+######### Epoch: 40  ######### Train Loss: 0.0032283696404192598  ######### Relative L2 Test Norm: 11.945419883728027
+######### Epoch: 41  ######### Train Loss: 0.0027824404241982847  ######### Relative L2 Test Norm: 12.674025630950927
+######### Epoch: 42  ######### Train Loss: 0.002792134659830481  ######### Relative L2 Test Norm: 11.295470142364502
+######### Epoch: 43  ######### Train Loss: 0.002421617170330137  ######### Relative L2 Test Norm: 11.879144191741943
+######### Epoch: 44  ######### Train Loss: 0.0021422218385851012  ######### Relative L2 Test Norm: 11.078820610046387
+######### Epoch: 45  ######### Train Loss: 0.002450786062399857  ######### Relative L2 Test Norm: 11.997603225708009
+######### Epoch: 46  ######### Train Loss: 0.0019182072777766735  ######### Relative L2 Test Norm: 10.449382877349853
+######### Epoch: 47  ######### Train Loss: 0.002183308204985224  ######### Relative L2 Test Norm: 11.317244625091552
+######### Epoch: 48  ######### Train Loss: 0.001719205774134025  ######### Relative L2 Test Norm: 10.926961612701415
+######### Epoch: 49  ######### Train Loss: 0.0023829648154787718  ######### Relative L2 Test Norm: 10.545259475708008
+######### Epoch: 50  ######### Train Loss: 0.00229727333644405  ######### Relative L2 Test Norm: 10.645325183868408
+######### Epoch: 51  ######### Train Loss: 0.002143325051292777  ######### Relative L2 Test Norm: 10.762629318237305
+######### Epoch: 52  ######### Train Loss: 0.0023381088656606154  ######### Relative L2 Test Norm: 10.880855178833007
+######### Epoch: 53  ######### Train Loss: 0.0016564831865252927  ######### Relative L2 Test Norm: 10.637320613861084
+######### Epoch: 54  ######### Train Loss: 0.001468477223534137  ######### Relative L2 Test Norm: 10.32705545425415
+######### Epoch: 55  ######### Train Loss: 0.0018301907606655733  ######### Relative L2 Test Norm: 9.880030250549316
+######### Epoch: 56  ######### Train Loss: 0.001580170207307674  ######### Relative L2 Test Norm: 11.080647563934326
+######### Epoch: 57  ######### Train Loss: 0.002359982518828474  ######### Relative L2 Test Norm: 10.725580787658691
+######### Epoch: 58  ######### Train Loss: 0.0019705463550053538  ######### Relative L2 Test Norm: 10.370505714416504
+######### Epoch: 59  ######### Train Loss: 0.0014433134623686784  ######### Relative L2 Test Norm: 10.243424797058106
+######### Epoch: 60  ######### Train Loss: 0.0016059879155363888  ######### Relative L2 Test Norm: 10.148646354675293
+######### Epoch: 61  ######### Train Loss: 0.002415710770583246  ######### Relative L2 Test Norm: 10.51856861114502
+######### Epoch: 62  ######### Train Loss: 0.002073358297639061  ######### Relative L2 Test Norm: 9.77830810546875
+######### Epoch: 63  ######### Train Loss: 0.0012952230827067979  ######### Relative L2 Test Norm: 10.164527225494385
+######### Epoch: 64  ######### Train Loss: 0.0015585761721013114  ######### Relative L2 Test Norm: 9.741845798492431
+######### Epoch: 65  ######### Train Loss: 0.0017907837580423802  ######### Relative L2 Test Norm: 9.651476764678955
+######### Epoch: 66  ######### Train Loss: 0.0014398020794033073  ######### Relative L2 Test Norm: 10.055226802825928
+######### Epoch: 67  ######### Train Loss: 0.00201788140257122  ######### Relative L2 Test Norm: 9.65731315612793
+######### Epoch: 68  ######### Train Loss: 0.0013706524900044315  ######### Relative L2 Test Norm: 9.838035202026367
+######### Epoch: 69  ######### Train Loss: 0.0013116273185005412  ######### Relative L2 Test Norm: 9.8699631690979
+######### Epoch: 70  ######### Train Loss: 0.0016585340723395347  ######### Relative L2 Test Norm: 10.642818832397461
+######### Epoch: 71  ######### Train Loss: 0.0016513190857949667  ######### Relative L2 Test Norm: 10.152649879455566
+######### Epoch: 72  ######### Train Loss: 0.0011764003735152072  ######### Relative L2 Test Norm: 10.141925048828124
+######### Epoch: 73  ######### Train Loss: 0.00150408789049834  ######### Relative L2 Test Norm: 10.163103294372558
+######### Epoch: 74  ######### Train Loss: 0.0015037853489047847  ######### Relative L2 Test Norm: 9.868279647827148
+######### Epoch: 75  ######### Train Loss: 0.0014542327509843745  ######### Relative L2 Test Norm: 9.830229949951171
+######### Epoch: 76  ######### Train Loss: 0.0014785189894610084  ######### Relative L2 Test Norm: 10.275806427001953
+######### Epoch: 77  ######### Train Loss: 0.0012200990560813807  ######### Relative L2 Test Norm: 10.065839290618896
+######### Epoch: 78  ######### Train Loss: 0.001586460466205608  ######### Relative L2 Test Norm: 9.899497413635254
+######### Epoch: 79  ######### Train Loss: 0.001363932091044262  ######### Relative L2 Test Norm: 9.975017738342284
+######### Epoch: 80  ######### Train Loss: 0.0017197200751979836  ######### Relative L2 Test Norm: 10.039742469787598
+######### Epoch: 81  ######### Train Loss: 0.0014552268185070716  ######### Relative L2 Test Norm: 9.808854961395264
+######### Epoch: 82  ######### Train Loss: 0.001028949512692634  ######### Relative L2 Test Norm: 9.973986339569091
+######### Epoch: 83  ######### Train Loss: 0.0013412806147243828  ######### Relative L2 Test Norm: 9.90405855178833
+######### Epoch: 84  ######### Train Loss: 0.0012165833744802513  ######### Relative L2 Test Norm: 9.947379207611084
+######### Epoch: 85  ######### Train Loss: 0.0013097618328174576  ######### Relative L2 Test Norm: 9.823794841766357
+######### Epoch: 86  ######### Train Loss: 0.0013372375644394197  ######### Relative L2 Test Norm: 9.892711925506593
+######### Epoch: 87  ######### Train Loss: 0.0012053869068040513  ######### Relative L2 Test Norm: 9.941188049316406
+######### Epoch: 88  ######### Train Loss: 0.0018148242728784681  ######### Relative L2 Test Norm: 9.873455047607422
+######### Epoch: 89  ######### Train Loss: 0.0014483435894362628  ######### Relative L2 Test Norm: 9.839286041259765
+######### Epoch: 90  ######### Train Loss: 0.0017868957336759194  ######### Relative L2 Test Norm: 10.007522106170654
+######### Epoch: 91  ######### Train Loss: 0.001226736165699549  ######### Relative L2 Test Norm: 9.865862846374512
+######### Epoch: 92  ######### Train Loss: 0.0013049439250607975  ######### Relative L2 Test Norm: 9.816163921356202
+######### Epoch: 93  ######### Train Loss: 0.0014598137378925458  ######### Relative L2 Test Norm: 9.67258243560791
+######### Epoch: 94  ######### Train Loss: 0.0012823771656258031  ######### Relative L2 Test Norm: 9.693526363372802
+######### Epoch: 95  ######### Train Loss: 0.0016421914042439312  ######### Relative L2 Test Norm: 9.824365711212158
+######### Epoch: 96  ######### Train Loss: 0.0014249288622522726  ######### Relative L2 Test Norm: 9.793359565734864
+######### Epoch: 97  ######### Train Loss: 0.0018200265360064805  ######### Relative L2 Test Norm: 10.259582424163819
+######### Epoch: 98  ######### Train Loss: 0.0010832663436303846  ######### Relative L2 Test Norm: 9.869123840332032
+######### Epoch: 99  ######### Train Loss: 0.001384347994462587  ######### Relative L2 Test Norm: 9.903792476654052
+Saved graph to results/Task_4_12_Finetuning_fig_3.pdf
+Saved graph to results/Task_4_12_Finetuning_fig_4.pdf
+Saved scratch model to models/fno_12_bn_scratch.pth
+
+--- Testing Model Trained from Scratch ---
+Relative L2 Error at t=0.25: 11.3477%
+Relative L2 Error at t=0.5: 10.9040%
+Relative L2 Error at t=0.75: 12.2277%
+Relative L2 Error at t=1.0: 13.2360%
+Scratch errors: [11.347667694091797, 10.9039888381958, 12.227681159973145, 13.236037254333496]
+Saved graph to results/Task_4_12_Finetuning_fig_5.pdf
