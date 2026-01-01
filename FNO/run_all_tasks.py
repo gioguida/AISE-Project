@@ -15,23 +15,23 @@ import task4_finetuning
 
 class GlobalConfig:
     # Model Architecture
-    MODES = 12
+    MODES = 16
     WIDTH = 64
 
     # Task 1: One-to-One
-    TASK1_RETRAIN = True
-    TASK1_SAVE = True
+    TASK1_RETRAIN = False
+    TASK1_SAVE = False
 
     # Task 3: All-to-All
-    TASK3_RETRAIN = True
-    TASK3_SAVE = True
+    TASK3_RETRAIN = False
+    TASK3_SAVE = False
 
     # Task 4: Finetuning
-    TASK4_TRAIN_FINETUNE = True
-    TASK4_SAVE_FINETUNE = True
+    TASK4_TRAIN_FINETUNE = False
+    TASK4_SAVE_FINETUNE = False
     
-    TASK4_TRAIN_SCRATCH = True
-    TASK4_SAVE_SCRATCH = True
+    TASK4_TRAIN_SCRATCH = False
+    TASK4_SAVE_SCRATCH = False
 
 def configure_tasks(config):
     """Apply global configuration to individual task modules."""
