@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from data_generation import Poisson_data_generator
+from task1_data_generation import Poisson_data_generator
 
 torch.autograd.set_detect_anomaly(True)
 torch.manual_seed(0)

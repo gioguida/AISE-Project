@@ -12,9 +12,9 @@ from pathlib import Path
 import json
 
 # Import from the refactored code
+from task1_data_generation import Poisson_data_generator
 from task2_implementation import (
     Config, 
-    Poisson_data_generator,
     train_pinn,
     train_data_driven,
     evaluate_model,
@@ -54,6 +54,23 @@ class ExperimentConfig:
     
     # Random seed for reproducibility
     SEED = 42
+
+    # ========================================================================
+    # EXECUTION FLAGS
+    # ========================================================================
+    
+    # Which models to process
+    TRAIN_PINN = True
+    TRAIN_DD = True
+    
+    # Execution mode
+    # If True, will ignore existing models and retrain from scratch
+    RETRAIN = False 
+    
+    # If True, will skip all training/loading logic that isn't needed for plotting
+    # and just try to load models to generate plots.
+    # If models are missing, it will skip them.
+    RECREATE_PLOTS_ONLY = False
 
 
 # ============================================================================
@@ -216,44 +233,79 @@ def task2_model_training(logger, exp_config):
         # ────────────────────────────────────────────────────────────────
         pinn_path = os.path.join(exp_config.MODELS_DIR, f'pinn_K{K}.pt')
         pinn_loaded = False
+        pinn_model = None
+        pinn_history = []
+        U_pred_pinn = None
+        error_pinn = 0.0
         
-        if os.path.exists(pinn_path):
-            logger.log(f"\n[2/5] Loading PINN model from {pinn_path}...")
-            pinn_model = PINN(
-                config.N_HIDDEN_LAYERS, 
-                config.WIDTH, 
-                config.N, 
-                config.DEVICE,
-                mesh=config.MESH_TYPE,
-                lambda_u=config.PINN_LAMBDA_U
-            )
-            pinn_model.load_state_dict(torch.load(pinn_path, map_location=config.DEVICE))
-            pinn_history = [] # History not available when loading
-            pinn_loaded = True
-            logger.log(f"  ✓ PINN model loaded successfully")
+        if exp_config.TRAIN_PINN:
+            should_train_pinn = False
+            if exp_config.RETRAIN:
+                should_train_pinn = True
+            elif not os.path.exists(pinn_path):
+                if exp_config.RECREATE_PLOTS_ONLY:
+                    logger.log(f"\n[2/5] PINN model not found at {pinn_path}. Skipping (RECREATE_PLOTS_ONLY=True).")
+                else:
+                    should_train_pinn = True
+            else:
+                # Model exists and not retraining
+                logger.log(f"\n[2/5] Loading PINN model from {pinn_path}...")
+                try:
+                    pinn_model = PINN(
+                        config.N_HIDDEN_LAYERS, 
+                        config.WIDTH, 
+                        config.N, 
+                        config.DEVICE,
+                        mesh=config.MESH_TYPE,
+                        lambda_u=config.PINN_LAMBDA_U
+                    )
+                    pinn_model.load_state_dict(torch.load(pinn_path, map_location=config.DEVICE))
+                    pinn_loaded = True
+                    logger.log(f"  ✓ PINN model loaded successfully")
+                except Exception as e:
+                    logger.log(f"  ! Failed to load PINN model: {e}")
+                    if not exp_config.RECREATE_PLOTS_ONLY:
+                        should_train_pinn = True
+            
+            if should_train_pinn:
+                logger.log(f"\n[2/5] Training PINN model...")
+                logger.log(f"  • Architecture: {config.N_HIDDEN_LAYERS} hidden layers, width {config.WIDTH}")
+                logger.log(f"  • Adam epochs: {config.PINN_EPOCHS_ADAM}, LBFGS epochs: {config.PINN_EPOCHS_LBFGS}")
+                logger.log(f"  • Lambda_u (PDE weight): {config.PINN_LAMBDA_U}")
+                
+                pinn_model, pinn_history = train_pinn(config, data_generator, verbose=True)
+                
+                logger.log(f"  ✓ PINN training completed")
+                logger.log(f"  • Final loss: {pinn_history[-1]:.6e}")
+                logger.log(f"  • Total iterations: {len(pinn_history)}")
+                
+                # Save model
+                torch.save(pinn_model.state_dict(), pinn_path)
+                logger.log(f"  ✓ Model saved to {pinn_path}")
+            
+            # Evaluate PINN if we have a model
+            if pinn_model:
+                U_pred_pinn, U_exact, error_pinn = evaluate_model(
+                    pinn_model, data_generator, config, is_data_driven=False
+                )
+                logger.log(f"  • L2 Relative Error: {error_pinn:.2f}%")
+                
+                # Save PINN loss curve only if trained
+                if not pinn_loaded and pinn_history:
+                    plt.figure(figsize=(8, 5), dpi=150)
+                    plt.plot(pinn_history, linewidth=1.5, color='#2E86AB')
+                    plt.xlabel('Iteration', fontsize=11)
+                    plt.ylabel('Loss', fontsize=11)
+                    plt.title(f'PINN Training History (K={K})', fontweight='bold', fontsize=12)
+                    plt.yscale('log')
+                    plt.grid(True, alpha=0.3, linestyle='--')
+                    plt.tight_layout()
+                    loss_path = os.path.join(exp_config.PLOTS_DIR, f'pinn_loss_K{K}.png')
+                    plt.savefig(loss_path, dpi=150, bbox_inches='tight')
+                    plt.close()
         else:
-            logger.log(f"\n[2/5] Training PINN model...")
-            logger.log(f"  • Architecture: {config.N_HIDDEN_LAYERS} hidden layers, width {config.WIDTH}")
-            logger.log(f"  • Adam epochs: {config.PINN_EPOCHS_ADAM}, LBFGS epochs: {config.PINN_EPOCHS_LBFGS}")
-            logger.log(f"  • Lambda_u (PDE weight): {config.PINN_LAMBDA_U}")
-            
-            pinn_model, pinn_history = train_pinn(config, data_generator, verbose=True)
-            
-            logger.log(f"  ✓ PINN training completed")
-            logger.log(f"  • Final loss: {pinn_history[-1]:.6e}")
-            logger.log(f"  • Total iterations: {len(pinn_history)}")
-            
-            # Save model
-            torch.save(pinn_model.state_dict(), pinn_path)
-            logger.log(f"  ✓ Model saved to {pinn_path}")
-        
-        # Evaluate PINN
-        U_pred_pinn, U_exact, error_pinn = evaluate_model(
-            pinn_model, data_generator, config, is_data_driven=False
-        )
-        
-        logger.log(f"  • L2 Relative Error: {error_pinn:.2f}%")
-        
+            logger.log(f"\n[2/5] Skipping PINN (TRAIN_PINN=False)")
+
         results[K]['pinn'] = {
             'model': pinn_model,
             'history': pinn_history,
@@ -262,56 +314,77 @@ def task2_model_training(logger, exp_config):
             'final_loss': pinn_history[-1] if pinn_history else 0.0
         }
         
-        # Save PINN loss curve only if trained
-        if not pinn_loaded and pinn_history:
-            plt.figure(figsize=(8, 5), dpi=150)
-            plt.plot(pinn_history, linewidth=1.5, color='#2E86AB')
-            plt.xlabel('Iteration', fontsize=11)
-            plt.ylabel('Loss', fontsize=11)
-            plt.title(f'PINN Training History (K={K})', fontweight='bold', fontsize=12)
-            plt.yscale('log')
-            plt.grid(True, alpha=0.3, linestyle='--')
-            plt.tight_layout()
-            loss_path = os.path.join(exp_config.PLOTS_DIR, f'pinn_loss_K{K}.png')
-            plt.savefig(loss_path, dpi=150, bbox_inches='tight')
-            plt.close()
-        
         # ────────────────────────────────────────────────────────────────
         # Train or Load Data-Driven
         # ────────────────────────────────────────────────────────────────
         dd_path = os.path.join(exp_config.MODELS_DIR, f'data_driven_K{K}.pt')
         dd_loaded = False
+        dd_model = None
+        dd_history = []
+        U_pred_dd = None
+        error_dd = 0.0
         
-        if os.path.exists(dd_path):
-            logger.log(f"\n[3/5] Loading Data-Driven model from {dd_path}...")
-            dd_model = DataDrivenModel(config.N_HIDDEN_LAYERS, config.WIDTH).to(config.DEVICE)
-            dd_model.load_state_dict(torch.load(dd_path, map_location=config.DEVICE))
-            dd_history = [] # History not available when loading
-            dd_loaded = True
-            logger.log(f"  ✓ Data-Driven model loaded successfully")
+        if exp_config.TRAIN_DD:
+            should_train_dd = False
+            if exp_config.RETRAIN:
+                should_train_dd = True
+            elif not os.path.exists(dd_path):
+                if exp_config.RECREATE_PLOTS_ONLY:
+                    logger.log(f"\n[3/5] Data-Driven model not found at {dd_path}. Skipping (RECREATE_PLOTS_ONLY=True).")
+                else:
+                    should_train_dd = True
+            else:
+                # Model exists and not retraining
+                logger.log(f"\n[3/5] Loading Data-Driven model from {dd_path}...")
+                try:
+                    dd_model = DataDrivenModel(config.N_HIDDEN_LAYERS, config.WIDTH).to(config.DEVICE)
+                    dd_model.load_state_dict(torch.load(dd_path, map_location=config.DEVICE))
+                    dd_loaded = True
+                    logger.log(f"  ✓ Data-Driven model loaded successfully")
+                except Exception as e:
+                    logger.log(f"  ! Failed to load Data-Driven model: {e}")
+                    if not exp_config.RECREATE_PLOTS_ONLY:
+                        should_train_dd = True
+
+            if should_train_dd:
+                logger.log(f"\n[3/5] Training Data-Driven model...")
+                logger.log(f"  • Architecture: {config.N_HIDDEN_LAYERS} hidden layers, width {config.WIDTH}")
+                logger.log(f"  • Adam epochs: {config.DD_EPOCHS_ADAM}, LBFGS epochs: {config.DD_EPOCHS_LBFGS}")
+                logger.log(f"  • Batch size: {config.DD_BATCH_SIZE}")
+                
+                dd_model, dd_history = train_data_driven(config, data_generator, verbose=True)
+                
+                logger.log(f"  ✓ Data-Driven training completed")
+                logger.log(f"  • Final loss: {dd_history[-1]:.6e}")
+                logger.log(f"  • Total iterations: {len(dd_history)}")
+                
+                # Save model
+                torch.save(dd_model.state_dict(), dd_path)
+                logger.log(f"  ✓ Model saved to {dd_path}")
+            
+            # Evaluate Data-Driven if we have a model
+            if dd_model:
+                U_pred_dd, U_exact, error_dd = evaluate_model(
+                    dd_model, data_generator, config, is_data_driven=True
+                )
+                logger.log(f"  • L2 Relative Error: {error_dd:.2f}%")
+                
+                # Save Data-Driven loss curve only if trained
+                if not dd_loaded and dd_history:
+                    plt.figure(figsize=(8, 5), dpi=150)
+                    plt.plot(dd_history, linewidth=1.5, color='#A23B72')
+                    plt.xlabel('Iteration', fontsize=11)
+                    plt.ylabel('Loss', fontsize=11)
+                    plt.title(f'Data-Driven Training History (K={K})', fontweight='bold', fontsize=12)
+                    plt.yscale('log')
+                    plt.grid(True, alpha=0.3, linestyle='--')
+                    plt.tight_layout()
+                    loss_path = os.path.join(exp_config.PLOTS_DIR, f'data_driven_loss_K{K}.png')
+                    plt.savefig(loss_path, dpi=150, bbox_inches='tight')
+                    plt.close()
         else:
-            logger.log(f"\n[3/5] Training Data-Driven model...")
-            logger.log(f"  • Architecture: {config.N_HIDDEN_LAYERS} hidden layers, width {config.WIDTH}")
-            logger.log(f"  • Adam epochs: {config.DD_EPOCHS_ADAM}, LBFGS epochs: {config.DD_EPOCHS_LBFGS}")
-            logger.log(f"  • Batch size: {config.DD_BATCH_SIZE}")
-            
-            dd_model, dd_history = train_data_driven(config, data_generator, verbose=True)
-            
-            logger.log(f"  ✓ Data-Driven training completed")
-            logger.log(f"  • Final loss: {dd_history[-1]:.6e}")
-            logger.log(f"  • Total iterations: {len(dd_history)}")
-            
-            # Save model
-            torch.save(dd_model.state_dict(), dd_path)
-            logger.log(f"  ✓ Model saved to {dd_path}")
-        
-        # Evaluate Data-Driven
-        U_pred_dd, U_exact, error_dd = evaluate_model(
-            dd_model, data_generator, config, is_data_driven=True
-        )
-        
-        logger.log(f"  • L2 Relative Error: {error_dd:.2f}%")
-        
+            logger.log(f"\n[3/5] Skipping Data-Driven (TRAIN_DD=False)")
+
         results[K]['data_driven'] = {
             'model': dd_model,
             'history': dd_history,
@@ -320,87 +393,76 @@ def task2_model_training(logger, exp_config):
             'final_loss': dd_history[-1] if dd_history else 0.0
         }
         
-        # Save Data-Driven loss curve only if trained
-        if not dd_loaded and dd_history:
-            plt.figure(figsize=(8, 5), dpi=150)
-            plt.plot(dd_history, linewidth=1.5, color='#A23B72')
-            plt.xlabel('Iteration', fontsize=11)
-            plt.ylabel('Loss', fontsize=11)
-            plt.title(f'Data-Driven Training History (K={K})', fontweight='bold', fontsize=12)
-            plt.yscale('log')
-            plt.grid(True, alpha=0.3, linestyle='--')
-            plt.tight_layout()
-            loss_path = os.path.join(exp_config.PLOTS_DIR, f'data_driven_loss_K{K}.png')
-            plt.savefig(loss_path, dpi=150, bbox_inches='tight')
-            plt.close()
-        
         # ────────────────────────────────────────────────────────────────
         # Generate comparison plots
         # ────────────────────────────────────────────────────────────────
         logger.log(f"\n[4/5] Generating comparison plots...")
         
-        x = np.linspace(0, 1, config.N)
-        y = np.linspace(0, 1, config.N)
-        X, Y = np.meshgrid(x, y, indexing='ij')
-        
-        # Create comprehensive comparison figure
-        fig = plt.figure(figsize=(18, 10))
-        gs = fig.add_gridspec(2, 3, hspace=0.3, wspace=0.3)
-        
-        # Row 1: PINN results
-        ax1 = fig.add_subplot(gs[0, 0])
-        im1 = ax1.pcolormesh(X, Y, U_pred_pinn, shading='auto', cmap='viridis')
-        ax1.set_title('PINN Prediction', fontweight='bold')
-        ax1.set_xlabel('x')
-        ax1.set_ylabel('y')
-        plt.colorbar(im1, ax=ax1)
-        
-        ax2 = fig.add_subplot(gs[0, 1])
-        im2 = ax2.pcolormesh(X, Y, U_exact, shading='auto', cmap='viridis')
-        ax2.set_title('Exact Solution', fontweight='bold')
-        ax2.set_xlabel('x')
-        ax2.set_ylabel('y')
-        plt.colorbar(im2, ax=ax2)
-        
-        ax3 = fig.add_subplot(gs[0, 2])
-        error_pinn_abs = np.abs(U_pred_pinn - U_exact)
-        im3 = ax3.pcolormesh(X, Y, error_pinn_abs, shading='auto', cmap='Reds')
-        ax3.set_title(f'PINN Error\nL2 Rel: {error_pinn:.2f}%', fontweight='bold')
-        ax3.set_xlabel('x')
-        ax3.set_ylabel('y')
-        plt.colorbar(im3, ax=ax3)
-        
-        # Row 2: Data-Driven results
-        ax4 = fig.add_subplot(gs[1, 0])
-        im4 = ax4.pcolormesh(X, Y, U_pred_dd, shading='auto', cmap='viridis')
-        ax4.set_title('Data-Driven Prediction', fontweight='bold')
-        ax4.set_xlabel('x')
-        ax4.set_ylabel('y')
-        plt.colorbar(im4, ax=ax4)
-        
-        ax5 = fig.add_subplot(gs[1, 1])
-        im5 = ax5.pcolormesh(X, Y, U_exact, shading='auto', cmap='viridis')
-        ax5.set_title('Exact Solution', fontweight='bold')
-        ax5.set_xlabel('x')
-        ax5.set_ylabel('y')
-        plt.colorbar(im5, ax=ax5)
-        
-        ax6 = fig.add_subplot(gs[1, 2])
-        error_dd_abs = np.abs(U_pred_dd - U_exact)
-        im6 = ax6.pcolormesh(X, Y, error_dd_abs, shading='auto', cmap='Reds')
-        ax6.set_title(f'Data-Driven Error\nL2 Rel: {error_dd:.2f}%', fontweight='bold')
-        ax6.set_xlabel('x')
-        ax6.set_ylabel('y')
-        plt.colorbar(im6, ax=ax6)
-        
-        fig.suptitle(f'Model Comparison - Complexity {complexity_label} (K={K})', 
-                    fontsize=14, fontweight='bold', y=0.98)
-        
-        comp_path = os.path.join(exp_config.PLOTS_DIR, f'comparison_K{K}.png')
-        plt.savefig(comp_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        
-        logger.log(f"  ✓ Comparison plot saved to: {comp_path}")
+        if U_pred_pinn is not None and U_pred_dd is not None:
+            x = np.linspace(0, 1, config.N)
+            y = np.linspace(0, 1, config.N)
+            X, Y = np.meshgrid(x, y, indexing='ij')
+            
+            # Create comprehensive comparison figure
+            fig = plt.figure(figsize=(18, 10))
+            gs = fig.add_gridspec(2, 3, hspace=0.3, wspace=0.3)
+            
+            # Row 1: PINN results
+            ax1 = fig.add_subplot(gs[0, 0])
+            im1 = ax1.pcolormesh(X, Y, U_pred_pinn, shading='auto', cmap='viridis')
+            ax1.set_title('PINN Prediction', fontweight='bold')
+            ax1.set_xlabel('x')
+            ax1.set_ylabel('y')
+            plt.colorbar(im1, ax=ax1)
+            
+            ax2 = fig.add_subplot(gs[0, 1])
+            im2 = ax2.pcolormesh(X, Y, U_exact, shading='auto', cmap='viridis')
+            ax2.set_title('Exact Solution', fontweight='bold')
+            ax2.set_xlabel('x')
+            ax2.set_ylabel('y')
+            plt.colorbar(im2, ax=ax2)
+            
+            ax3 = fig.add_subplot(gs[0, 2])
+            error_pinn_abs = np.abs(U_pred_pinn - U_exact)
+            im3 = ax3.pcolormesh(X, Y, error_pinn_abs, shading='auto', cmap='Reds')
+            ax3.set_title(f'PINN Error\nL2 Rel: {error_pinn:.2f}%', fontweight='bold')
+            ax3.set_xlabel('x')
+            ax3.set_ylabel('y')
+            plt.colorbar(im3, ax=ax3)
+            
+            # Row 2: Data-Driven results
+            ax4 = fig.add_subplot(gs[1, 0])
+            im4 = ax4.pcolormesh(X, Y, U_pred_dd, shading='auto', cmap='viridis')
+            ax4.set_title('Data-Driven Prediction', fontweight='bold')
+            ax4.set_xlabel('x')
+            ax4.set_ylabel('y')
+            plt.colorbar(im4, ax=ax4)
+            
+            ax5 = fig.add_subplot(gs[1, 1])
+            im5 = ax5.pcolormesh(X, Y, U_exact, shading='auto', cmap='viridis')
+            ax5.set_title('Exact Solution', fontweight='bold')
+            ax5.set_xlabel('x')
+            ax5.set_ylabel('y')
+            plt.colorbar(im5, ax=ax5)
+            
+            ax6 = fig.add_subplot(gs[1, 2])
+            error_dd_abs = np.abs(U_pred_dd - U_exact)
+            im6 = ax6.pcolormesh(X, Y, error_dd_abs, shading='auto', cmap='Reds')
+            ax6.set_title(f'Data-Driven Error\nL2 Rel: {error_dd:.2f}%', fontweight='bold')
+            ax6.set_xlabel('x')
+            ax6.set_ylabel('y')
+            plt.colorbar(im6, ax=ax6)
+            
+            fig.suptitle(f'Model Comparison - Complexity {complexity_label} (K={K})', 
+                        fontsize=14, fontweight='bold', y=0.98)
+            
+            comp_path = os.path.join(exp_config.PLOTS_DIR, f'comparison_K{K}.png')
+            plt.savefig(comp_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            
+            logger.log(f"  ✓ Comparison plot saved to: {comp_path}")
+        else:
+            logger.log(f"  ! Skipping comparison plot (missing model predictions)")
         
         logger.log(f"\n{'─'*80}")
         logger.log(f"✓ Completed K={K} ({complexity_label} complexity)")
@@ -430,15 +492,24 @@ def generate_summary(logger, results, exp_config):
     
     for K in exp_config.K_LEVELS:
         complexity = exp_config.K_LABELS[K]
-        pinn_err = results[K]['pinn']['error']
-        dd_err = results[K]['data_driven']['error']
+        pinn_res = results[K].get('pinn', {})
+        dd_res = results[K].get('data_driven', {})
+        
+        pinn_err = pinn_res.get('error', 0.0)
+        dd_err = dd_res.get('error', 0.0)
+        
+        pinn_str = f"{pinn_err:.2f}" if pinn_res.get('model') else "N/A"
+        dd_str = f"{dd_err:.2f}" if dd_res.get('model') else "N/A"
         
         # Calculate improvement (negative means PINN is better)
-        improvement = ((dd_err - pinn_err) / dd_err) * 100
-        improvement_str = f"{improvement:+.1f}%"
+        if pinn_res.get('model') and dd_res.get('model') and dd_err > 0:
+            improvement = ((dd_err - pinn_err) / dd_err) * 100
+            improvement_str = f"{improvement:+.1f}%"
+        else:
+            improvement_str = "N/A"
         
         logger.table_row(
-            [K, complexity, f"{pinn_err:.2f}", f"{dd_err:.2f}", improvement_str],
+            [K, complexity, pinn_str, dd_str, improvement_str],
             widths
         )
     
@@ -452,20 +523,32 @@ def generate_summary(logger, results, exp_config):
         logger.log(f"\nComplexity {complexity} (K={K}):")
         
         # PINN stats
-        pinn_hist = results[K]['pinn']['history']
-        logger.log(f"  PINN:")
-        logger.log(f"    • Total iterations: {len(pinn_hist)}")
-        logger.log(f"    • Initial loss: {pinn_hist[0]:.6e}")
-        logger.log(f"    • Final loss: {pinn_hist[-1]:.6e}")
-        logger.log(f"    • Loss reduction: {pinn_hist[0]/pinn_hist[-1]:.2e}x")
+        pinn_res = results[K].get('pinn', {})
+        if pinn_res.get('model') and pinn_res.get('history'):
+            pinn_hist = pinn_res['history']
+            logger.log(f"  PINN:")
+            logger.log(f"    • Total iterations: {len(pinn_hist)}")
+            logger.log(f"    • Initial loss: {pinn_hist[0]:.6e}")
+            logger.log(f"    • Final loss: {pinn_hist[-1]:.6e}")
+            logger.log(f"    • Loss reduction: {pinn_hist[0]/pinn_hist[-1]:.2e}x")
+        elif pinn_res.get('model'):
+             logger.log(f"  PINN: Loaded (no training history)")
+        else:
+             logger.log(f"  PINN: Not trained/loaded")
         
         # Data-Driven stats
-        dd_hist = results[K]['data_driven']['history']
-        logger.log(f"  Data-Driven:")
-        logger.log(f"    • Total iterations: {len(dd_hist)}")
-        logger.log(f"    • Initial loss: {dd_hist[0]:.6e}")
-        logger.log(f"    • Final loss: {dd_hist[-1]:.6e}")
-        logger.log(f"    • Loss reduction: {dd_hist[0]/dd_hist[-1]:.2e}x")
+        dd_res = results[K].get('data_driven', {})
+        if dd_res.get('model') and dd_res.get('history'):
+            dd_hist = dd_res['history']
+            logger.log(f"  Data-Driven:")
+            logger.log(f"    • Total iterations: {len(dd_hist)}")
+            logger.log(f"    • Initial loss: {dd_hist[0]:.6e}")
+            logger.log(f"    • Final loss: {dd_hist[-1]:.6e}")
+            logger.log(f"    • Loss reduction: {dd_hist[0]/dd_hist[-1]:.2e}x")
+        elif dd_res.get('model'):
+             logger.log(f"  Data-Driven: Loaded (no training history)")
+        else:
+             logger.log(f"  Data-Driven: Not trained/loaded")
     
     # ────────────────────────────────────────────────────────────────
     # Key Observations
@@ -473,26 +556,52 @@ def generate_summary(logger, results, exp_config):
     logger.subsection("Key Observations")
     
     # Find trends
-    pinn_errors = [results[K]['pinn']['error'] for K in exp_config.K_LEVELS]
-    dd_errors = [results[K]['data_driven']['error'] for K in exp_config.K_LEVELS]
+    pinn_errors = []
+    dd_errors = []
+    valid_pinn = True
+    valid_dd = True
+    
+    for K in exp_config.K_LEVELS:
+        if results[K].get('pinn', {}).get('model'):
+            pinn_errors.append(results[K]['pinn']['error'])
+        else:
+            valid_pinn = False
+            
+        if results[K].get('data_driven', {}).get('model'):
+            dd_errors.append(results[K]['data_driven']['error'])
+        else:
+            valid_dd = False
     
     logger.log(f"1. Error Trends with Increasing Complexity:")
-    logger.log(f"   • PINN error progression: {' → '.join([f'{e:.2f}%' for e in pinn_errors])}")
-    logger.log(f"   • Data-Driven error progression: {' → '.join([f'{e:.2f}%' for e in dd_errors])}")
+    if valid_pinn:
+        logger.log(f"   • PINN error progression: {' → '.join([f'{e:.2f}%' for e in pinn_errors])}")
+    else:
+        logger.log(f"   • PINN error progression: Incomplete data")
+        
+    if valid_dd:
+        logger.log(f"   • Data-Driven error progression: {' → '.join([f'{e:.2f}%' for e in dd_errors])}")
+    else:
+        logger.log(f"   • Data-Driven error progression: Incomplete data")
     
-    pinn_increase = ((pinn_errors[-1] - pinn_errors[0]) / pinn_errors[0]) * 100
-    dd_increase = ((dd_errors[-1] - dd_errors[0]) / dd_errors[0]) * 100
+    if valid_pinn and len(pinn_errors) > 1:
+        pinn_increase = ((pinn_errors[-1] - pinn_errors[0]) / pinn_errors[0]) * 100
+        logger.log(f"\n2. Error Growth from Low to High Complexity:")
+        logger.log(f"   • PINN: {pinn_increase:+.1f}%")
     
-    logger.log(f"\n2. Error Growth from Low to High Complexity:")
-    logger.log(f"   • PINN: {pinn_increase:+.1f}%")
-    logger.log(f"   • Data-Driven: {dd_increase:+.1f}%")
+    if valid_dd and len(dd_errors) > 1:
+        dd_increase = ((dd_errors[-1] - dd_errors[0]) / dd_errors[0]) * 100
+        if not (valid_pinn and len(pinn_errors) > 1):
+             logger.log(f"\n2. Error Growth from Low to High Complexity:")
+        logger.log(f"   • Data-Driven: {dd_increase:+.1f}%")
     
     # Best performance
-    best_k = min(exp_config.K_LEVELS, key=lambda k: results[k]['pinn']['error'])
-    logger.log(f"\n3. Best PINN Performance: K={best_k} ({exp_config.K_LABELS[best_k]}) with {results[best_k]['pinn']['error']:.2f}% error")
+    if valid_pinn:
+        best_k = min(exp_config.K_LEVELS, key=lambda k: results[k]['pinn']['error'])
+        logger.log(f"\n3. Best PINN Performance: K={best_k} ({exp_config.K_LABELS[best_k]}) with {results[best_k]['pinn']['error']:.2f}% error")
     
-    best_k_dd = min(exp_config.K_LEVELS, key=lambda k: results[k]['data_driven']['error'])
-    logger.log(f"   Best Data-Driven Performance: K={best_k_dd} ({exp_config.K_LABELS[best_k_dd]}) with {results[best_k_dd]['data_driven']['error']:.2f}% error")
+    if valid_dd:
+        best_k_dd = min(exp_config.K_LEVELS, key=lambda k: results[k]['data_driven']['error'])
+        logger.log(f"   Best Data-Driven Performance: K={best_k_dd} ({exp_config.K_LABELS[best_k_dd]}) with {results[best_k_dd]['data_driven']['error']:.2f}% error")
     
     # ────────────────────────────────────────────────────────────────
     # Create summary plots
@@ -504,10 +613,13 @@ def generate_summary(logger, results, exp_config):
     
     # Plot 1: Error vs Complexity
     K_vals = exp_config.K_LEVELS
-    ax1.plot(K_vals, pinn_errors, 'o-', linewidth=2, markersize=8, 
-             label='PINN', color='#2E86AB')
-    ax1.plot(K_vals, dd_errors, 's-', linewidth=2, markersize=8, 
-             label='Data-Driven', color='#A23B72')
+    if valid_pinn:
+        ax1.plot(K_vals, pinn_errors, 'o-', linewidth=2, markersize=8, 
+                 label='PINN', color='#2E86AB')
+    if valid_dd:
+        ax1.plot(K_vals, dd_errors, 's-', linewidth=2, markersize=8, 
+                 label='Data-Driven', color='#A23B72')
+                 
     ax1.set_xlabel('K (Frequency Modes)', fontsize=11)
     ax1.set_ylabel('L2 Relative Error (%)', fontsize=11)
     ax1.set_title('Error vs Problem Complexity', fontweight='bold', fontsize=12)
@@ -516,19 +628,27 @@ def generate_summary(logger, results, exp_config):
     ax1.set_xticks(K_vals)
     
     # Plot 2: Training convergence comparison
+    has_history = False
     for K in exp_config.K_LEVELS:
         label = exp_config.K_LABELS[K]
-        pinn_hist = results[K]['pinn']['history']
-        # Subsample for clarity
-        step = max(1, len(pinn_hist) // 1000)
-        ax2.plot(pinn_hist[::step], label=f'K={K} ({label})', linewidth=1.5, alpha=0.8)
+        pinn_res = results[K].get('pinn', {})
+        if pinn_res.get('history'):
+            pinn_hist = pinn_res['history']
+            # Subsample for clarity
+            step = max(1, len(pinn_hist) // 1000)
+            ax2.plot(pinn_hist[::step], label=f'K={K} ({label})', linewidth=1.5, alpha=0.8)
+            has_history = True
     
-    ax2.set_xlabel('Iteration', fontsize=11)
-    ax2.set_ylabel('PINN Loss', fontsize=11)
-    ax2.set_title('PINN Training Convergence', fontweight='bold', fontsize=12)
-    ax2.set_yscale('log')
-    ax2.legend(fontsize=9)
-    ax2.grid(True, alpha=0.3, linestyle='--')
+    if has_history:
+        ax2.set_xlabel('Iteration', fontsize=11)
+        ax2.set_ylabel('PINN Loss', fontsize=11)
+        ax2.set_title('PINN Training Convergence', fontweight='bold', fontsize=12)
+        ax2.set_yscale('log')
+        ax2.legend(fontsize=9)
+        ax2.grid(True, alpha=0.3, linestyle='--')
+    else:
+        ax2.text(0.5, 0.5, "No training history available", ha='center', va='center')
+        ax2.set_title('PINN Training Convergence', fontweight='bold', fontsize=12)
     
     plt.tight_layout()
     summary_path = os.path.join(exp_config.PLOTS_DIR, 'summary_comparison.png')
@@ -556,17 +676,20 @@ def save_results_json(results, exp_config):
     }
     
     for K in exp_config.K_LEVELS:
+        pinn_res = results[K].get('pinn', {})
+        dd_res = results[K].get('data_driven', {})
+        
         json_results['results'][K] = {
             'complexity_label': exp_config.K_LABELS[K],
             'pinn': {
-                'error': float(results[K]['pinn']['error']),
-                'final_loss': float(results[K]['pinn']['final_loss']),
-                'iterations': len(results[K]['pinn']['history'])
+                'error': float(pinn_res.get('error', 0.0)),
+                'final_loss': float(pinn_res.get('final_loss', 0.0)),
+                'iterations': len(pinn_res.get('history', []))
             },
             'data_driven': {
-                'error': float(results[K]['data_driven']['error']),
-                'final_loss': float(results[K]['data_driven']['final_loss']),
-                'iterations': len(results[K]['data_driven']['history'])
+                'error': float(dd_res.get('error', 0.0)),
+                'final_loss': float(dd_res.get('final_loss', 0.0)),
+                'iterations': len(dd_res.get('history', []))
             }
         }
     
