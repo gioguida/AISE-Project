@@ -53,15 +53,19 @@ def main():
             poisson_data[i,j,1] = sol
 
     # for each seed, make a plot showing the forcing term and exact solution for K=1,4,8,16
-    # using color map jet
+    # using color map plasma for forcing and viridis for solution
     for i, s in enumerate(seeds):
         fig, axs = plt.subplots(2, 4, figsize=(16, 8))
         for j, k in enumerate(K):
-            axs[0, j].imshow(poisson_data[i,j,0], extent=[0,1,0,1], origin='lower', cmap='jet')
-            axs[0, j].set_title(f'Seed {s}, K={k}, Forcing Term')
-            axs[1, j].imshow(poisson_data[i,j,1], extent=[0,1,0,1], origin='lower', cmap='jet')
-            axs[1, j].set_title(f'Seed {s}, K={k}, Exact Solution')
-        plt.tight_layout()
+            axs[0, j].imshow(poisson_data[i,j,0], extent=[0,1,0,1], origin='lower', cmap='plasma')
+            axs[0, j].set_title(f'K={k}, Forcing Term', fontweight='bold', fontsize=18)
+            axs[0, j].set_xticks([])
+            axs[0, j].set_yticks([])
+            axs[1, j].imshow(poisson_data[i,j,1], extent=[0,1,0,1], origin='lower', cmap='viridis')
+            axs[1, j].set_title(f'K={k}, Exact Solution', fontweight='bold', fontsize=18)
+            axs[1, j].set_xticks([])
+            axs[1, j].set_yticks([])
+        plt.tight_layout(h_pad=3.0)
         plt.show()
 
 if __name__ == "__main__":
