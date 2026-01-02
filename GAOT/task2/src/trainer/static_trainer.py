@@ -53,14 +53,17 @@ class StaticTrainer(BaseTrainer):
         self.coord_mode = 'vx' if is_variable_coords else 'fx'
         print(f"Detected coordinate mode: {self.coord_mode}")
         
-        latent_queries = self.data_processor.generate_latent_queries(
-            self.model_config.latent_tokens_size
-        )
-        self.latent_tokens_coord = rescale(latent_queries, (-1, 1))
-        
         coord_sample = (data_splits['train']['x'] if is_variable_coords 
                        else data_splits['train']['x'])
         self.coord_dim = coord_sample.shape[-1]
+
+        latent_queries = self.data_processor.generate_latent_queries(
+            self.model_config.latent_tokens_size,
+            reference_coords=coord_sample
+        )
+        
+        # Scale latent queries to [-1, 1] using coordinate scaler
+        self.latent_tokens_coord = self.data_processor.coord_scaler(latent_queries)
         
         c_sample = data_splits['train']['c']
         u_sample = data_splits['train']['u']

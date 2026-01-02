@@ -185,6 +185,18 @@ class DataProcessor:
             u_train, u_val, u_test, c_train, c_val, c_test
         )
         
+        # Initialize coordinate scaler
+        if self.coord_scaler is None:
+            self.coord_scaler = CoordinateScaler(
+                target_range=(-1, 1),
+                mode=self.dataset_config.coord_scaling
+            )
+        
+        # Fit scaler on domain boundaries
+        phy_domain = self.metadata.domain_x
+        domain_bounds = torch.tensor(phy_domain, dtype=self.dtype)
+        self.coord_scaler.fit(domain_bounds)
+        
         # Convert to tensors
         data_splits = self._convert_to_tensors(
             u_train, u_val, u_test,
@@ -278,61 +290,99 @@ class DataProcessor:
             "test": {"c": c_test, "u": u_test, "x": x_test},
         }
     
-    def generate_latent_queries(self, token_size: int) -> torch.Tensor:
-        """Generate latent query points selected randomly within the physical domain."""
+    def generate_latent_queries(self, token_size: Union[int, Tuple[int, ...]], reference_coords: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Generate latent query points.
+        
+        If token_size is int: Generate random points.
+            If reference_coords is provided, sample from it (Random Downsampling).
+            Else, generate random points within the physical domain (Continuous Uniform).
+        If token_size is tuple: Generate points on a regular grid.
+        """
         phy_domain = self.metadata.domain_x
         
-        if len(phy_domain[0]) == 2:
-            # 2D case
-            x_min, y_min = phy_domain[0]
-            x_max, y_max = phy_domain[1]
+        # Check if token_size is int (Random Sampling)
+        if isinstance(token_size, int):
+            # Option 1: Sample from reference point cloud (if provided)
+            if reference_coords is not None:
+                # Handle variable coords [B, N, D] -> take first sample [N, D]
+                if reference_coords.dim() == 3:
+                    coords = reference_coords[0]
+                else:
+                    coords = reference_coords
+                
+                num_nodes = coords.shape[0]
+                
+                # Sample indices
+                if token_size > num_nodes:
+                     # Sampling with replacement if requested tokens > available nodes
+                     indices = torch.randint(0, num_nodes, (token_size,), device=coords.device)
+                else:
+                     # Sampling without replacement
+                     indices = torch.randperm(num_nodes, device=coords.device)[:token_size]
+                
+                latent_queries = coords[indices].to(self.dtype)
+                return latent_queries
 
-            # generate random points and rescale them to domain size
-            x_rand = torch.rand(token_size, 1).to(self.dtype)
-            # x_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
-            x_rand = x_rand*(x_max - x_min) + x_min 
-            y_rand = torch.rand(token_size, 1).to(self.dtype)
-            # y_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
-            y_rand = y_rand*(y_max - y_min) + y_min
+            # Option 2: Continuous Uniform Sampling (Fallback)
+            if len(phy_domain[0]) == 2:
+                # 2D case
+                x_min, y_min = phy_domain[0]
+                x_max, y_max = phy_domain[1]
 
-            latent_queries = torch.cat((x_rand, y_rand), dim=-1)
+                # generate random points
+                x_rand = torch.rand(token_size, 1).to(self.dtype)
+                x_rand = x_rand*(x_max - x_min) + x_min 
+                y_rand = torch.rand(token_size, 1).to(self.dtype)
+                y_rand = y_rand*(y_max - y_min) + y_min
+
+                latent_queries = torch.cat((x_rand, y_rand), dim=-1)
+                return latent_queries
+            else:
+                 # 3D case
+                x_min, y_min, z_min = phy_domain[0]
+                x_max, y_max, z_max = phy_domain[1]
+                
+                x_rand = torch.rand(token_size, 1).to(self.dtype)
+                x_rand = x_rand*(x_max - x_min) + x_min
+                y_rand = torch.rand(token_size, 1).to(self.dtype)
+                y_rand = y_rand*(y_max - y_min) + y_min
+                z_rand = torch.rand(token_size, 1).to(self.dtype)
+                z_rand = z_rand*(z_max - z_min) + z_min
+                
+                latent_queries = torch.cat((x_rand, y_rand, z_rand), dim=-1)
+                return latent_queries
+
+        # Check if token_size is tuple/list (Grid Sampling)
+        elif isinstance(token_size, (tuple, list, np.ndarray)):
+             if len(token_size) == 2:
+                # 2D case
+                x_min, y_min = phy_domain[0]
+                x_max, y_max = phy_domain[1]
+                
+                meshgrid = torch.meshgrid(
+                    torch.linspace(x_min, x_max, token_size[0], dtype=self.dtype),
+                    torch.linspace(y_min, y_max, token_size[1], dtype=self.dtype),
+                    indexing='ij'
+                )
+                latent_queries = torch.stack(meshgrid, dim=-1).reshape(-1, 2)
+                return latent_queries
             
-        
-        elif len(phy_domain[0]) == 3:
-            # 3D case
-            x_min, y_min, z_min = phy_domain[0]
-            x_max, y_max, z_max = phy_domain[1]
-            # generate random points and rescale them to domain size
-            x_rand = torch.rand(token_size, 1).to(self.dtype)
-            # x_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
-            x_rand = x_rand*(x_max - x_min) + x_min
-            y_rand = torch.rand(token_size, 1).to(self.dtype)
-            # y_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
-            y_rand = y_rand*(y_max - y_min) + y_min
-            z_rand = torch.rand(token_size, 1).to(self.dtype)
-            # z_rand = self.soboleng.draw(token_size).squeeze(-1).to(self.dtype)
-            z_rand = z_rand*(z_max - z_min) + z_min
-
-            latent_queries = torch.cat((x_rand, y_rand, z_rand), dim=-1)
+             elif len(token_size) == 3:
+                # 3D case
+                x_min, y_min, z_min = phy_domain[0]
+                x_max, y_max, z_max = phy_domain[1]
+                
+                meshgrid = torch.meshgrid(
+                    torch.linspace(x_min, x_max, token_size[0], dtype=self.dtype),
+                    torch.linspace(y_min, y_max, token_size[1], dtype=self.dtype),
+                    torch.linspace(z_min, z_max, token_size[2], dtype=self.dtype),
+                    indexing='ij'
+                )
+                latent_queries = torch.stack(meshgrid, dim=-1).reshape(-1, 3)
+                return latent_queries
         
         else:
-            raise ValueError(f"Unsupported token_size dimensions: {len(phy_domain[0])}")
-        
-        # Initialize coordinate scaler if not already done
-        if self.coord_scaler is None:
-            self.coord_scaler = CoordinateScaler(
-                target_range=(-1, 1),
-                mode=self.dataset_config.coord_scaling
-            )
-        
-        # Fit scaler on domain boundaries if not already fitted
-        if self.coord_scaler.scale_params is None:
-            domain_bounds = torch.tensor(phy_domain, dtype=self.dtype)
-            self.coord_scaler.fit(domain_bounds)
-        
-        latent_queries = self.coord_scaler(latent_queries)
-        
-        return latent_queries
+            raise ValueError(f"Invalid token_size type: {type(token_size)}. Expected int or tuple/list.")
     
     def create_data_loaders(self, data_splits: Dict, is_variable_coords: bool, 
                            latent_queries: Optional[torch.Tensor] = None,

@@ -59,9 +59,9 @@
     },
 
     "path": {
-        "ckpt_path": "task2_fast/elasticity_fast.pt",
-        "loss_path": "task2_fast/elasticity_loss_fast.png",
-        "result_path": "task2_fast/elasticity_result_fast.png",
-        "database_path": "task2_fast/elasticity_fast.csv"
+        "ckpt_path": "task2_fast_dynamic/elasticity_fast.pt",
+        "loss_path": "task2_fast_dynamic/elasticity_loss_fast.png",
+        "result_path": "task2_fast_dynamic/elasticity_result_fast.png",
+        "database_path": "task2_fast_dynamic/elasticity_fast.csv"
     }
 }

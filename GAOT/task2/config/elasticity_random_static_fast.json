@@ -1,0 +1,67 @@
+{
+    "setup": {
+        "seed": 42,
+        "device": "cuda:0",
+        "dtype": "torch.float32",
+        "trainer_name": "static",
+        "train": true,
+        "test": false,
+        "ckpt": false
+    },
+
+    "model": {
+        "name": "goat",
+        "latent_tokens_size": 1764,
+        "args": {
+            "magno": {
+                "coord_dim": 2,
+                "radius": 0.033,
+                "hidden_size": 32,
+                "mlp_layers": 3,
+                "lifting_channels": 32,
+                "use_dynamic_radius": false,
+                "dynamic_radius_method": "knn", 
+                "dynamic_radius_k": 8,
+                "dynamic_radius_alpha": 1.5
+            },
+            "transformer": {
+                "patch_size": 2,
+                "hidden_size": 128
+            }
+        }
+    },
+
+    "dataset": {
+        "name": "Elasticity",
+        "metaname": "elliptic_pdes/Elasticity",
+        "base_path": "datasets/",
+        "train_size": 1024,
+        "val_size": 128,
+        "test_size": 256,
+        "batch_size": 10,
+        "num_workers": 4,
+        "shuffle": true
+    },
+
+    "optimizer": {
+        "name": "adamw",
+        "args": {
+            "lr": 8e-4,
+            "weight_decay": 1e-05,
+            "epoch": 100,
+            "loss_scale": 1.0,
+            "eval_every_eps": 2,
+            "scheduler": "mix",
+            "max_lr": 1e-3,
+            "min_lr": 1e-4,
+            "final_lr": 5e-5
+        }
+    },
+
+    "path": {
+        "ckpt_path": "task2_fast_static/elasticity_fast.pt",
+        "loss_path": "task2_fast_static/elasticity_loss_fast.png",
+        "result_path": "task2_fast_static/elasticity_result_fast.png",
+        "database_path": "task2_fast_static/elasticity_fast.csv"
+    }
+}
