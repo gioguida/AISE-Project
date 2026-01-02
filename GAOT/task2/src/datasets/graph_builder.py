@@ -4,6 +4,7 @@ Handles neighbor computation and graph construction for VX mode.
 """
 import time
 import torch
+import numpy as np
 from typing import List, Tuple, Optional
 
 from ..model.layers.utils.neighbor_search import NeighborSearch

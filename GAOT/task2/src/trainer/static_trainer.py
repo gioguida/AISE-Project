@@ -11,6 +11,7 @@ from ..datasets.graph_builder import GraphBuilder
 from ..model.gaot import GAOT
 from ..utils.metrics import compute_batch_errors, compute_final_metric
 from ..utils.plotting import plot_estimates
+from ..utils.scaling import rescale
 
 
 class StaticTrainer(BaseTrainer):
@@ -55,7 +56,7 @@ class StaticTrainer(BaseTrainer):
         latent_queries = self.data_processor.generate_latent_queries(
             self.model_config.latent_tokens_size
         )
-        self.latent_tokens_coord = latent_queries
+        self.latent_tokens_coord = rescale(latent_queries, (-1, 1))
         
         coord_sample = (data_splits['train']['x'] if is_variable_coords 
                        else data_splits['train']['x'])
