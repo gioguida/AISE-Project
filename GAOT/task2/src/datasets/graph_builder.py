@@ -111,6 +111,12 @@ class GraphBuilder:
             
             print(f"Using dynamic radius ({method}, k={k}, alpha={alpha}). Mean radius: {dynamic_radii.mean().item():.4f}")
         
+        # Scale latent queries for neighbor search
+        if self.coord_scaler is not None:
+            latent_queries_scaled = self.coord_scaler(latent_queries)
+        else:
+            latent_queries_scaled = rescale(latent_queries, (-1, 1))
+        
         encoder_graphs = []
         decoder_graphs = []
         
@@ -141,7 +147,7 @@ class GraphBuilder:
                     scaled_radius = gno_radius * scale
                     
                 with torch.no_grad():
-                    nbrs = self.nb_search(x_coord_scaled, latent_queries, scaled_radius)
+                    nbrs = self.nb_search(x_coord_scaled, latent_queries_scaled, scaled_radius)
                 encoder_nbrs_sample.append(nbrs)
             encoder_graphs.append(encoder_nbrs_sample)
             
@@ -154,7 +160,7 @@ class GraphBuilder:
                     scaled_radius = gno_radius * scale
                     
                 with torch.no_grad():
-                    nbrs = self.nb_search(latent_queries, x_coord_scaled, scaled_radius)
+                    nbrs = self.nb_search(latent_queries_scaled, x_coord_scaled, scaled_radius)
                 decoder_nbrs_sample.append(nbrs)
             decoder_graphs.append(decoder_nbrs_sample)
             
