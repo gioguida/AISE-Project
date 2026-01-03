@@ -138,6 +138,16 @@ class GraphBuilder:
                 # Fallback to per-sample rescaling (legacy behavior)
                 x_coord_scaled = rescale(x_coord, (-1, 1))
             
+            # DEBUG: Check coordinate ranges and radius for the first sample
+            if i == 0:
+                print(f"\n--- DEBUG: Graph Building Sample {i} ---")
+                print(f"x_coord_scaled range: [{x_coord_scaled.min().item():.4f}, {x_coord_scaled.max().item():.4f}]")
+                print(f"latent_queries_scaled range: [{latent_queries_scaled.min().item():.4f}, {latent_queries_scaled.max().item():.4f}]")
+                if dynamic_radii is not None:
+                    print(f"Dynamic Radius (scaled) range: [{dynamic_radii.min().item():.4f}, {dynamic_radii.max().item():.4f}], Mean: {dynamic_radii.mean().item():.4f}")
+                else:
+                    print(f"Static Radius: {gno_radius}")
+
             # Build encoder graphs (physical -> latent)
             encoder_nbrs_sample = []
             for scale in scales:
@@ -148,6 +158,16 @@ class GraphBuilder:
                     
                 with torch.no_grad():
                     nbrs = self.nb_search(x_coord_scaled, latent_queries_scaled, scaled_radius)
+                    if i == 0:
+                        if isinstance(nbrs, tuple):
+                             print(f"Encoder Edges found (scale {scale}): {nbrs[0].shape}")
+                        elif isinstance(nbrs, dict) and 'neighbors_index' in nbrs:
+                             print(f"Encoder Edges found (scale {scale}): {nbrs['neighbors_index'].shape}")
+                        elif hasattr(nbrs, 'shape'):
+                             print(f"Encoder Edges found (scale {scale}): {nbrs.shape}")
+                        else:
+                             print(f"Encoder Edges found (scale {scale}): {len(nbrs)}")
+
                 encoder_nbrs_sample.append(nbrs)
             encoder_graphs.append(encoder_nbrs_sample)
             
