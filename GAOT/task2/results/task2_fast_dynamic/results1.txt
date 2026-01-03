@@ -1,0 +1,6 @@
+Number of parameters: 845601
+AdamWOptimizer: 100%|███████████████████████████████████████████████████████████████████████| 100/100 [29:52<00:00, 17.93s/it, loss=0.0237, val_loss=0.0308]
+/mnt/c/Users/giugl/ProgrammiGio/ETH/AISE/GAOT/task2/src/core/base_trainer.py:270: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax[1].legend()
+Starting model testing...
+Relative error: 0.13088703155517578
