@@ -4,6 +4,7 @@
         "device": "cuda:0",
         "dtype": "torch.float32",
         "trainer_name": "static",
+        "resample_latent_tokens_each_epoch": true,
         "train": true,
         "test": false,
         "ckpt": false
@@ -60,9 +61,9 @@
     },
 
     "path": {
-        "ckpt_path": "results/task2_fast_dynamic/elasticity_fast.pt",
-        "loss_path": "results/task2_fast_dynamic/elasticity_loss_fast.png",
-        "result_path": "results/task2_fast_dynamic/elasticity_result_fast.png",
-        "database_path": "results/task2_fast_dynamic/elasticity_fast.csv"
+        "ckpt_path": "results/task2_fast_dynamic_resample/elasticity_fast.pt",
+        "loss_path": "results/task2_fast_dynamic_resample/elasticity_loss_fast.png",
+        "result_path": "results/task2_fast_dynamic_resample/elasticity_result_fast.png",
+        "database_path": "results/task2_fast_dynamic_resample/elasticity_fast.csv"
     }
 }
