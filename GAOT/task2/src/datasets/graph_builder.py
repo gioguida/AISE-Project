@@ -91,7 +91,24 @@ class GraphBuilder:
             method = dynamic_radius_config.get('dynamic_radius_method', 'knn')
             k = dynamic_radius_config.get('dynamic_radius_k', 8)
             alpha = dynamic_radius_config.get('dynamic_radius_alpha', 1.5)
+            
+            # Compute dynamic radius in physical space (on unscaled latent_queries)
             dynamic_radii = self.compute_dynamic_radius(latent_queries, method, k, alpha)
+            
+            # Scale the radii to match the scaled coordinate space
+            if self.coord_scaler is not None:
+                # Apply the same scaling factor that was applied to coordinates
+                # For domain [0,1] -> [-1,1], distances are scaled by 2.0
+                # We need to apply the inverse: radii in physical space -> radii in scaled space
+                scale_params = self.coord_scaler.scale_params
+                if scale_params is not None:
+                    # For per_dim_scaling: scale = (target_max - target_min) / domain_range
+                    # For domain [0,1] -> [-1,1]: scale = 2.0 / 1.0 = 2.0
+                    domain_range = scale_params['range'].mean().item()  # Average range
+                    target_range = self.coord_scaler.target_range[1] - self.coord_scaler.target_range[0]
+                    scaling_factor = target_range / domain_range
+                    dynamic_radii = dynamic_radii * scaling_factor
+            
             print(f"Using dynamic radius ({method}, k={k}, alpha={alpha}). Mean radius: {dynamic_radii.mean().item():.4f}")
         
         encoder_graphs = []

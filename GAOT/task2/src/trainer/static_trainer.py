@@ -62,6 +62,9 @@ class StaticTrainer(BaseTrainer):
             reference_coords=coord_sample
         )
         
+        # Keep unscaled latent queries for dynamic radius computation
+        self.latent_tokens_coord_unscaled = latent_queries
+        
         # Scale latent queries to [-1, 1] using coordinate scaler
         self.latent_tokens_coord = self.data_processor.coord_scaler(latent_queries)
         
@@ -102,9 +105,10 @@ class StaticTrainer(BaseTrainer):
         }
         
         # Build graphs for all splits
+        # Pass unscaled latent queries so dynamic radius is computed in physical space
         all_graphs = self.graph_builder.build_all_graphs(
             data_splits=data_splits,
-            latent_queries=self.latent_tokens_coord,
+            latent_queries=self.latent_tokens_coord_unscaled,
             gno_radius=gno_radius,
             scales=scales,
             build_train=self.setup_config.train,
