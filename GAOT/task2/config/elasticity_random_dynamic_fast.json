@@ -19,6 +19,7 @@
                 "hidden_size": 32,
                 "mlp_layers": 3,
                 "lifting_channels": 32,
+                "precompute_edges": true,
                 "use_dynamic_radius": true,
                 "dynamic_radius_method": "knn", 
                 "dynamic_radius_k": 16,
