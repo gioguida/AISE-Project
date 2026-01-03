@@ -194,8 +194,9 @@ class StaticTrainer(BaseTrainer):
             reference_coords=coord_sample
         )
 
-        print(f"Resampling latent tokens for epoch {epoch + 1} and rebuilding graphs...")
+        print(f"[Epoch {epoch + 1}] Resampling latent tokens and rebuilding graphs...")
         self._build_graphs_and_loaders(new_latent, self.data_splits, self.is_variable_coords)
+        self._last_graph_rebuild_epoch = epoch
     
     def init_model(self, model_config):
         """Initialize the GAOT model."""
