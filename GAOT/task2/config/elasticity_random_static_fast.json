@@ -11,7 +11,7 @@
 
     "model": {
         "name": "goat",
-        "latent_tokens_size": 1764,
+        "latent_tokens_size": 256,
         "args": {
             "magno": {
                 "coord_dim": 2,

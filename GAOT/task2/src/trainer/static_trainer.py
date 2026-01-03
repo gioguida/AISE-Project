@@ -82,9 +82,12 @@ class StaticTrainer(BaseTrainer):
         """Initialize for variable coordinates mode."""
         print("Setting up variable coordinates mode...")
         
-        # Create graph builder
+        # Create graph builder with coordinate scaler for consistent scaling
         neighbor_search_method = self.model_config.args.magno.neighbor_search_method
-        self.graph_builder = GraphBuilder(neighbor_search_method=neighbor_search_method)
+        self.graph_builder = GraphBuilder(
+            neighbor_search_method=neighbor_search_method,
+            coord_scaler=self.data_processor.coord_scaler
+        )
         
         # Get graph building parameters
         gno_radius = getattr(self.model_config.args.magno, 'radius', 0.033)

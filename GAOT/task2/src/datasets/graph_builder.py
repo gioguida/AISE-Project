@@ -8,7 +8,7 @@ import numpy as np
 from typing import List, Tuple, Optional
 
 from ..model.layers.utils.neighbor_search import NeighborSearch
-from ..utils.scaling import rescale
+from ..utils.scaling import rescale, CoordinateScaler
 
 
 class GraphBuilder:
@@ -17,14 +17,16 @@ class GraphBuilder:
     Handles neighbor computation with multiple radius scales.
     """
     
-    def __init__(self, neighbor_search_method: str = "auto"):
+    def __init__(self, neighbor_search_method: str = "auto", coord_scaler: Optional[CoordinateScaler] = None):
         """
         Initialize graph builder.
         
         Args:
             neighbor_search_method: Method for neighbor search
+            coord_scaler: Coordinate scaler to use for consistent scaling (if None, uses per-sample rescaling)
         """
         self.nb_search = NeighborSearch(neighbor_search_method)
+        self.coord_scaler = coord_scaler
     
     def compute_dynamic_radius(self, tokens: torch.Tensor, method: str, k: int, alpha: float) -> torch.Tensor:
         """
@@ -106,8 +108,12 @@ class GraphBuilder:
             else:
                 raise ValueError(f"Unexpected coordinate shape: {x_sample.shape}")
             
-            # Rescale coordinates to [-1, 1] range
-            x_coord_scaled = rescale(x_coord, (-1, 1))
+            # Scale coordinates to [-1, 1] range using coord_scaler if available
+            if self.coord_scaler is not None:
+                x_coord_scaled = self.coord_scaler(x_coord)
+            else:
+                # Fallback to per-sample rescaling (legacy behavior)
+                x_coord_scaled = rescale(x_coord, (-1, 1))
             
             # Build encoder graphs (physical -> latent)
             encoder_nbrs_sample = []
@@ -240,8 +246,9 @@ class CachedGraphBuilder(GraphBuilder):
     Can save and load pre-computed graphs to avoid recomputation.
     """
     
-    def __init__(self, neighbor_search_method: str = "auto", cache_dir: Optional[str] = None):
-        super().__init__(neighbor_search_method)
+    def __init__(self, neighbor_search_method: str = "auto", cache_dir: Optional[str] = None, 
+                 coord_scaler: Optional[CoordinateScaler] = None):
+        super().__init__(neighbor_search_method, coord_scaler)
         self.cache_dir = cache_dir
     
     def _get_cache_path(self, dataset_name: str, split_name: str, graph_type: str) -> str:
