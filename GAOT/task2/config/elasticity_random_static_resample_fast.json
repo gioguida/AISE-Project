@@ -5,7 +5,6 @@
         "dtype": "torch.float32",
         "trainer_name": "static",
         "resample_latent_tokens_each_epoch": true,
-        "fix_x": false,
         "train": true,
         "test": false,
         "ckpt": false
