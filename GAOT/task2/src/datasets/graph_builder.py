@@ -138,16 +138,6 @@ class GraphBuilder:
                 # Fallback to per-sample rescaling (legacy behavior)
                 x_coord_scaled = rescale(x_coord, (-1, 1))
             
-            # DEBUG: Check coordinate ranges and radius for the first sample
-            if i == 0:
-                print(f"\n--- DEBUG: Graph Building Sample {i} ---")
-                print(f"x_coord_scaled range: [{x_coord_scaled.min().item():.4f}, {x_coord_scaled.max().item():.4f}]")
-                print(f"latent_queries_scaled range: [{latent_queries_scaled.min().item():.4f}, {latent_queries_scaled.max().item():.4f}]")
-                if dynamic_radii is not None:
-                    print(f"Dynamic Radius (scaled) range: [{dynamic_radii.min().item():.4f}, {dynamic_radii.max().item():.4f}], Mean: {dynamic_radii.mean().item():.4f}")
-                else:
-                    print(f"Static Radius: {gno_radius}")
-
             # Build encoder graphs (physical -> latent)
             encoder_nbrs_sample = []
             for scale in scales:
@@ -158,23 +148,6 @@ class GraphBuilder:
                     
                 with torch.no_grad():
                     nbrs = self.nb_search(x_coord_scaled, latent_queries_scaled, scaled_radius)
-                    if i == 0:
-                        if isinstance(nbrs, dict) and 'neighbors_row_splits' in nbrs:
-                             splits = nbrs['neighbors_row_splits']
-                             degrees = splits[1:] - splits[:-1]
-                             print(f"Encoder Graph (scale {scale}) Stats:")
-                             print(f"  Total Edges: {splits[-1].item()}")
-                             print(f"  Min Degree: {degrees.min().item()}")
-                             print(f"  Max Degree: {degrees.max().item()}")
-                             print(f"  Mean Degree: {degrees.float().mean().item():.2f}")
-                             print(f"  Isolated Nodes: {(degrees == 0).sum().item()}")
-                        elif isinstance(nbrs, tuple):
-                             print(f"Encoder Edges found (scale {scale}): {nbrs[0].shape}")
-                        elif hasattr(nbrs, 'shape'):
-                             print(f"Encoder Edges found (scale {scale}): {nbrs.shape}")
-                        else:
-                             print(f"Encoder Edges found (scale {scale}): {len(nbrs)}")
-
                 encoder_nbrs_sample.append(nbrs)
             encoder_graphs.append(encoder_nbrs_sample)
             
