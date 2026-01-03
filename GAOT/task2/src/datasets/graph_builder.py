@@ -159,10 +159,17 @@ class GraphBuilder:
                 with torch.no_grad():
                     nbrs = self.nb_search(x_coord_scaled, latent_queries_scaled, scaled_radius)
                     if i == 0:
-                        if isinstance(nbrs, tuple):
+                        if isinstance(nbrs, dict) and 'neighbors_row_splits' in nbrs:
+                             splits = nbrs['neighbors_row_splits']
+                             degrees = splits[1:] - splits[:-1]
+                             print(f"Encoder Graph (scale {scale}) Stats:")
+                             print(f"  Total Edges: {splits[-1].item()}")
+                             print(f"  Min Degree: {degrees.min().item()}")
+                             print(f"  Max Degree: {degrees.max().item()}")
+                             print(f"  Mean Degree: {degrees.float().mean().item():.2f}")
+                             print(f"  Isolated Nodes: {(degrees == 0).sum().item()}")
+                        elif isinstance(nbrs, tuple):
                              print(f"Encoder Edges found (scale {scale}): {nbrs[0].shape}")
-                        elif isinstance(nbrs, dict) and 'neighbors_index' in nbrs:
-                             print(f"Encoder Edges found (scale {scale}): {nbrs['neighbors_index'].shape}")
                         elif hasattr(nbrs, 'shape'):
                              print(f"Encoder Edges found (scale {scale}): {nbrs.shape}")
                         else:
