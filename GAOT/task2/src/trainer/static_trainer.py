@@ -185,6 +185,7 @@ class StaticTrainer(BaseTrainer):
         if not getattr(self.setup_config, 'resample_latent_tokens_each_epoch', False):
             return
         if not self.is_variable_coords:
+            print(f"[Epoch {epoch + 1}] Resample requested but dataset is fixed-coord; skipping graph rebuild.")
             return
 
         # Resample tokens from the training coordinates and rebuild graphs/loaders

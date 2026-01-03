@@ -126,8 +126,8 @@ class AdamOptimizer:
         pbar = tqdm(total=self.epoch, desc=description, colour = color)
         for epoch in range(self.epoch):
             if hasattr(trainer, 'on_epoch_start'):
-                trainer.on_epoch_start(epoch)
-            if hasattr(trainer, 'on_epoch_start'):
+                if getattr(trainer.setup_config, 'resample_latent_tokens_each_epoch', False):
+                    tqdm.write(f"[Epoch {epoch + 1}] on_epoch_start hook (resample_latent_tokens_each_epoch=True)")
                 trainer.on_epoch_start(epoch)
             trainer.model.train()
             total_loss = 0.0
@@ -249,6 +249,10 @@ class AdamWOptimizer:
 
         pbar = tqdm(total=self.epoch, desc=description, colour=color)
         for epoch in range(self.epoch):
+            if hasattr(trainer, 'on_epoch_start'):
+                if getattr(trainer.setup_config, 'resample_latent_tokens_each_epoch', False):
+                    tqdm.write(f"[Epoch {epoch + 1}] on_epoch_start hook (resample_latent_tokens_each_epoch=True)")
+                trainer.on_epoch_start(epoch)
             trainer.model.train()
             total_loss = 0.0
             
