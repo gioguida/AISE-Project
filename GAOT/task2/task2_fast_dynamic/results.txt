@@ -1,0 +1,50 @@
+$ python3 main.py --config config/elasticity_random_dynamic_fast.json
+Using device: cuda:0
+GPU: NVIDIA GeForce RTX 3070 Laptop GPU
+CUDA available: True
+Initializing dataset...
+Loading and preprocessing data...
+Computing statistics and normalizing data
+Data loading and preprocessing complete.
+Detected coordinate mode: vx
+Setting up variable coordinates mode...
+Using torch_cluster for efficient neighbor search
+Building test graphs...
+Building graphs for 256 samples...
+Using dynamic radius (knn, k=16, alpha=2.0). Mean radius: 0.5489
+Processed 100/256 samples (0.14s)
+Processed 200/256 samples (0.27s)
+Processed 256/256 samples (0.36s)
+Graph building completed in 0.36s
+Building train graphs...
+Building graphs for 1024 samples...
+Using dynamic radius (knn, k=16, alpha=2.0). Mean radius: 0.5489
+Processed 100/1024 samples (0.14s)
+Processed 200/1024 samples (0.30s)
+Processed 300/1024 samples (0.43s)
+Processed 400/1024 samples (0.58s)
+Processed 500/1024 samples (0.73s)
+Processed 600/1024 samples (0.87s)
+Processed 700/1024 samples (1.01s)
+Processed 800/1024 samples (1.15s)
+Processed 900/1024 samples (1.27s)
+Processed 1000/1024 samples (1.39s)
+Processed 1024/1024 samples (1.43s)
+Graph building completed in 1.43s
+Building val graphs...
+Building graphs for 128 samples...
+Using dynamic radius (knn, k=16, alpha=2.0). Mean radius: 0.5489
+Processed 100/128 samples (0.13s)
+Processed 128/128 samples (0.17s)
+Graph building completed in 0.17s
+Dataset initialization complete.
+Using torch_cluster for efficient neighbor search
+Using torch_cluster for efficient neighbor search
+Initialized goat model with 2D coordinates
+Number of parameters: 845601
+AdamWOptimizer: 100%|███████████████████████████████████████████████████████████████████████| 100/100 [31:01<00:00, 18.61s/it, loss=0.0339, val_loss=0.0454]
+/mnt/c/Users/giugl/ProgrammiGio/ETH/AISE/GAOT/task2/src/core/base_trainer.py:270: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax[1].legend()
+Starting model testing...
+Relative error: 0.16684557497501373
+Plot saved to /mnt/c/Users/giugl/ProgrammiGio/ETH/AISE/GAOT/task2/task2_fast_dynamic/elasticity_result_fast.png
