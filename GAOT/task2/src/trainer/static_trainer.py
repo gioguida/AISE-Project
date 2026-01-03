@@ -24,6 +24,11 @@ class StaticTrainer(BaseTrainer):
         # Initialize data processor
         self.data_processor = None
         self.graph_builder = None
+
+        # Cached data for rebuilding graphs/token sampling
+        self.data_splits = None
+        self.is_variable_coords = False
+        self.graph_params = None
         
         # Coordinate mode and data info
         self.coord_mode = None  # Will be determined from data
@@ -49,35 +54,32 @@ class StaticTrainer(BaseTrainer):
         )
         
         data_splits, is_variable_coords = self.data_processor.load_and_process_data()
+
+        # Cache for potential per-epoch resampling
+        self.data_splits = data_splits
+        self.is_variable_coords = is_variable_coords
         
         self.coord_mode = 'vx' if is_variable_coords else 'fx'
         print(f"Detected coordinate mode: {self.coord_mode}")
         
-        coord_sample = (data_splits['train']['x'] if is_variable_coords 
-                       else data_splits['train']['x'])
+        coord_sample = data_splits['train']['x']
         self.coord_dim = coord_sample.shape[-1]
 
-        latent_queries = self.data_processor.generate_latent_queries(
-            self.model_config.latent_tokens_size,
-            reference_coords=coord_sample
+        # Initialize latent tokens and downstream loaders/graphs
+        self._build_graphs_and_loaders(
+            latent_queries=self.data_processor.generate_latent_queries(
+                self.model_config.latent_tokens_size,
+                reference_coords=coord_sample
+            ),
+            data_splits=data_splits,
+            is_variable_coords=is_variable_coords
         )
-        
-        # Keep unscaled latent queries for dynamic radius computation
-        self.latent_tokens_coord_unscaled = latent_queries
-        
-        # Scale latent queries to [-1, 1] using coordinate scaler
-        self.latent_tokens_coord = self.data_processor.coord_scaler(latent_queries)
         
         c_sample = data_splits['train']['c']
         u_sample = data_splits['train']['u']
         
         self.num_input_channels = c_sample.shape[-1] if c_sample is not None else 0
         self.num_output_channels = u_sample.shape[-1]
-        
-        if is_variable_coords:
-            self._init_variable_coords_mode(data_splits)
-        else:
-            self._init_fixed_coords_mode(data_splits)
         
         print("Dataset initialization complete.")
     
@@ -95,13 +97,20 @@ class StaticTrainer(BaseTrainer):
         # Get graph building parameters
         gno_radius = getattr(self.model_config.args.magno, 'radius', 0.033)
         scales = getattr(self.model_config.args.magno, 'scales', [1.0])
-        
+
         # Dynamic radius config
         dynamic_radius_config = {
             'use_dynamic_radius': getattr(self.model_config.args.magno, 'use_dynamic_radius', False),
             'dynamic_radius_method': getattr(self.model_config.args.magno, 'dynamic_radius_method', 'knn'),
             'dynamic_radius_k': getattr(self.model_config.args.magno, 'dynamic_radius_k', 8),
             'dynamic_radius_alpha': getattr(self.model_config.args.magno, 'dynamic_radius_alpha', 1.5)
+        }
+
+        # Cache graph params for potential per-epoch rebuilds
+        self.graph_params = {
+            'gno_radius': gno_radius,
+            'scales': scales,
+            'dynamic_radius_config': dynamic_radius_config
         }
         
         # Build graphs for all splits
@@ -114,7 +123,7 @@ class StaticTrainer(BaseTrainer):
             build_train=self.setup_config.train,
             dynamic_radius_config=dynamic_radius_config
         )
-        
+
         # Create data loaders with graphs
         loader_kwargs = {
             'encoder_graphs': {
@@ -135,7 +144,7 @@ class StaticTrainer(BaseTrainer):
             build_train=self.setup_config.train,
             **loader_kwargs
         )
-        
+
         self.train_loader = loaders['train']
         self.val_loader = loaders['val']
         self.test_loader = loaders['test']
@@ -156,6 +165,37 @@ class StaticTrainer(BaseTrainer):
         self.train_loader = loaders['train']
         self.val_loader = loaders['val']
         self.test_loader = loaders['test']
+
+    def _prepare_latent_tokens(self, latent_queries: torch.Tensor):
+        """Cache latent tokens in both physical and scaled space."""
+        self.latent_tokens_coord_unscaled = latent_queries
+        self.latent_tokens_coord = self.data_processor.coord_scaler(latent_queries)
+
+    def _build_graphs_and_loaders(self, latent_queries: torch.Tensor, data_splits: dict, is_variable_coords: bool):
+        """Build loaders (and graphs if vx) for a given latent token set."""
+        self._prepare_latent_tokens(latent_queries)
+
+        if is_variable_coords:
+            self._init_variable_coords_mode(data_splits)
+        else:
+            self._init_fixed_coords_mode(data_splits)
+
+    def on_epoch_start(self, epoch: int):
+        """Optional hook to resample latent tokens and rebuild graphs each epoch."""
+        if not getattr(self.setup_config, 'resample_latent_tokens_each_epoch', False):
+            return
+        if not self.is_variable_coords:
+            return
+
+        # Resample tokens from the training coordinates and rebuild graphs/loaders
+        coord_sample = self.data_splits['train']['x']
+        new_latent = self.data_processor.generate_latent_queries(
+            self.model_config.latent_tokens_size,
+            reference_coords=coord_sample
+        )
+
+        print(f"Resampling latent tokens for epoch {epoch + 1} and rebuilding graphs...")
+        self._build_graphs_and_loaders(new_latent, self.data_splits, self.is_variable_coords)
     
     def init_model(self, model_config):
         """Initialize the GAOT model."""

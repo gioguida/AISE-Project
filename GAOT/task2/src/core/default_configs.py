@@ -29,6 +29,7 @@ class SetUpConfig:
     train: bool = True                                          # Whether to run training phase
     test: bool = False                                          # Whether to run testing phase
     ckpt: bool = False                                          # Whether to load/save checkpoints
+    resample_latent_tokens_each_epoch: bool = False             # Resample latent tokens and rebuild graphs every epoch
     
     # Distributed training parameters
     distributed: bool = False                                   # Enable distributed training

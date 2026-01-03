@@ -125,6 +125,10 @@ class AdamOptimizer:
 
         pbar = tqdm(total=self.epoch, desc=description, colour = color)
         for epoch in range(self.epoch):
+            if hasattr(trainer, 'on_epoch_start'):
+                trainer.on_epoch_start(epoch)
+            if hasattr(trainer, 'on_epoch_start'):
+                trainer.on_epoch_start(epoch)
             trainer.model.train()
             total_loss = 0.0
             for batch in trainer.train_loader:
