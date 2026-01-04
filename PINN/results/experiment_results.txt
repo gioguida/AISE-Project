@@ -1,6 +1,6 @@
 ================================================================================
 AISE 2026 - Final Project - Problem 1: PINNs vs Data-Driven
-Experiment Date: 2025-12-28 22:25:15
+Experiment Date: 2026-01-04 11:15:53
 ================================================================================
 
 
@@ -8,7 +8,7 @@ Experiment Date: 2025-12-28 22:25:15
 TASK 1: DATA GENERATION
 ================================================================================
 
-Generating data for K = [1, 4, 8, 16]
+Generating data for K = [1, 4, 16]
 Grid resolution: N = 64
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -22,12 +22,6 @@ Grid resolution: N = 64
 ────────────────────────────────────────────────────────────────────────────────
   Forcing term - Min: -3.7373, Max: 4.4476, Mean: 0.2685
   Solution     - Min: -0.0233, Max: 0.0412, Mean: 0.0105
-
-────────────────────────────────────────────────────────────────────────────────
-  Generating sample with K = 8
-────────────────────────────────────────────────────────────────────────────────
-  Forcing term - Min: -4.3788, Max: 4.5788, Mean: 0.0880
-  Solution     - Min: -0.0073, Max: 0.0120, Mean: 0.0030
 
 ────────────────────────────────────────────────────────────────────────────────
   Generating sample with K = 16
@@ -50,29 +44,16 @@ TASK 2: MODEL TRAINING AND EVALUATION
 
 [1/5] Generating data...
 
-[2/5] Training PINN model...
-  • Architecture: 4 hidden layers, width 128
-  • Adam epochs: 4000, LBFGS epochs: 10
-  • Lambda_u (PDE weight): 1.0
-  ✓ PINN training completed
-  • Final loss: 3.160241e-06
-  • Total iterations: 4510
+[2/5] Loading PINN model from results/models\pinn_K1.pt...
+  ✓ PINN model loaded successfully
   • L2 Relative Error: 0.19%
 
-[3/5] Training Data-Driven model...
-  • Architecture: 4 hidden layers, width 128
-  • Adam epochs: 4000, LBFGS epochs: 100
-  • Batch size: 1024
-  ✓ Data-Driven training completed
-  • Final loss: 1.395498e-02
-  • Total iterations: 17784
-  • L2 Relative Error: 60.33%
+[3/5] Loading Data-Driven model from results/models\data_driven_K1.pt...
+  ✓ Data-Driven model loaded successfully
+  • L2 Relative Error: 0.01%
 
 [4/5] Generating comparison plots...
   ✓ Comparison plot saved to: results/plots\comparison_K1.png
-
-[5/5] Saving models...
-  ✓ Models saved
 
 ────────────────────────────────────────────────────────────────────────────────
 ✓ Completed K=1 (Low complexity)
@@ -85,29 +66,16 @@ TASK 2: MODEL TRAINING AND EVALUATION
 
 [1/5] Generating data...
 
-[2/5] Training PINN model...
-  • Architecture: 4 hidden layers, width 128
-  • Adam epochs: 4000, LBFGS epochs: 10
-  • Lambda_u (PDE weight): 1.0
-  ✓ PINN training completed
-  • Final loss: 5.893587e-05
-  • Total iterations: 4514
+[2/5] Loading PINN model from results/models\pinn_K4.pt...
+  ✓ PINN model loaded successfully
   • L2 Relative Error: 6.77%
 
-[3/5] Training Data-Driven model...
-  • Architecture: 4 hidden layers, width 128
-  • Adam epochs: 4000, LBFGS epochs: 100
-  • Batch size: 1024
-  ✓ Data-Driven training completed
-  • Final loss: 1.803828e-04
-  • Total iterations: 17822
-  • L2 Relative Error: 78.69%
+[3/5] Loading Data-Driven model from results/models\data_driven_K4.pt...
+  ✓ Data-Driven model loaded successfully
+  • L2 Relative Error: 0.02%
 
 [4/5] Generating comparison plots...
   ✓ Comparison plot saved to: results/plots\comparison_K4.png
-
-[5/5] Saving models...
-  ✓ Models saved
 
 ────────────────────────────────────────────────────────────────────────────────
 ✓ Completed K=4 (Medium complexity)
@@ -120,29 +88,16 @@ TASK 2: MODEL TRAINING AND EVALUATION
 
 [1/5] Generating data...
 
-[2/5] Training PINN model...
-  • Architecture: 4 hidden layers, width 128
-  • Adam epochs: 4000, LBFGS epochs: 10
-  • Lambda_u (PDE weight): 1.0
-  ✓ PINN training completed
-  • Final loss: 5.420671e-02
-  • Total iterations: 4510
+[2/5] Loading PINN model from results/models\pinn_K16.pt...
+  ✓ PINN model loaded successfully
   • L2 Relative Error: 521.71%
 
-[3/5] Training Data-Driven model...
-  • Architecture: 4 hidden layers, width 128
-  • Adam epochs: 4000, LBFGS epochs: 100
-  • Batch size: 1024
-  ✓ Data-Driven training completed
-  • Final loss: 1.463467e-06
-  • Total iterations: 19082
-  • L2 Relative Error: 88.26%
+[3/5] Loading Data-Driven model from results/models\data_driven_K16.pt...
+  ✓ Data-Driven model loaded successfully
+  • L2 Relative Error: 1.53%
 
 [4/5] Generating comparison plots...
   ✓ Comparison plot saved to: results/plots\comparison_K16.png
-
-[5/5] Saving models...
-  ✓ Models saved
 
 ────────────────────────────────────────────────────────────────────────────────
 ✓ Completed K=16 (High complexity)
@@ -159,63 +114,39 @@ RESULTS SUMMARY
 ────────────────────────────────────────────────────────────────────────────────
   K   |  Complexity  |   PINN Error (%)   |    DD Error (%)    |   Improvement  
 ------+--------------+--------------------+--------------------+----------------
-  1   |     Low      |        0.19        |       60.33        |      +99.7%    
-  4   |    Medium    |        6.77        |       78.69        |      +91.4%    
-  16  |     High     |       521.71       |       88.26        |     -491.1%    
+  1   |     Low      |        0.19        |        0.01        |     -1709.6%   
+  4   |    Medium    |        6.77        |        0.02        |    -29399.8%   
+  16  |     High     |       521.71       |        1.53        |    -34045.3%   
 
 ────────────────────────────────────────────────────────────────────────────────
   Training Statistics
 ────────────────────────────────────────────────────────────────────────────────
 
 Complexity Low (K=1):
-  PINN:
-    • Total iterations: 4510
-    • Initial loss: 1.529581e+01
-    • Final loss: 3.160241e-06
-    • Loss reduction: 4.84e+06x
-  Data-Driven:
-    • Total iterations: 17784
-    • Initial loss: 7.067719e-02
-    • Final loss: 1.395498e-02
-    • Loss reduction: 5.06e+00x
+  PINN: Loaded (no training history)
+  Data-Driven: Loaded (no training history)
 
 Complexity Medium (K=4):
-  PINN:
-    • Total iterations: 4514
-    • Initial loss: 2.059592e+00
-    • Final loss: 5.893587e-05
-    • Loss reduction: 3.49e+04x
-  Data-Driven:
-    • Total iterations: 17822
-    • Initial loss: 7.248714e-02
-    • Final loss: 1.803828e-04
-    • Loss reduction: 4.02e+02x
+  PINN: Loaded (no training history)
+  Data-Driven: Loaded (no training history)
 
 Complexity High (K=16):
-  PINN:
-    • Total iterations: 4510
-    • Initial loss: 1.653636e+00
-    • Final loss: 5.420671e-02
-    • Loss reduction: 3.05e+01x
-  Data-Driven:
-    • Total iterations: 19082
-    • Initial loss: 2.425884e-02
-    • Final loss: 1.463467e-06
-    • Loss reduction: 1.66e+04x
+  PINN: Loaded (no training history)
+  Data-Driven: Loaded (no training history)
 
 ────────────────────────────────────────────────────────────────────────────────
   Key Observations
 ────────────────────────────────────────────────────────────────────────────────
 1. Error Trends with Increasing Complexity:
    • PINN error progression: 0.19% → 6.77% → 521.71%
-   • Data-Driven error progression: 60.33% → 78.69% → 88.26%
+   • Data-Driven error progression: 0.01% → 0.02% → 1.53%
 
 2. Error Growth from Low to High Complexity:
    • PINN: +271128.5%
-   • Data-Driven: +46.3%
+   • Data-Driven: +14274.0%
 
 3. Best PINN Performance: K=1 (Low) with 0.19% error
-   Best Data-Driven Performance: K=1 (Low) with 60.33% error
+   Best Data-Driven Performance: K=1 (Low) with 0.01% error
 
 ────────────────────────────────────────────────────────────────────────────────
   Generating Summary Visualizations
@@ -228,7 +159,7 @@ Complexity High (K=16):
 EXPERIMENT COMPLETED SUCCESSFULLY
 ================================================================================
 
-Total execution time: 4:05:38.273327
+Total execution time: 0:00:06.027286
 
 All results have been saved to: results/
   • Detailed results: results/experiment_results.txt

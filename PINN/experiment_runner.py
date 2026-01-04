@@ -37,7 +37,7 @@ class ExperimentConfig:
     K_LABELS = {1: "Low", 4: "Medium", 16: "High"}
     
     # Additional K for visualization (Task 1)
-    K_VISUALIZATION = [1, 4, 8, 16]
+    K_VISUALIZATION = [1, 4, 16]
     
     # Grid resolution
     N = 64
@@ -65,12 +65,12 @@ class ExperimentConfig:
     
     # Execution mode
     # If True, will ignore existing models and retrain from scratch
-    RETRAIN = False 
+    RETRAIN = True 
     
     # If True, will skip all training/loading logic that isn't needed for plotting
     # and just try to load models to generate plots.
     # If models are missing, it will skip them.
-    RECREATE_PLOTS_ONLY = False
+    RECREATE_PLOTS_ONLY = True
 
 
 # ============================================================================
@@ -200,6 +200,78 @@ def task1_data_generation(logger, exp_config):
 
 
 # ============================================================================
+# PLOTTING UTILITIES
+# ============================================================================
+
+def plot_loss_curves(results, model_type, config, exp_config):
+    """
+    Plot training loss curves for all complexity levels.
+    model_type: 'pinn' or 'data_driven'
+    """
+    plt.figure(figsize=(10, 6), dpi=150)
+    
+    colors = ['#2E86AB', '#A23B72', '#F18F01']
+    
+    has_data = False
+    for i, K in enumerate(exp_config.K_LEVELS):
+        res = results[K].get(model_type, {})
+        history = res.get('history', [])
+        
+        if history and len(history) > 0:
+            has_data = True
+            label = f"K={K} ({exp_config.K_LABELS[K]})"
+            plt.plot(history, label=label, linewidth=1.5, color=colors[i % len(colors)])
+    
+    if not has_data:
+        print(f"No history data found for {model_type}")
+        plt.close()
+        return
+
+    # Add vertical line for LBFGS start
+    # We assume all runs used the same config
+    if model_type == 'pinn':
+        lbfgs_start = config.PINN_EPOCHS_ADAM
+        title = "PINN Training Loss"
+    else:
+        lbfgs_start = config.DD_EPOCHS_ADAM
+        title = "Data-Driven Training Loss"
+        
+    plt.axvline(x=lbfgs_start, color='k', linestyle='--', alpha=0.5, label='LBFGS Start')
+    
+    plt.xlabel('Iteration', fontsize=12)
+    plt.ylabel('Loss', fontsize=12)
+    plt.title(title, fontweight='bold', fontsize=14)
+    plt.yscale('log')
+    plt.legend(fontsize=10)
+    plt.grid(True, alpha=0.3, linestyle='--')
+    plt.tight_layout()
+    
+    filename = f"{model_type}_loss_comparison.pdf"
+    filepath = os.path.join(exp_config.PLOTS_DIR, filename)
+    plt.savefig(filepath, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"Saved {model_type} loss comparison to {filepath}")
+
+def save_training_histories(results, exp_config):
+    """Save training histories for further visualization"""
+    history_dir = os.path.join(exp_config.OUTPUT_DIR, "histories")
+    os.makedirs(history_dir, exist_ok=True)
+    
+    for K in exp_config.K_LEVELS:
+        # PINN
+        pinn_hist = results[K].get('pinn', {}).get('history', [])
+        if pinn_hist:
+            np.save(os.path.join(history_dir, f"pinn_history_K{K}.npy"), np.array(pinn_hist))
+            
+        # Data-Driven
+        dd_hist = results[K].get('data_driven', {}).get('history', [])
+        if dd_hist:
+            np.save(os.path.join(history_dir, f"dd_history_K{K}.npy"), np.array(dd_hist))
+            
+    print(f"Saved training histories to {history_dir}")
+
+
+# ============================================================================
 # MODEL TRAINING (TASK 2)
 # ============================================================================
 
@@ -282,7 +354,21 @@ def task2_model_training(logger, exp_config):
                 # Save model
                 torch.save(pinn_model.state_dict(), pinn_path)
                 logger.log(f"  ✓ Model saved to {pinn_path}")
+                
+                # Save history
+                hist_path = os.path.join(exp_config.MODELS_DIR, f'pinn_history_K{K}.npy')
+                np.save(hist_path, np.array(pinn_history))
             
+            # Try to load history if not trained
+            if pinn_loaded and not pinn_history:
+                hist_path = os.path.join(exp_config.MODELS_DIR, f'pinn_history_K{K}.npy')
+                if os.path.exists(hist_path):
+                    try:
+                        pinn_history = np.load(hist_path).tolist()
+                        logger.log(f"  ✓ Loaded training history from {hist_path}")
+                    except:
+                        logger.log(f"  ! Failed to load history from {hist_path}")
+
             # Evaluate PINN if we have a model
             if pinn_model:
                 U_pred_pinn, U_exact, error_pinn = evaluate_model(
@@ -361,6 +447,20 @@ def task2_model_training(logger, exp_config):
                 # Save model
                 torch.save(dd_model.state_dict(), dd_path)
                 logger.log(f"  ✓ Model saved to {dd_path}")
+                
+                # Save history
+                hist_path = os.path.join(exp_config.MODELS_DIR, f'dd_history_K{K}.npy')
+                np.save(hist_path, np.array(dd_history))
+            
+            # Try to load history if not trained
+            if dd_loaded and not dd_history:
+                hist_path = os.path.join(exp_config.MODELS_DIR, f'dd_history_K{K}.npy')
+                if os.path.exists(hist_path):
+                    try:
+                        dd_history = np.load(hist_path).tolist()
+                        logger.log(f"  ✓ Loaded training history from {hist_path}")
+                    except:
+                        logger.log(f"  ! Failed to load history from {hist_path}")
             
             # Evaluate Data-Driven if we have a model
             if dd_model:
@@ -410,51 +510,63 @@ def task2_model_training(logger, exp_config):
             # Row 1: PINN results
             ax1 = fig.add_subplot(gs[0, 0])
             im1 = ax1.pcolormesh(X, Y, U_pred_pinn, shading='auto', cmap='viridis')
-            ax1.set_title('PINN Prediction', fontweight='bold')
-            ax1.set_xlabel('x')
-            ax1.set_ylabel('y')
+            ax1.set_title('PINN Prediction', fontweight='bold', fontsize=18)
+            ax1.set_xlabel('x', fontsize=12)
+            ax1.set_ylabel('y', fontsize=12)
+            ax1.set_xticks([])
+            ax1.set_yticks([])
             plt.colorbar(im1, ax=ax1)
             
             ax2 = fig.add_subplot(gs[0, 1])
             im2 = ax2.pcolormesh(X, Y, U_exact, shading='auto', cmap='viridis')
-            ax2.set_title('Exact Solution', fontweight='bold')
-            ax2.set_xlabel('x')
-            ax2.set_ylabel('y')
+            ax2.set_title('Exact Solution', fontweight='bold', fontsize=18)
+            ax2.set_xlabel('x', fontsize=12)
+            ax2.set_ylabel('y', fontsize=12)
+            ax2.set_xticks([])
+            ax2.set_yticks([])
             plt.colorbar(im2, ax=ax2)
             
             ax3 = fig.add_subplot(gs[0, 2])
             error_pinn_abs = np.abs(U_pred_pinn - U_exact)
             im3 = ax3.pcolormesh(X, Y, error_pinn_abs, shading='auto', cmap='Reds')
-            ax3.set_title(f'PINN Error\nL2 Rel: {error_pinn:.2f}%', fontweight='bold')
-            ax3.set_xlabel('x')
-            ax3.set_ylabel('y')
+            ax3.set_title(f'PINN Error\nL2 Rel: {error_pinn:.2f}%', fontweight='bold', fontsize=18)
+            ax3.set_xlabel('x', fontsize=12)
+            ax3.set_ylabel('y', fontsize=12)
+            ax3.set_xticks([])
+            ax3.set_yticks([])
             plt.colorbar(im3, ax=ax3)
             
             # Row 2: Data-Driven results
             ax4 = fig.add_subplot(gs[1, 0])
             im4 = ax4.pcolormesh(X, Y, U_pred_dd, shading='auto', cmap='viridis')
-            ax4.set_title('Data-Driven Prediction', fontweight='bold')
-            ax4.set_xlabel('x')
-            ax4.set_ylabel('y')
+            ax4.set_title('Data-Driven Prediction', fontweight='bold', fontsize=18)
+            ax4.set_xlabel('x', fontsize=12)
+            ax4.set_ylabel('y', fontsize=12)
+            ax4.set_xticks([])
+            ax4.set_yticks([])
             plt.colorbar(im4, ax=ax4)
             
             ax5 = fig.add_subplot(gs[1, 1])
             im5 = ax5.pcolormesh(X, Y, U_exact, shading='auto', cmap='viridis')
-            ax5.set_title('Exact Solution', fontweight='bold')
-            ax5.set_xlabel('x')
-            ax5.set_ylabel('y')
+            ax5.set_title('Exact Solution', fontweight='bold', fontsize=18)
+            ax5.set_xlabel('x', fontsize=12)
+            ax5.set_ylabel('y', fontsize=12)
+            ax5.set_xticks([])
+            ax5.set_yticks([])
             plt.colorbar(im5, ax=ax5)
             
             ax6 = fig.add_subplot(gs[1, 2])
             error_dd_abs = np.abs(U_pred_dd - U_exact)
             im6 = ax6.pcolormesh(X, Y, error_dd_abs, shading='auto', cmap='Reds')
-            ax6.set_title(f'Data-Driven Error\nL2 Rel: {error_dd:.2f}%', fontweight='bold')
-            ax6.set_xlabel('x')
-            ax6.set_ylabel('y')
+            ax6.set_title(f'Data-Driven Error\nL2 Rel: {error_dd:.2f}%', fontweight='bold', fontsize=18)
+            ax6.set_xlabel('x', fontsize=12)
+            ax6.set_ylabel('y', fontsize=12)
+            ax6.set_xticks([])
+            ax6.set_yticks([])
             plt.colorbar(im6, ax=ax6)
             
             fig.suptitle(f'Model Comparison - Complexity {complexity_label} (K={K})', 
-                        fontsize=14, fontweight='bold', y=0.98)
+                        fontsize=32, fontweight='bold', y=0.98)
             
             comp_path = os.path.join(exp_config.PLOTS_DIR, f'comparison_K{K}.png')
             plt.savefig(comp_path, dpi=150, bbox_inches='tight')
@@ -607,6 +719,13 @@ def generate_summary(logger, results, exp_config):
     # Create summary plots
     # ────────────────────────────────────────────────────────────────
     logger.subsection("Generating Summary Visualizations")
+    
+    # Generate new loss comparison plots
+    plot_loss_curves(results, 'pinn', config, exp_config)
+    plot_loss_curves(results, 'data_driven', config, exp_config)
+    
+    # Save histories
+    save_training_histories(results, exp_config)
     
     # Error comparison plot
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))

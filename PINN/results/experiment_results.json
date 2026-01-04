@@ -1,5 +1,5 @@
 {
-  "experiment_date": "2025-12-29 15:47:45",
+  "experiment_date": "2026-01-04 11:15:59",
   "configuration": {
     "N": 64,
     "K_levels": [
@@ -14,39 +14,39 @@
       "complexity_label": "Low",
       "pinn": {
         "error": 0.19234950715077231,
-        "final_loss": 3.1602412491338328e-06,
-        "iterations": 4510
+        "final_loss": 0.0,
+        "iterations": 0
       },
       "data_driven": {
         "error": 0.010629582784594957,
-        "final_loss": 4.9822938308352605e-06,
-        "iterations": 37427
+        "final_loss": 0.0,
+        "iterations": 0
       }
     },
     "4": {
       "complexity_label": "Medium",
       "pinn": {
         "error": 6.7731632337060805,
-        "final_loss": 5.893586785532534e-05,
-        "iterations": 4514
+        "final_loss": 0.0,
+        "iterations": 0
       },
       "data_driven": {
         "error": 0.02296005545967963,
-        "final_loss": 1.1772748109706299e-07,
-        "iterations": 39995
+        "final_loss": 0.0,
+        "iterations": 0
       }
     },
     "16": {
       "complexity_label": "High",
       "pinn": {
         "error": 521.7067253121277,
-        "final_loss": 0.05420671030879021,
-        "iterations": 4510
+        "final_loss": 0.0,
+        "iterations": 0
       },
       "data_driven": {
         "error": 1.5279012896865134,
-        "final_loss": 3.040064257220365e-06,
-        "iterations": 37090
+        "final_loss": 0.0,
+        "iterations": 0
       }
     }
   }
