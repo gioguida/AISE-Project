@@ -1,6 +1,6 @@
 ================================================================================
 AISE 2026 - Final Project - Problem 1: PINNs vs Data-Driven
-Experiment Date: 2026-01-04 11:15:53
+Experiment Date: 2026-01-04 16:44:13
 ================================================================================
 
 
@@ -159,7 +159,7 @@ Complexity High (K=16):
 EXPERIMENT COMPLETED SUCCESSFULLY
 ================================================================================
 
-Total execution time: 0:00:06.027286
+Total execution time: 0:00:06.054454
 
 All results have been saved to: results/
   • Detailed results: results/experiment_results.txt

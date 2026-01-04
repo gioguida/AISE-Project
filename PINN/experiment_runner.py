@@ -65,7 +65,7 @@ class ExperimentConfig:
     
     # Execution mode
     # If True, will ignore existing models and retrain from scratch
-    RETRAIN = True 
+    RETRAIN = False 
     
     # If True, will skip all training/loading logic that isn't needed for plotting
     # and just try to load models to generate plots.
@@ -589,6 +589,8 @@ def task2_model_training(logger, exp_config):
 
 def generate_summary(logger, results, exp_config):
     """Generate comprehensive results summary"""
+    
+    config = Config()
     
     logger.section("RESULTS SUMMARY", "=")
     
