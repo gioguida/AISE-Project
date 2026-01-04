@@ -209,6 +209,24 @@ def plot_estimates(
         **HATCH_SETTINGS,
         )
 
+    # Normalize coordinate shapes and align lengths to avoid scatter size mismatches
+    def _flatten_coords(arr: np.ndarray):
+        return arr.reshape(-1, arr.shape[-1]) if arr is not None and arr.ndim > 2 else arr
+
+    x_out = _flatten_coords(x_out)
+    x_inp = _flatten_coords(x_inp)
+
+    n_points = x_out.shape[0]
+    if u_prd.shape[0] != n_points:
+        min_n = min(n_points, u_prd.shape[0])
+        if x_inp is not None:
+            x_inp = x_inp[:min_n]
+        x_out = x_out[:min_n]
+        u_gtr = u_gtr[:min_n]
+        u_prd = u_prd[:min_n]
+        if u_inp is not None:
+            u_inp = u_inp[:min_n]
+
     # Get prediction error
     u_err = (u_gtr - u_prd)
 
