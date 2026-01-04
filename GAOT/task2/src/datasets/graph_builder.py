@@ -68,7 +68,9 @@ class GraphBuilder:
 
     def build_graphs_for_split(self, x_data: torch.Tensor, latent_queries: torch.Tensor,
                               gno_radius: float, scales: List[float],
-                              dynamic_radius_config: Optional[dict] = None) -> Tuple[List, List]:
+                              dynamic_radius_config: Optional[dict] = None,
+                              random_subsample_each_graph: bool = False,
+                              latent_token_sampler: Optional[callable] = None) -> Tuple[List, List, Optional[List[torch.Tensor]]]:
         """
         Build encoder and decoder graphs for a data split.
         
@@ -85,33 +87,27 @@ class GraphBuilder:
         print(f"Building graphs for {len(x_data)} samples...")
         start_time = time.time()
         
-        # Compute dynamic radius if enabled
+        # Compute dynamic radius if enabled (shared baseline when not resampling per graph)
         dynamic_radii = None
-        if dynamic_radius_config and dynamic_radius_config.get('use_dynamic_radius', False):
-            method = dynamic_radius_config.get('dynamic_radius_method', 'knn')
-            k = dynamic_radius_config.get('dynamic_radius_k', 8)
-            alpha = dynamic_radius_config.get('dynamic_radius_alpha', 1.5)
-            
-            # Compute dynamic radius in physical space (on unscaled latent_queries)
-            dynamic_radii = self.compute_dynamic_radius(latent_queries, method, k, alpha)
-            
-            # Scale the radii to match the scaled coordinate space
-            if self.coord_scaler is not None:
-                # Apply the same scaling factor that was applied to coordinates
-                # For domain [0,1] -> [-1,1], distances are scaled by 2.0
-                # We need to apply the inverse: radii in physical space -> radii in scaled space
-                scale_params = self.coord_scaler.scale_params
-                if scale_params is not None:
-                    # For per_dim_scaling: scale = (target_max - target_min) / domain_range
-                    # For domain [0,1] -> [-1,1]: scale = 2.0 / 1.0 = 2.0
-                    domain_range = scale_params['range'].mean().item()  # Average range
-                    target_range = self.coord_scaler.target_range[1] - self.coord_scaler.target_range[0]
-                    scaling_factor = target_range / domain_range
-                    dynamic_radii = dynamic_radii * scaling_factor
-            
-            print(f"Using dynamic radius ({method}, k={k}, alpha={alpha}). Mean radius: {dynamic_radii.mean().item():.4f}")
-        
-        # Scale latent queries for neighbor search
+        if not random_subsample_each_graph:
+            if dynamic_radius_config and dynamic_radius_config.get('use_dynamic_radius', False):
+                method = dynamic_radius_config.get('dynamic_radius_method', 'knn')
+                k = dynamic_radius_config.get('dynamic_radius_k', 8)
+                alpha = dynamic_radius_config.get('dynamic_radius_alpha', 1.5)
+
+                dynamic_radii = self.compute_dynamic_radius(latent_queries, method, k, alpha)
+
+                if self.coord_scaler is not None:
+                    scale_params = self.coord_scaler.scale_params
+                    if scale_params is not None:
+                        domain_range = scale_params['range'].mean().item()
+                        target_range = self.coord_scaler.target_range[1] - self.coord_scaler.target_range[0]
+                        scaling_factor = target_range / domain_range
+                        dynamic_radii = dynamic_radii * scaling_factor
+
+                print(f"Using dynamic radius ({method}, k={k}, alpha={alpha}). Mean radius: {dynamic_radii.mean().item():.4f}")
+
+        # Scale latent queries for neighbor search (shared path)
         if self.coord_scaler is not None:
             latent_queries_scaled = self.coord_scaler(latent_queries)
         else:
@@ -119,6 +115,7 @@ class GraphBuilder:
         
         encoder_graphs = []
         decoder_graphs = []
+        latent_queries_scaled_list = [] if random_subsample_each_graph else None
         
         for i, x_sample in enumerate(x_data):
             # Handle different input shapes
@@ -137,30 +134,64 @@ class GraphBuilder:
             else:
                 # Fallback to per-sample rescaling (legacy behavior)
                 x_coord_scaled = rescale(x_coord, (-1, 1))
+
+            # If requested, resample latent tokens per graph/sample
+            if random_subsample_each_graph:
+                if latent_token_sampler is None:
+                    raise ValueError("latent_token_sampler must be provided when random_subsample_each_graph=True")
+                latent_queries_sample = latent_token_sampler(x_coord)
+
+                # Compute per-sample dynamic radii if enabled
+                dynamic_radii_sample = None
+                if dynamic_radius_config and dynamic_radius_config.get('use_dynamic_radius', False):
+                    method = dynamic_radius_config.get('dynamic_radius_method', 'knn')
+                    k = dynamic_radius_config.get('dynamic_radius_k', 8)
+                    alpha = dynamic_radius_config.get('dynamic_radius_alpha', 1.5)
+
+                    dynamic_radii_sample = self.compute_dynamic_radius(latent_queries_sample, method, k, alpha)
+
+                    if self.coord_scaler is not None:
+                        scale_params = self.coord_scaler.scale_params
+                        if scale_params is not None:
+                            domain_range = scale_params['range'].mean().item()
+                            target_range = self.coord_scaler.target_range[1] - self.coord_scaler.target_range[0]
+                            scaling_factor = target_range / domain_range
+                            dynamic_radii_sample = dynamic_radii_sample * scaling_factor
+
+                if self.coord_scaler is not None:
+                    latent_queries_scaled_sample = self.coord_scaler(latent_queries_sample)
+                else:
+                    latent_queries_scaled_sample = rescale(latent_queries_sample, (-1, 1))
+
+                latent_queries_scaled_list.append(latent_queries_scaled_sample)
+            else:
+                latent_queries_sample = latent_queries
+                dynamic_radii_sample = dynamic_radii
+                latent_queries_scaled_sample = latent_queries_scaled
             
             # Build encoder graphs (physical -> latent)
             encoder_nbrs_sample = []
             for scale in scales:
-                if dynamic_radii is not None:
-                    scaled_radius = dynamic_radii * scale
+                if dynamic_radii_sample is not None:
+                    scaled_radius = dynamic_radii_sample * scale
                 else:
                     scaled_radius = gno_radius * scale
                     
                 with torch.no_grad():
-                    nbrs = self.nb_search(x_coord_scaled, latent_queries_scaled, scaled_radius)
+                    nbrs = self.nb_search(x_coord_scaled, latent_queries_scaled_sample, scaled_radius)
                 encoder_nbrs_sample.append(nbrs)
             encoder_graphs.append(encoder_nbrs_sample)
             
             # Build decoder graphs (latent -> physical)
             decoder_nbrs_sample = []
             for scale in scales:
-                if dynamic_radii is not None:
-                    scaled_radius = dynamic_radii * scale
+                if dynamic_radii_sample is not None:
+                    scaled_radius = dynamic_radii_sample * scale
                 else:
                     scaled_radius = gno_radius * scale
                     
                 with torch.no_grad():
-                    nbrs = self.nb_search(latent_queries_scaled, x_coord_scaled, scaled_radius)
+                    nbrs = self.nb_search(latent_queries_scaled_sample, x_coord_scaled, scaled_radius)
                 decoder_nbrs_sample.append(nbrs)
             decoder_graphs.append(decoder_nbrs_sample)
             
@@ -171,12 +202,14 @@ class GraphBuilder:
         total_time = time.time() - start_time
         print(f"Graph building completed in {total_time:.2f}s")
         
-        return encoder_graphs, decoder_graphs
+        return encoder_graphs, decoder_graphs, latent_queries_scaled_list
     
     def build_all_graphs(self, data_splits: dict, latent_queries: torch.Tensor,
                         gno_radius: float, scales: List[float],
                         build_train: bool = True,
-                        dynamic_radius_config: Optional[dict] = None) -> dict:
+                        dynamic_radius_config: Optional[dict] = None,
+                        random_subsample_each_graph: bool = False,
+                        latent_token_sampler: Optional[callable] = None) -> dict:
         """
         Build graphs for all data splits.
         
@@ -196,34 +229,43 @@ class GraphBuilder:
         # Always build test graphs
         if 'test' in data_splits:
             print("Building test graphs...")
-            encoder_test, decoder_test = self.build_graphs_for_split(
-                data_splits['test']['x'], latent_queries, gno_radius, scales, dynamic_radius_config
+            encoder_test, decoder_test, latent_test = self.build_graphs_for_split(
+                data_splits['test']['x'], latent_queries, gno_radius, scales, dynamic_radius_config,
+                random_subsample_each_graph=random_subsample_each_graph,
+                latent_token_sampler=latent_token_sampler
             )
             all_graphs['test'] = {
                 'encoder': encoder_test,
-                'decoder': decoder_test
+                'decoder': decoder_test,
+                'latent_queries': latent_test
             }
         
         # Build train/val graphs if requested
         if build_train:
             if 'train' in data_splits:
                 print("Building train graphs...")
-                encoder_train, decoder_train = self.build_graphs_for_split(
-                    data_splits['train']['x'], latent_queries, gno_radius, scales, dynamic_radius_config
+                encoder_train, decoder_train, latent_train = self.build_graphs_for_split(
+                    data_splits['train']['x'], latent_queries, gno_radius, scales, dynamic_radius_config,
+                    random_subsample_each_graph=random_subsample_each_graph,
+                    latent_token_sampler=latent_token_sampler
                 )
                 all_graphs['train'] = {
                     'encoder': encoder_train,
-                    'decoder': decoder_train
+                    'decoder': decoder_train,
+                    'latent_queries': latent_train
                 }
             
             if 'val' in data_splits:
                 print("Building val graphs...")
-                encoder_val, decoder_val = self.build_graphs_for_split(
-                    data_splits['val']['x'], latent_queries, gno_radius, scales, dynamic_radius_config
+                encoder_val, decoder_val, latent_val = self.build_graphs_for_split(
+                    data_splits['val']['x'], latent_queries, gno_radius, scales, dynamic_radius_config,
+                    random_subsample_each_graph=random_subsample_each_graph,
+                    latent_token_sampler=latent_token_sampler
                 )
                 all_graphs['val'] = {
                     'encoder': encoder_val,
-                    'decoder': decoder_val
+                    'decoder': decoder_val,
+                    'latent_queries': latent_val
                 }
         else:
             print("Skipping train/val graph building (testing mode)")

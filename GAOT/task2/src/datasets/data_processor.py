@@ -388,6 +388,7 @@ class DataProcessor:
                            latent_queries: Optional[torch.Tensor] = None,
                            encoder_graphs: Optional[list] = None,
                            decoder_graphs: Optional[list] = None,
+                           latent_queries_per_split: Optional[dict] = None,
                            build_train: bool = True) -> Dict[str, DataLoader]:
         """Create data loaders for train/val/test splits."""
         loaders = {}
@@ -405,11 +406,13 @@ class DataProcessor:
                 # Variable coordinates - need graphs
                 encoder_graphs_split = encoder_graphs[split] if encoder_graphs else None
                 decoder_graphs_split = decoder_graphs[split] if decoder_graphs else None
+                latent_split = latent_queries_per_split[split] if latent_queries_per_split else None
 
                 dataset = CustomDataset(
                     c_data, u_data, x_data,
                     encoder_graphs_split, decoder_graphs_split,
-                    transform=self.coord_scaler
+                    transform=self.coord_scaler,
+                    latent_queries=latent_split
                 )
                 
                 loader = DataLoader(
