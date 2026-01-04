@@ -16,8 +16,7 @@ class CustomDataset(Dataset):
     
     def __init__(self, c_data: Optional[torch.Tensor], u_data: torch.Tensor, 
                  x_data: torch.Tensor, encoder_graphs: List, decoder_graphs: List,
-                 transform: Optional[Callable] = None,
-                 latent_queries: Optional[List[torch.Tensor]] = None):
+                 transform: Optional[Callable] = None):
         """
         Initialize custom dataset.
         
@@ -35,7 +34,6 @@ class CustomDataset(Dataset):
         self.encoder_graphs = encoder_graphs
         self.decoder_graphs = decoder_graphs
         self.transform = transform
-        self.latent_queries = latent_queries
         
         # Validate data consistency
         n_samples = len(u_data)
@@ -47,8 +45,6 @@ class CustomDataset(Dataset):
             raise ValueError("encoder_graphs and u_data must have same number of samples")
         if len(decoder_graphs) != n_samples:
             raise ValueError("decoder_graphs and u_data must have same number of samples")
-        if self.latent_queries is not None and len(self.latent_queries) != n_samples:
-            raise ValueError("latent_queries and u_data must have same number of samples")
     
     def __len__(self):
         return len(self.u_data)
@@ -70,9 +66,8 @@ class CustomDataset(Dataset):
         
         encoder_graph = self.encoder_graphs[idx]
         decoder_graph = self.decoder_graphs[idx]
-        latent_q = self.latent_queries[idx] if self.latent_queries is not None else None
         
-        return c, u, x, encoder_graph, decoder_graph, latent_q
+        return c, u, x, encoder_graph, decoder_graph
 
 
 class DynamicPairDataset(Dataset):
@@ -281,32 +276,22 @@ def collate_variable_batch(batch):
     """
     # Separate different components
     c_list, u_list, x_list = [], [], []
-    encoder_graphs_list, decoder_graphs_list = [], []
-    latent_list = []
+    encoder_graphs_list, decoder_graphs_list = [] , []
     
     for item in batch:
-        if len(item) == 6:
-            c, u, x, encoder_graph, decoder_graph, latent_q = item
-        else:
-            c, u, x, encoder_graph, decoder_graph = item
-            latent_q = None
+        c, u, x, encoder_graph, decoder_graph = item
         c_list.append(c)
         u_list.append(u)
         x_list.append(x)
         encoder_graphs_list.append(encoder_graph)
         decoder_graphs_list.append(decoder_graph)
-        latent_list.append(latent_q)
     
     # Stack regular tensors
     c_batch = torch.stack(c_list) if c_list[0].numel() > 0 else None
     u_batch = torch.stack(u_list)
     x_batch = torch.stack(x_list)
     
-    latent_batch = None
-    if latent_list and latent_list[0] is not None:
-        latent_batch = torch.stack(latent_list)
-    
-    return c_batch, u_batch, x_batch, encoder_graphs_list, decoder_graphs_list, latent_batch
+    return c_batch, u_batch, x_batch, encoder_graphs_list, decoder_graphs_list
 
 
 def collate_sequential_batch(batch):

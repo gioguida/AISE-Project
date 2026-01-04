@@ -11,7 +11,6 @@ from ..datasets.graph_builder import GraphBuilder
 from ..model.gaot import GAOT
 from ..utils.metrics import compute_batch_errors, compute_final_metric
 from ..utils.plotting import plot_estimates
-from ..utils.scaling import rescale
 
 
 class StaticTrainer(BaseTrainer):
@@ -76,7 +75,6 @@ class StaticTrainer(BaseTrainer):
         )
         
         c_sample = data_splits['train']['c']
-        u_sample = data_splits['train']['u']
         
         self.num_input_channels = c_sample.shape[-1] if c_sample is not None else 0
         self.num_output_channels = u_sample.shape[-1]
@@ -87,37 +85,16 @@ class StaticTrainer(BaseTrainer):
         """Initialize for variable coordinates mode."""
         print("Setting up variable coordinates mode...")
         
-        # Create graph builder with coordinate scaler for consistent scaling
-        neighbor_search_method = self.model_config.args.magno.neighbor_search_method
-        self.graph_builder = GraphBuilder(
-            neighbor_search_method=neighbor_search_method,
-            coord_scaler=self.data_processor.coord_scaler
-        )
-        
-        # Get graph building parameters
-        gno_radius = getattr(self.model_config.args.magno, 'radius', 0.033)
-        scales = getattr(self.model_config.args.magno, 'scales', [1.0])
-
-        # Dynamic radius config
-        dynamic_radius_config = {
-            'use_dynamic_radius': getattr(self.model_config.args.magno, 'use_dynamic_radius', False),
-            'dynamic_radius_method': getattr(self.model_config.args.magno, 'dynamic_radius_method', 'knn'),
-            'dynamic_radius_k': getattr(self.model_config.args.magno, 'dynamic_radius_k', 8),
-            'dynamic_radius_alpha': getattr(self.model_config.args.magno, 'dynamic_radius_alpha', 1.5)
-        }
-
-        # Cache graph params for potential per-epoch rebuilds
-        self.graph_params = {
             'gno_radius': gno_radius,
-            'scales': scales,
-            'dynamic_radius_config': dynamic_radius_config
-        }
-
-        random_subsample_each_graph = getattr(self.setup_config, 'random_subsample_each_graph', False)
-        latent_token_sampler = None
-        if random_subsample_each_graph and isinstance(self.model_config.latent_tokens_size, int):
-            def _sampler(coords_sample: torch.Tensor):
-                return self.data_processor.generate_latent_queries(
+                        latent_tokens_coord = self.latent_tokens_coord.to(self.device)
+                        pred = self.model(
+                            latent_tokens_coord=latent_tokens_coord,
+                            xcoord=coord_batch,
+                            pndata=x_batch,
+                            encoder_nbrs=encoder_graph_batch,
+                            decoder_nbrs=decoder_graph_batch
+                        )
+                        return self.loss_fn(pred, y_batch)
                     self.model_config.latent_tokens_size,
                     reference_coords=coords_sample
                 )
@@ -125,7 +102,6 @@ class StaticTrainer(BaseTrainer):
         
         # Build graphs for all splits
         # Pass unscaled latent queries so dynamic radius is computed in physical space
-        all_graphs = self.graph_builder.build_all_graphs(
             data_splits=data_splits,
             latent_queries=self.latent_tokens_coord_unscaled,
             gno_radius=gno_radius,
@@ -136,45 +112,16 @@ class StaticTrainer(BaseTrainer):
             latent_token_sampler=latent_token_sampler
         )
 
-        # Create data loaders with graphs
-        loader_kwargs = {
-            'encoder_graphs': {
-                'train': all_graphs['train']['encoder'] if all_graphs['train'] else None,
-                'val': all_graphs['val']['encoder'] if all_graphs['val'] else None,
-                'test': all_graphs['test']['encoder']
-            },
-            'decoder_graphs': {
-                'train': all_graphs['train']['decoder'] if all_graphs['train'] else None,
-                'val': all_graphs['val']['decoder'] if all_graphs['val'] else None,
-                'test': all_graphs['test']['decoder']
-            }
-        }
-        # Optional per-sample latent queries (scaled) when random_subsample_each_graph is enabled
-        latent_per_split = None
-        if random_subsample_each_graph:
-            latent_per_split = {
-                'train': all_graphs['train']['latent_queries'] if all_graphs['train'] else None,
-                'val': all_graphs['val']['latent_queries'] if all_graphs['val'] else None,
-                'test': all_graphs['test']['latent_queries']
-            }
-        loaders = self.data_processor.create_data_loaders(
-            data_splits=data_splits,
-            is_variable_coords=True,
-            latent_queries=self.latent_tokens_coord,
-            build_train=self.setup_config.train,
-            latent_queries_per_split=latent_per_split,
-            **loader_kwargs
-        )
 
-        self.train_loader = loaders['train']
-        self.val_loader = loaders['val']
-        self.test_loader = loaders['test']
-    
-    def _init_fixed_coords_mode(self, data_splits):
-        """Initialize for fixed coordinates mode."""
-        print("Setting up fixed coordinates mode...")
-        
-        # Store fixed coordinates
+                        latent_tokens_coord = self.latent_tokens_coord.to(self.device)
+                        pred = self.model(
+                            latent_tokens_coord=latent_tokens_coord,
+                            xcoord=coord_batch,
+                            pndata=x_batch,
+                            encoder_nbrs=encoder_graph_batch,
+                            decoder_nbrs=decoder_graph_batch
+                        )
+                        return self.loss_fn(pred, y_batch)
         self.coord = self.data_processor.coord_scaler(data_splits['train']['x'])
         
         # Create simple data loaders
@@ -262,12 +209,7 @@ class StaticTrainer(BaseTrainer):
     
     def _train_step_variable_coords(self, batch):
         """Training step for variable coordinates mode."""
-        # When random_subsample_each_graph is enabled, batch includes latent_batch
-        if len(batch) == 6:
-            x_batch, y_batch, coord_batch, encoder_graph_batch, decoder_graph_batch, latent_batch = batch
-        else:
-            x_batch, y_batch, coord_batch, encoder_graph_batch, decoder_graph_batch = batch
-            latent_batch = None
+        x_batch, y_batch, coord_batch, encoder_graph_batch, decoder_graph_batch = batch
         
         if x_batch.numel() == 0:
             x_batch = None
@@ -278,37 +220,15 @@ class StaticTrainer(BaseTrainer):
         encoder_graph_batch = move_to_device(encoder_graph_batch, self.device)
         decoder_graph_batch = move_to_device(decoder_graph_batch, self.device)
 
-        if latent_batch is None:
-            latent_tokens_coord = self.latent_tokens_coord.to(self.device)
-            pred = self.model(
-                latent_tokens_coord=latent_tokens_coord,
-                xcoord=coord_batch,
-                pndata=x_batch,
-                encoder_nbrs=encoder_graph_batch,
-                decoder_nbrs=decoder_graph_batch
-            )
-            return self.loss_fn(pred, y_batch)
-        else:
-            # Per-sample latent tokens: process each element independently
-            total_loss = 0.0
-            batch_size = y_batch.shape[0]
-            for i in range(batch_size):
-                latent_tokens_coord = latent_batch[i].to(self.device)
-                x_i = x_batch[i:i+1] if x_batch is not None else None
-                y_i = y_batch[i:i+1]
-                coord_i = coord_batch[i:i+1]
-                enc_i = encoder_graph_batch[i]
-                dec_i = decoder_graph_batch[i]
-
-                pred_i = self.model(
-                    latent_tokens_coord=latent_tokens_coord,
-                    xcoord=coord_i,
-                    pndata=x_i,
-                    encoder_nbrs=enc_i,
-                    decoder_nbrs=dec_i
-                )
-                total_loss += self.loss_fn(pred_i, y_i)
-            return total_loss / batch_size
+        latent_tokens_coord = self.latent_tokens_coord.to(self.device)
+        pred = self.model(
+            latent_tokens_coord=latent_tokens_coord,
+            xcoord=coord_batch,
+            pndata=x_batch,
+            encoder_nbrs=encoder_graph_batch,
+            decoder_nbrs=decoder_graph_batch
+        )
+        return self.loss_fn(pred, y_batch)
     
     def validate(self, loader):
         """Validate the model on validation set."""
@@ -351,11 +271,7 @@ class StaticTrainer(BaseTrainer):
     
     def _validate_variable_coords(self, batch):
         """Validation step for variable coordinates."""
-        if len(batch) == 6:
-            x_batch, y_batch, coord_batch, encoder_graph_batch, decoder_graph_batch, latent_batch = batch
-        else:
-            x_batch, y_batch, coord_batch, encoder_graph_batch, decoder_graph_batch = batch
-            latent_batch = None
+        x_batch, y_batch, coord_batch, encoder_graph_batch, decoder_graph_batch = batch
         
         if x_batch.numel() == 0:
             x_batch = None
@@ -366,36 +282,15 @@ class StaticTrainer(BaseTrainer):
         encoder_graph_batch = move_to_device(encoder_graph_batch, self.device)
         decoder_graph_batch = move_to_device(decoder_graph_batch, self.device)
 
-        if latent_batch is None:
-            latent_tokens_coord = self.latent_tokens_coord.to(self.device)
-            pred = self.model(
-                latent_tokens_coord=latent_tokens_coord,
-                xcoord=coord_batch,
-                pndata=x_batch,
-                encoder_nbrs=encoder_graph_batch,
-                decoder_nbrs=decoder_graph_batch
-            )
-            return self.loss_fn(pred, y_batch)
-        else:
-            total_loss = 0.0
-            batch_size = y_batch.shape[0]
-            for i in range(batch_size):
-                latent_tokens_coord = latent_batch[i].to(self.device)
-                x_i = x_batch[i:i+1] if x_batch is not None else None
-                y_i = y_batch[i:i+1]
-                coord_i = coord_batch[i:i+1]
-                enc_i = encoder_graph_batch[i]
-                dec_i = decoder_graph_batch[i]
-
-                pred_i = self.model(
-                    latent_tokens_coord=latent_tokens_coord,
-                    xcoord=coord_i,
-                    pndata=x_i,
-                    encoder_nbrs=enc_i,
-                    decoder_nbrs=dec_i
-                )
-                total_loss += self.loss_fn(pred_i, y_i)
-            return total_loss / batch_size
+        latent_tokens_coord = self.latent_tokens_coord.to(self.device)
+        pred = self.model(
+            latent_tokens_coord=latent_tokens_coord,
+            xcoord=coord_batch,
+            pndata=x_batch,
+            encoder_nbrs=encoder_graph_batch,
+            decoder_nbrs=decoder_graph_batch
+        )
+        return self.loss_fn(pred, y_batch)
     
     def test(self):
         """Test the model and save results."""
@@ -474,65 +369,24 @@ class StaticTrainer(BaseTrainer):
     
     def _test_step_variable_coords(self, batch):
         """Test step for variable coordinates."""
-        if len(batch) == 6:
-            x_sample, y_sample, coord_sample, encoder_graph_sample, decoder_graph_sample, latent_sample = batch
-        else:
-            x_sample, y_sample, coord_sample, encoder_graph_sample, decoder_graph_sample = batch
-            latent_sample = None
-        
+        x_sample, y_sample, coord_sample, encoder_graph_sample, decoder_graph_sample = batch
+
         if x_sample.numel() == 0:
             x_sample = None
-        
+
         x_sample = x_sample.to(self.device) if x_sample is not None else None
         y_sample = y_sample.to(self.device)
         coord_sample = coord_sample.to(self.device)
         encoder_graph_sample = move_to_device(encoder_graph_sample, self.device)
-        encoder_graph_sample = move_to_device(encoder_graph_sample, self.device)
         decoder_graph_sample = move_to_device(decoder_graph_sample, self.device)
 
-        if latent_sample is None:
-            latent_tokens_coord = self.latent_tokens_coord.to(self.device)
-            pred = self.model(
-                latent_tokens_coord=latent_tokens_coord,
-                xcoord=coord_sample,
-                pndata=x_sample,
-                encoder_nbrs=encoder_graph_sample,
-                decoder_nbrs=decoder_graph_sample
-            )
-            return pred, y_sample, x_sample, coord_sample
-        else:
-            preds = []
-            y_list = []
-            x_list = []
-            coord_list = []
-            batch_size = y_sample.shape[0]
-            for i in range(batch_size):
-                latent_tokens_coord = latent_sample[i].to(self.device)
-                x_i = x_sample[i:i+1] if x_sample is not None else None
-                y_i = y_sample[i:i+1]
-                coord_i = coord_sample[i:i+1]
-                enc_i = encoder_graph_sample[i]
-                dec_i = decoder_graph_sample[i]
+        latent_tokens_coord = self.latent_tokens_coord.to(self.device)
+        pred = self.model(
+            latent_tokens_coord=latent_tokens_coord,
+            xcoord=coord_sample,
+            pndata=x_sample,
+            encoder_nbrs=encoder_graph_sample,
+            decoder_nbrs=decoder_graph_sample
+        )
 
-                pred_i = self.model(
-                    latent_tokens_coord=latent_tokens_coord,
-                    xcoord=coord_i,
-                    pndata=x_i,
-                    encoder_nbrs=enc_i,
-                    decoder_nbrs=dec_i
-                )
-                preds.append(pred_i)
-                y_list.append(y_i)
-                x_list.append(x_i if x_i is not None else torch.empty(0, device=self.device))
-                coord_list.append(coord_i)
-
-            pred = torch.cat(preds, dim=0)
-            y_cat = torch.cat(y_list, dim=0)
-            if x_list[0].numel() == 0:
-                x_cat = None
-            else:
-                x_cat = torch.cat(x_list, dim=0)
-            coord_cat = torch.cat(coord_list, dim=0)
-            return pred, y_cat, x_cat, coord_cat
-        
-        return pred, y_sample, x_sample, coord_for_plot
+        return pred, y_sample, x_sample, coord_sample

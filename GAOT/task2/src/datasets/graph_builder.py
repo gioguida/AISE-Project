@@ -70,7 +70,7 @@ class GraphBuilder:
                               gno_radius: float, scales: List[float],
                               dynamic_radius_config: Optional[dict] = None,
                               random_subsample_each_graph: bool = False,
-                              latent_token_sampler: Optional[callable] = None) -> Tuple[List, List, Optional[List[torch.Tensor]]]:
+                              latent_token_sampler: Optional[callable] = None) -> Tuple[List, List]:
         """
         Build encoder and decoder graphs for a data split.
         
@@ -115,7 +115,6 @@ class GraphBuilder:
         
         encoder_graphs = []
         decoder_graphs = []
-        latent_queries_scaled_list = [] if random_subsample_each_graph else None
         
         for i, x_sample in enumerate(x_data):
             # Handle different input shapes
@@ -163,7 +162,6 @@ class GraphBuilder:
                 else:
                     latent_queries_scaled_sample = rescale(latent_queries_sample, (-1, 1))
 
-                latent_queries_scaled_list.append(latent_queries_scaled_sample)
             else:
                 latent_queries_sample = latent_queries
                 dynamic_radii_sample = dynamic_radii
@@ -202,7 +200,7 @@ class GraphBuilder:
         total_time = time.time() - start_time
         print(f"Graph building completed in {total_time:.2f}s")
         
-        return encoder_graphs, decoder_graphs, latent_queries_scaled_list
+        return encoder_graphs, decoder_graphs
     
     def build_all_graphs(self, data_splits: dict, latent_queries: torch.Tensor,
                         gno_radius: float, scales: List[float],
@@ -229,43 +227,40 @@ class GraphBuilder:
         # Always build test graphs
         if 'test' in data_splits:
             print("Building test graphs...")
-            encoder_test, decoder_test, latent_test = self.build_graphs_for_split(
+            encoder_test, decoder_test = self.build_graphs_for_split(
                 data_splits['test']['x'], latent_queries, gno_radius, scales, dynamic_radius_config,
                 random_subsample_each_graph=random_subsample_each_graph,
                 latent_token_sampler=latent_token_sampler
             )
             all_graphs['test'] = {
                 'encoder': encoder_test,
-                'decoder': decoder_test,
-                'latent_queries': latent_test
+                'decoder': decoder_test
             }
         
         # Build train/val graphs if requested
         if build_train:
             if 'train' in data_splits:
                 print("Building train graphs...")
-                encoder_train, decoder_train, latent_train = self.build_graphs_for_split(
+                encoder_train, decoder_train = self.build_graphs_for_split(
                     data_splits['train']['x'], latent_queries, gno_radius, scales, dynamic_radius_config,
                     random_subsample_each_graph=random_subsample_each_graph,
                     latent_token_sampler=latent_token_sampler
                 )
                 all_graphs['train'] = {
                     'encoder': encoder_train,
-                    'decoder': decoder_train,
-                    'latent_queries': latent_train
+                    'decoder': decoder_train
                 }
             
             if 'val' in data_splits:
                 print("Building val graphs...")
-                encoder_val, decoder_val, latent_val = self.build_graphs_for_split(
+                encoder_val, decoder_val = self.build_graphs_for_split(
                     data_splits['val']['x'], latent_queries, gno_radius, scales, dynamic_radius_config,
                     random_subsample_each_graph=random_subsample_each_graph,
                     latent_token_sampler=latent_token_sampler
                 )
                 all_graphs['val'] = {
                     'encoder': encoder_val,
-                    'decoder': decoder_val,
-                    'latent_queries': latent_val
+                    'decoder': decoder_val
                 }
         else:
             print("Skipping train/val graph building (testing mode)")
