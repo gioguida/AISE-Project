@@ -1,0 +1,9 @@
+Using dynamic radius (knn, k=8, alpha=1.5). Mean radius: 0.2763
+
+Initialized goat_big_dyn model with 2D coordinates
+Number of parameters: 1896881
+AdamWOptimizer: 100%|████████████████████████████████████████████████████████████████████| 200/200 [1:00:35<00:00, 18.18s/it, loss=0.00829, val_loss=0.0165]
+/mnt/c/Users/giugl/ProgrammiGio/ETH/AISE/GAOT/task2/src/core/base_trainer.py:270: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax[1].legend()
+Starting model testing...
+Relative error: 0.08922070264816284
