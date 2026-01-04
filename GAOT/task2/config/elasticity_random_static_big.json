@@ -11,7 +11,7 @@
     },
 
     "model": {
-        "name": "goat",
+        "name": "goat_big_static",
         "latent_tokens_size": 256,
         "args": {
             "magno": {
@@ -49,7 +49,7 @@
         "args": {
             "lr": 8e-4,
             "weight_decay": 1e-05,
-            "epoch": 100,
+            "epoch": 200,
             "loss_scale": 1.0,
             "eval_every_eps": 2,
             "scheduler": "mix",
