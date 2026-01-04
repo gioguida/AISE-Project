@@ -11,6 +11,7 @@ from ..datasets.graph_builder import GraphBuilder
 from ..model.gaot import GAOT
 from ..utils.metrics import compute_batch_errors, compute_final_metric
 from ..utils.plotting import plot_estimates
+from ..utils.scaling import rescale
 
 
 class StaticTrainer(BaseTrainer):
@@ -75,6 +76,7 @@ class StaticTrainer(BaseTrainer):
         )
         
         c_sample = data_splits['train']['c']
+        u_sample = data_splits['train']['u']
         
         self.num_input_channels = c_sample.shape[-1] if c_sample is not None else 0
         self.num_output_channels = u_sample.shape[-1]
@@ -85,43 +87,73 @@ class StaticTrainer(BaseTrainer):
         """Initialize for variable coordinates mode."""
         print("Setting up variable coordinates mode...")
         
+        # Create graph builder with coordinate scaler for consistent scaling
+        neighbor_search_method = self.model_config.args.magno.neighbor_search_method
+        self.graph_builder = GraphBuilder(
+            neighbor_search_method=neighbor_search_method,
+            coord_scaler=self.data_processor.coord_scaler
+        )
+        
+        # Get graph building parameters
+        gno_radius = getattr(self.model_config.args.magno, 'radius', 0.033)
+        scales = getattr(self.model_config.args.magno, 'scales', [1.0])
+
+        # Dynamic radius config
+        dynamic_radius_config = {
+            'use_dynamic_radius': getattr(self.model_config.args.magno, 'use_dynamic_radius', False),
+            'dynamic_radius_method': getattr(self.model_config.args.magno, 'dynamic_radius_method', 'knn'),
+            'dynamic_radius_k': getattr(self.model_config.args.magno, 'dynamic_radius_k', 8),
+            'dynamic_radius_alpha': getattr(self.model_config.args.magno, 'dynamic_radius_alpha', 1.5)
+        }
+
+        # Cache graph params for potential per-epoch rebuilds
+        self.graph_params = {
             'gno_radius': gno_radius,
-                        latent_tokens_coord = self.latent_tokens_coord.to(self.device)
-                        pred = self.model(
-                            latent_tokens_coord=latent_tokens_coord,
-                            xcoord=coord_batch,
-                            pndata=x_batch,
-                            encoder_nbrs=encoder_graph_batch,
-                            decoder_nbrs=decoder_graph_batch
-                        )
-                        return self.loss_fn(pred, y_batch)
-                    self.model_config.latent_tokens_size,
-                    reference_coords=coords_sample
-                )
-            latent_token_sampler = _sampler
+            'scales': scales,
+            'dynamic_radius_config': dynamic_radius_config
+        }
         
         # Build graphs for all splits
         # Pass unscaled latent queries so dynamic radius is computed in physical space
+        all_graphs = self.graph_builder.build_all_graphs(
             data_splits=data_splits,
             latent_queries=self.latent_tokens_coord_unscaled,
             gno_radius=gno_radius,
             scales=scales,
             build_train=self.setup_config.train,
-            dynamic_radius_config=dynamic_radius_config,
-            random_subsample_each_graph=random_subsample_each_graph,
-            latent_token_sampler=latent_token_sampler
+            dynamic_radius_config=dynamic_radius_config
         )
 
+        # Create data loaders with graphs
+        loader_kwargs = {
+            'encoder_graphs': {
+                'train': all_graphs['train']['encoder'] if all_graphs['train'] else None,
+                'val': all_graphs['val']['encoder'] if all_graphs['val'] else None,
+                'test': all_graphs['test']['encoder']
+            },
+            'decoder_graphs': {
+                'train': all_graphs['train']['decoder'] if all_graphs['train'] else None,
+                'val': all_graphs['val']['decoder'] if all_graphs['val'] else None,
+                'test': all_graphs['test']['decoder']
+            }
+        }
+        loaders = self.data_processor.create_data_loaders(
+            data_splits=data_splits,
+            is_variable_coords=True,
+            latent_queries=self.latent_tokens_coord,
+            build_train=self.setup_config.train,
+            **loader_kwargs
+        )
 
-                        latent_tokens_coord = self.latent_tokens_coord.to(self.device)
-                        pred = self.model(
-                            latent_tokens_coord=latent_tokens_coord,
-                            xcoord=coord_batch,
-                            pndata=x_batch,
-                            encoder_nbrs=encoder_graph_batch,
-                            decoder_nbrs=decoder_graph_batch
-                        )
-                        return self.loss_fn(pred, y_batch)
+        self.train_loader = loaders['train']
+        self.val_loader = loaders['val']
+        self.test_loader = loaders['test']
+    
+    def _init_fixed_coords_mode(self, data_splits):
+        """Initialize for fixed coordinates mode."""
+        print("Setting up fixed coordinates mode...")
+        
+        # Store fixed coordinates
         self.coord = self.data_processor.coord_scaler(data_splits['train']['x'])
         
         # Create simple data loaders
@@ -219,8 +251,8 @@ class StaticTrainer(BaseTrainer):
         coord_batch = coord_batch.to(self.device)
         encoder_graph_batch = move_to_device(encoder_graph_batch, self.device)
         decoder_graph_batch = move_to_device(decoder_graph_batch, self.device)
-
         latent_tokens_coord = self.latent_tokens_coord.to(self.device)
+        
         pred = self.model(
             latent_tokens_coord=latent_tokens_coord,
             xcoord=coord_batch,
@@ -228,6 +260,7 @@ class StaticTrainer(BaseTrainer):
             encoder_nbrs=encoder_graph_batch,
             decoder_nbrs=decoder_graph_batch
         )
+        
         return self.loss_fn(pred, y_batch)
     
     def validate(self, loader):
@@ -281,8 +314,8 @@ class StaticTrainer(BaseTrainer):
         coord_batch = coord_batch.to(self.device)
         encoder_graph_batch = move_to_device(encoder_graph_batch, self.device)
         decoder_graph_batch = move_to_device(decoder_graph_batch, self.device)
-
         latent_tokens_coord = self.latent_tokens_coord.to(self.device)
+        
         pred = self.model(
             latent_tokens_coord=latent_tokens_coord,
             xcoord=coord_batch,
@@ -290,6 +323,7 @@ class StaticTrainer(BaseTrainer):
             encoder_nbrs=encoder_graph_batch,
             decoder_nbrs=decoder_graph_batch
         )
+        
         return self.loss_fn(pred, y_batch)
     
     def test(self):
@@ -370,17 +404,17 @@ class StaticTrainer(BaseTrainer):
     def _test_step_variable_coords(self, batch):
         """Test step for variable coordinates."""
         x_sample, y_sample, coord_sample, encoder_graph_sample, decoder_graph_sample = batch
-
+        
         if x_sample.numel() == 0:
             x_sample = None
-
+        
         x_sample = x_sample.to(self.device) if x_sample is not None else None
         y_sample = y_sample.to(self.device)
         coord_sample = coord_sample.to(self.device)
         encoder_graph_sample = move_to_device(encoder_graph_sample, self.device)
         decoder_graph_sample = move_to_device(decoder_graph_sample, self.device)
-
         latent_tokens_coord = self.latent_tokens_coord.to(self.device)
+        
         pred = self.model(
             latent_tokens_coord=latent_tokens_coord,
             xcoord=coord_sample,
@@ -388,5 +422,8 @@ class StaticTrainer(BaseTrainer):
             encoder_nbrs=encoder_graph_sample,
             decoder_nbrs=decoder_graph_sample
         )
-
-        return pred, y_sample, x_sample, coord_sample
+        
+        # Use the last sample's coordinates for plotting
+        coord_for_plot = coord_sample[-1] if coord_sample.dim() > 2 else coord_sample
+        
+        return pred, y_sample, x_sample, coord_for_plot

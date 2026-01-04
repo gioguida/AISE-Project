@@ -405,6 +405,7 @@ class DataProcessor:
                 # Variable coordinates - need graphs
                 encoder_graphs_split = encoder_graphs[split] if encoder_graphs else None
                 decoder_graphs_split = decoder_graphs[split] if decoder_graphs else None
+
                 dataset = CustomDataset(
                     c_data, u_data, x_data,
                     encoder_graphs_split, decoder_graphs_split,

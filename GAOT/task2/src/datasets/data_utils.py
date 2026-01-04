@@ -276,7 +276,7 @@ def collate_variable_batch(batch):
     """
     # Separate different components
     c_list, u_list, x_list = [], [], []
-    encoder_graphs_list, decoder_graphs_list = [] , []
+    encoder_graphs_list, decoder_graphs_list = [], []
     
     for item in batch:
         c, u, x, encoder_graph, decoder_graph = item
