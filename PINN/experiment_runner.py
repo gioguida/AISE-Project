@@ -65,12 +65,12 @@ class ExperimentConfig:
     
     # Execution mode
     # If True, will ignore existing models and retrain from scratch
-    RETRAIN = False 
+    RETRAIN = True 
     
     # If True, will skip all training/loading logic that isn't needed for plotting
     # and just try to load models to generate plots.
     # If models are missing, it will skip them.
-    RECREATE_PLOTS_ONLY = True
+    RECREATE_PLOTS_ONLY = False
 
 
 # ============================================================================
