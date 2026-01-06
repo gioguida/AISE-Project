@@ -28,7 +28,7 @@ class Config:
     
     # Training parameters - PINN
     PINN_EPOCHS_ADAM = 4000
-    PINN_EPOCHS_LBFGS = 10
+    PINN_EPOCHS_LBFGS = 100
     PINN_LR_ADAM = 0.001
     PINN_LR_LBFGS = 0.5
     PINN_LAMBDA_U = 1.0  # Weight for PDE residual loss
@@ -38,8 +38,12 @@ class Config:
     DD_EPOCHS_LBFGS = 100
     DD_LR_ADAM = 0.001
     DD_LR_LBFGS = 0.5
-    DD_BATCH_SIZE = 1024
+    DD_BATCH_SIZE = 4096 # Set to large value to match PINN full-batch (N=64 => 4096 points)
     DD_SCALE_FACTOR = 100.0  # Scale solution for better training
+    
+    # Scheduler parameters (Shared)
+    SCHEDULER_STEP_SIZE = 1000
+    SCHEDULER_GAMMA = 0.9
     
     # Device
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -97,7 +101,7 @@ class DataDrivenModel(MLP):
     def __init__(self, n_hidden_layers, width):
         super(DataDrivenModel, self).__init__(2, 1, n_hidden_layers, width)
     
-    def fit(self, training_set, num_epochs, optimizer, verbose=True):
+    def fit(self, training_set, num_epochs, optimizer, scheduler=None, verbose=True):
         """Train the model on supervised data"""
         history = []
         
@@ -113,9 +117,13 @@ class DataDrivenModel(MLP):
                 
                 optimizer.step(closure=closure)
             
+            if scheduler:
+                scheduler.step()
+            
             if verbose and epoch % 50 == 0:
                 if history:
-                    print(f'Epoch {epoch:4d}, Loss: {history[-1]:.6e}')
+                    lr = optimizer.param_groups[0]['lr']
+                    print(f'Epoch {epoch:4d}, Loss: {history[-1]:.6e}, LR: {lr:.2e}')
         
         if verbose and history:
             print(f'Final Loss: {history[-1]:.6e}')
@@ -255,7 +263,7 @@ class PINN(MLP):
         
         return total_loss
     
-    def fit(self, num_epochs, optimizer, forcing_term, verbose=True):
+    def fit(self, num_epochs, optimizer, forcing_term, scheduler=None, verbose=True):
         """Train the PINN"""
         history = []
         
@@ -273,9 +281,13 @@ class PINN(MLP):
                 
                 optimizer.step(closure=closure)
             
+            if scheduler:
+                scheduler.step()
+            
             if verbose and epoch % 50 == 0:
                 if history:
-                    print(f'Epoch {epoch:4d}, Loss: {history[-1]:.6e}')
+                    lr = optimizer.param_groups[0]['lr']
+                    print(f'Epoch {epoch:4d}, Loss: {history[-1]:.6e}, LR: {lr:.2e}')
         
         if verbose and history:
             print(f'Final Loss: {history[-1]:.6e}')
@@ -351,6 +363,13 @@ def train_pinn(config, data_generator, verbose=True):
     # Create optimizers
     optimizer_adam, optimizer_lbfgs = create_optimizers_pinn(pinn, config)
     
+    # Create scheduler for Adam
+    scheduler_adam = optim.lr_scheduler.StepLR(
+        optimizer_adam,
+        step_size=config.SCHEDULER_STEP_SIZE,
+        gamma=config.SCHEDULER_GAMMA
+    )
+    
     # Stage 1: Adam pre-training
     if verbose:
         print("\nStage 1: Adam pre-training")
@@ -358,6 +377,7 @@ def train_pinn(config, data_generator, verbose=True):
         num_epochs=config.PINN_EPOCHS_ADAM,
         optimizer=optimizer_adam,
         forcing_term=forcing_term,
+        scheduler=scheduler_adam,
         verbose=verbose
     )
     
@@ -404,14 +424,24 @@ def train_data_driven(config, data_generator, verbose=True):
         device=config.DEVICE
     )
     
+    # Use full batch size to match PINN training schedule
+    batch_size = coords.shape[0]
+    
     training_set = DataLoader(
         torch.utils.data.TensorDataset(coords, targets),
-        batch_size=config.DD_BATCH_SIZE,
+        batch_size=batch_size,
         shuffle=True
     )
     
     # Create optimizers
     optimizer_adam, optimizer_lbfgs = create_optimizers_dd(model, config)
+    
+    # Create scheduler for Adam
+    scheduler_adam = optim.lr_scheduler.StepLR(
+        optimizer_adam,
+        step_size=config.SCHEDULER_STEP_SIZE,
+        gamma=config.SCHEDULER_GAMMA
+    )
     
     # Stage 1: Adam training
     if verbose:
@@ -420,6 +450,7 @@ def train_data_driven(config, data_generator, verbose=True):
         training_set,
         num_epochs=config.DD_EPOCHS_ADAM,
         optimizer=optimizer_adam,
+        scheduler=scheduler_adam,
         verbose=verbose
     )
     

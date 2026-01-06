@@ -55,17 +55,22 @@ def main():
     # for each seed, make a plot showing the forcing term and exact solution for K=1,4,8,16
     # using color map plasma for forcing and viridis for solution
     for i, s in enumerate(seeds):
-        fig, axs = plt.subplots(2, 4, figsize=(16, 8))
+        fig, axs = plt.subplots(2, 4, figsize=(20, 10))
         for j, k in enumerate(K):
-            axs[0, j].imshow(poisson_data[i,j,0], extent=[0,1,0,1], origin='lower', cmap='plasma')
-            axs[0, j].set_title(f'K={k}, Forcing Term', fontweight='bold', fontsize=18)
+            im0 = axs[0, j].imshow(poisson_data[i,j,0], extent=[0,1,0,1], origin='lower', cmap='plasma')
+            axs[0, j].set_title(f'K={k}\nForcing Term', fontweight='bold', fontsize=22)
             axs[0, j].set_xticks([])
             axs[0, j].set_yticks([])
-            axs[1, j].imshow(poisson_data[i,j,1], extent=[0,1,0,1], origin='lower', cmap='viridis')
-            axs[1, j].set_title(f'K={k}, Exact Solution', fontweight='bold', fontsize=18)
+            plt.colorbar(im0, ax=axs[0, j], fraction=0.046, pad=0.04, ticks=[])
+            
+            im1 = axs[1, j].imshow(poisson_data[i,j,1], extent=[0,1,0,1], origin='lower', cmap='viridis')
+            axs[1, j].set_title('Exact Solution', fontweight='bold', fontsize=22)
             axs[1, j].set_xticks([])
             axs[1, j].set_yticks([])
-        plt.tight_layout(h_pad=3.0)
+            plt.colorbar(im1, ax=axs[1, j], fraction=0.046, pad=0.04, ticks=[])
+            
+        plt.tight_layout(pad=4.0, h_pad=5.0)
+        plt.subplots_adjust(top=0.90)
         plt.show()
 
 if __name__ == "__main__":

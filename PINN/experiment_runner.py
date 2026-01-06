@@ -213,6 +213,8 @@ def plot_loss_curves(results, model_type, config, exp_config):
     colors = ['#2E86AB', '#A23B72', '#F18F01']
     
     has_data = False
+    lbfgs_start = None  # Will be computed from actual history lengths
+    
     for i, K in enumerate(exp_config.K_LEVELS):
         res = results[K].get(model_type, {})
         history = res.get('history', [])
@@ -221,6 +223,14 @@ def plot_loss_curves(results, model_type, config, exp_config):
             has_data = True
             label = f"K={K} ({exp_config.K_LABELS[K]})"
             plt.plot(history, label=label, linewidth=1.5, color=colors[i % len(colors)])
+            
+            # Determine LBFGS start from the first valid history
+            # LBFGS starts after EPOCHS_ADAM iterations (Adam phase records 1 iter per epoch)
+            if lbfgs_start is None:
+                if model_type == 'pinn':
+                    lbfgs_start = config.PINN_EPOCHS_ADAM
+                else:
+                    lbfgs_start = config.DD_EPOCHS_ADAM
     
     if not has_data:
         print(f"No history data found for {model_type}")
@@ -228,15 +238,13 @@ def plot_loss_curves(results, model_type, config, exp_config):
         return
 
     # Add vertical line for LBFGS start
-    # We assume all runs used the same config
     if model_type == 'pinn':
-        lbfgs_start = config.PINN_EPOCHS_ADAM
         title = "PINN Training Loss"
     else:
-        lbfgs_start = config.DD_EPOCHS_ADAM
         title = "Data-Driven Training Loss"
         
-    plt.axvline(x=lbfgs_start, color='k', linestyle='--', alpha=0.5, label='LBFGS Start')
+    if lbfgs_start is not None:
+        plt.axvline(x=lbfgs_start, color='k', linestyle='--', alpha=0.5, linewidth=2, label='LBFGS Start')
     
     plt.xlabel('Iteration', fontsize=12)
     plt.ylabel('Loss', fontsize=12)
@@ -244,6 +252,10 @@ def plot_loss_curves(results, model_type, config, exp_config):
     plt.yscale('log')
     plt.legend(fontsize=10)
     plt.grid(True, alpha=0.3, linestyle='--')
+    
+    # Ensure we see the full range
+    plt.xlim(left=0)
+    
     plt.tight_layout()
     
     filename = f"{model_type}_loss_comparison.pdf"
