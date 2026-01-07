@@ -33,7 +33,7 @@ class ExperimentConfig:
     """Configuration for the complete experiment suite"""
     
     # Complexity levels to test (as per project requirements)
-    K_LEVELS = [1, 4, 16]  # Low, Medium, High
+    K_LEVELS = [16]#[1, 4, 16]  # Low, Medium, High
     K_LABELS = {1: "Low", 4: "Medium", 16: "High"}
     
     # Additional K for visualization (Task 1)

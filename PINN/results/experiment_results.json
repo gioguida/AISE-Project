@@ -1,52 +1,24 @@
 {
-  "experiment_date": "2026-01-07 01:53:13",
+  "experiment_date": "2026-01-07 12:05:42",
   "configuration": {
     "N": 64,
     "K_levels": [
-      1,
-      4,
       16
     ],
     "seed": 42
   },
   "results": {
-    "1": {
-      "complexity_label": "Low",
-      "pinn": {
-        "error": 0.44507739244847966,
-        "final_loss": 1.901190262287855e-05,
-        "iterations": 6232
-      },
-      "data_driven": {
-        "error": 0.0065253507692801934,
-        "final_loss": 1.6261706150544342e-06,
-        "iterations": 9030
-      }
-    },
-    "4": {
-      "complexity_label": "Medium",
-      "pinn": {
-        "error": 21.01954582368786,
-        "final_loss": 0.00028793240198865533,
-        "iterations": 7686
-      },
-      "data_driven": {
-        "error": 0.04652084463174307,
-        "final_loss": 6.251169679671875e-07,
-        "iterations": 7418
-      }
-    },
     "16": {
       "complexity_label": "High",
       "pinn": {
-        "error": 2243.449311281752,
-        "final_loss": 0.21298962831497192,
-        "iterations": 9103
+        "error": 588.650277341605,
+        "final_loss": 0.014899300411343575,
+        "iterations": 9101
       },
       "data_driven": {
-        "error": 1.5498636314674936,
-        "final_loss": 4.611861186276656e-06,
-        "iterations": 9124
+        "error": 2.0072679622320786,
+        "final_loss": 7.735707185929641e-06,
+        "iterations": 9123
       }
     }
   }
