@@ -31,7 +31,7 @@ class Config:
     PINN_EPOCHS_LBFGS = 100
     PINN_LR_ADAM = 0.001
     PINN_LR_LBFGS = 0.5
-    PINN_LAMBDA_U = 400.0  # Weight for PDE residual loss
+    PINN_LAMBDA_U = 1.0  # Weight for PDE residual loss
     
     # Training parameters - Data-Driven
     DD_EPOCHS_ADAM = 4000

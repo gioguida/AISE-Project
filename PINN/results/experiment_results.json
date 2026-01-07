@@ -1,5 +1,5 @@
 {
-  "experiment_date": "2026-01-07 12:05:42",
+  "experiment_date": "2026-01-07 19:14:48",
   "configuration": {
     "N": 64,
     "K_levels": [
@@ -11,14 +11,14 @@
     "16": {
       "complexity_label": "High",
       "pinn": {
-        "error": 588.650277341605,
-        "final_loss": 0.014899300411343575,
-        "iterations": 9101
+        "error": 197.5538404999587,
+        "final_loss": 0.0015957752475515008,
+        "iterations": 9102
       },
       "data_driven": {
-        "error": 2.0072679622320786,
-        "final_loss": 7.735707185929641e-06,
-        "iterations": 9123
+        "error": 0.0,
+        "final_loss": 0.0,
+        "iterations": 0
       }
     }
   }

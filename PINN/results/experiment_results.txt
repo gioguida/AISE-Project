@@ -1,6 +1,6 @@
 ================================================================================
 AISE 2026 - Final Project - Problem 1: PINNs vs Data-Driven
-Experiment Date: 2026-01-07 08:42:00
+Experiment Date: 2026-01-07 16:48:18
 ================================================================================
 
 
@@ -47,25 +47,17 @@ TASK 2: MODEL TRAINING AND EVALUATION
 [2/5] Training PINN model...
   • Architecture: 4 hidden layers, width 128
   • Adam epochs: 4000, LBFGS epochs: 100
-  • Lambda_u (PDE weight): 10.0
+  • Lambda_u (PDE weight): 1.0
   ✓ PINN training completed
-  • Final loss: 1.489930e-02
-  • Total iterations: 9101
+  • Final loss: 1.595775e-03
+  • Total iterations: 9102
   ✓ Model saved to results/models\pinn_K16.pt
-  • L2 Relative Error: 588.65%
+  • L2 Relative Error: 197.55%
 
-[3/5] Training Data-Driven model...
-  • Architecture: 4 hidden layers, width 128
-  • Adam epochs: 4000, LBFGS epochs: 100
-  • Batch size: 4096
-  ✓ Data-Driven training completed
-  • Final loss: 7.735707e-06
-  • Total iterations: 9123
-  ✓ Model saved to results/models\data_driven_K16.pt
-  • L2 Relative Error: 2.01%
+[3/5] Skipping Data-Driven (TRAIN_DD=False)
 
 [4/5] Generating comparison plots...
-  ✓ Comparison plot saved to: results/plots\comparison_K16.png
+  ! Skipping comparison plot (missing model predictions)
 
 ────────────────────────────────────────────────────────────────────────────────
 ✓ Completed K=16 (High complexity)
@@ -82,7 +74,7 @@ RESULTS SUMMARY
 ────────────────────────────────────────────────────────────────────────────────
   K   |  Complexity  |   PINN Error (%)   |    DD Error (%)    |   Improvement  
 ------+--------------+--------------------+--------------------+----------------
-  16  |     High     |       588.65       |        2.01        |    -29225.9%   
+  16  |     High     |       197.55       |        N/A         |       N/A      
 
 ────────────────────────────────────────────────────────────────────────────────
   Training Statistics
@@ -90,25 +82,20 @@ RESULTS SUMMARY
 
 Complexity High (K=16):
   PINN:
-    • Total iterations: 9101
-    • Initial loss: 1.610699e+01
-    • Final loss: 1.489930e-02
-    • Loss reduction: 1.08e+03x
-  Data-Driven:
-    • Total iterations: 9123
-    • Initial loss: 2.539914e-02
-    • Final loss: 7.735707e-06
-    • Loss reduction: 3.28e+03x
+    • Total iterations: 9102
+    • Initial loss: 1.616626e+00
+    • Final loss: 1.595775e-03
+    • Loss reduction: 1.01e+03x
+  Data-Driven: Not trained/loaded
 
 ────────────────────────────────────────────────────────────────────────────────
   Key Observations
 ────────────────────────────────────────────────────────────────────────────────
 1. Error Trends with Increasing Complexity:
-   • PINN error progression: 588.65%
-   • Data-Driven error progression: 2.01%
+   • PINN error progression: 197.55%
+   • Data-Driven error progression: Incomplete data
 
-3. Best PINN Performance: K=16 (High) with 588.65% error
-   Best Data-Driven Performance: K=16 (High) with 2.01% error
+3. Best PINN Performance: K=16 (High) with 197.55% error
 
 ────────────────────────────────────────────────────────────────────────────────
   Generating Summary Visualizations
@@ -121,7 +108,7 @@ Complexity High (K=16):
 EXPERIMENT COMPLETED SUCCESSFULLY
 ================================================================================
 
-Total execution time: 3:23:41.519202
+Total execution time: 2:26:29.889497
 
 All results have been saved to: results/
   • Detailed results: results/experiment_results.txt
