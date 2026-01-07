@@ -1,5 +1,5 @@
 {
-  "experiment_date": "2026-01-05 00:21:37",
+  "experiment_date": "2026-01-07 01:53:13",
   "configuration": {
     "N": 64,
     "K_levels": [
@@ -13,40 +13,40 @@
     "1": {
       "complexity_label": "Low",
       "pinn": {
-        "error": 0.17215647732596567,
-        "final_loss": 2.6858688215725124e-06,
-        "iterations": 4513
+        "error": 0.44507739244847966,
+        "final_loss": 1.901190262287855e-05,
+        "iterations": 6232
       },
       "data_driven": {
-        "error": 0.011737404754468064,
-        "final_loss": 3.7131958379177377e-06,
-        "iterations": 37330
+        "error": 0.0065253507692801934,
+        "final_loss": 1.6261706150544342e-06,
+        "iterations": 9030
       }
     },
     "4": {
       "complexity_label": "Medium",
       "pinn": {
-        "error": 4.891141996021833,
-        "final_loss": 6.3008010329213e-05,
-        "iterations": 4511
+        "error": 21.01954582368786,
+        "final_loss": 0.00028793240198865533,
+        "iterations": 7686
       },
       "data_driven": {
-        "error": 0.02749992119723845,
-        "final_loss": 1.3855941460860777e-07,
-        "iterations": 39165
+        "error": 0.04652084463174307,
+        "final_loss": 6.251169679671875e-07,
+        "iterations": 7418
       }
     },
     "16": {
       "complexity_label": "High",
       "pinn": {
-        "error": 833.4748116834681,
-        "final_loss": 0.04090988263487816,
-        "iterations": 4511
+        "error": 2243.449311281752,
+        "final_loss": 0.21298962831497192,
+        "iterations": 9103
       },
       "data_driven": {
-        "error": 1.2333165975478477,
-        "final_loss": 1.6639924069750123e-06,
-        "iterations": 37070
+        "error": 1.5498636314674936,
+        "final_loss": 4.611861186276656e-06,
+        "iterations": 9124
       }
     }
   }
