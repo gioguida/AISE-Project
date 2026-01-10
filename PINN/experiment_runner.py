@@ -33,7 +33,7 @@ class ExperimentConfig:
     """Configuration for the complete experiment suite"""
     
     # Complexity levels to test (as per project requirements)
-    K_LEVELS = [16]#[1, 4, 16]  # Low, Medium, High
+    K_LEVELS = [1, 4, 16]  # Low, Medium, High
     K_LABELS = {1: "Low", 4: "Medium", 16: "High"}
     
     # Additional K for visualization (Task 1)
@@ -65,12 +65,12 @@ class ExperimentConfig:
     
     # Execution mode
     # If True, will ignore existing models and retrain from scratch
-    RETRAIN = True 
+    RETRAIN = False 
     
     # If True, will skip all training/loading logic that isn't needed for plotting
     # and just try to load models to generate plots.
     # If models are missing, it will skip them.
-    RECREATE_PLOTS_ONLY = False
+    RECREATE_PLOTS_ONLY = True
 
 
 # ============================================================================
