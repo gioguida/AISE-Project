@@ -1,6 +1,6 @@
 ================================================================================
 AISE 2026 - Final Project - Problem 1: PINNs vs Data-Driven
-Experiment Date: 2026-01-07 16:48:18
+Experiment Date: 2026-01-07 19:25:37
 ================================================================================
 
 
@@ -29,13 +29,81 @@ Grid resolution: N = 64
   Forcing term - Min: -4.1169, Max: 4.6102, Mean: 0.0203
   Solution     - Min: -0.0031, Max: 0.0047, Mean: 0.0007
 
-✓ Data visualization saved to: results/plots\task1_data_samples.png
+✓ Data visualization saved to: results/plots/task1_data_samples.png
 
 ✓ Task 1 completed successfully
 
 ================================================================================
 TASK 2: MODEL TRAINING AND EVALUATION
 ================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+  Complexity Level: Low (K = 1)
+────────────────────────────────────────────────────────────────────────────────
+
+[1/5] Generating data...
+
+[2/5] Training PINN model...
+  • Architecture: 4 hidden layers, width 128
+  • Adam epochs: 4000, LBFGS epochs: 100
+  • Lambda_u (PDE weight): 1.0
+  ✓ PINN training completed
+  • Final loss: 1.649823e-06
+  • Total iterations: 5168
+  ✓ Model saved to results/models/pinn_K1.pt
+  • L2 Relative Error: 0.13%
+
+[3/5] Training Data-Driven model...
+  • Architecture: 4 hidden layers, width 128
+  • Adam epochs: 4000, LBFGS epochs: 100
+  • Batch size: 4096
+  ✓ Data-Driven training completed
+  • Final loss: 1.573965e-06
+  • Total iterations: 9047
+  ✓ Model saved to results/models/data_driven_K1.pt
+  • L2 Relative Error: 0.01%
+
+[4/5] Generating comparison plots...
+  ✓ Comparison plot saved to: results/plots/comparison_K1.png
+
+────────────────────────────────────────────────────────────────────────────────
+✓ Completed K=1 (Low complexity)
+────────────────────────────────────────────────────────────────────────────────
+
+
+────────────────────────────────────────────────────────────────────────────────
+  Complexity Level: Medium (K = 4)
+────────────────────────────────────────────────────────────────────────────────
+
+[1/5] Generating data...
+
+[2/5] Training PINN model...
+  • Architecture: 4 hidden layers, width 128
+  • Adam epochs: 4000, LBFGS epochs: 100
+  • Lambda_u (PDE weight): 1.0
+  ✓ PINN training completed
+  • Final loss: 8.385449e-06
+  • Total iterations: 9087
+  ✓ Model saved to results/models/pinn_K4.pt
+  • L2 Relative Error: 2.47%
+
+[3/5] Training Data-Driven model...
+  • Architecture: 4 hidden layers, width 128
+  • Adam epochs: 4000, LBFGS epochs: 100
+  • Batch size: 4096
+  ✓ Data-Driven training completed
+  • Final loss: 6.555472e-07
+  • Total iterations: 7387
+  ✓ Model saved to results/models/data_driven_K4.pt
+  • L2 Relative Error: 0.05%
+
+[4/5] Generating comparison plots...
+  ✓ Comparison plot saved to: results/plots/comparison_K4.png
+
+────────────────────────────────────────────────────────────────────────────────
+✓ Completed K=4 (Medium complexity)
+────────────────────────────────────────────────────────────────────────────────
 
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -48,74 +116,3 @@ TASK 2: MODEL TRAINING AND EVALUATION
   • Architecture: 4 hidden layers, width 128
   • Adam epochs: 4000, LBFGS epochs: 100
   • Lambda_u (PDE weight): 1.0
-  ✓ PINN training completed
-  • Final loss: 1.595775e-03
-  • Total iterations: 9102
-  ✓ Model saved to results/models\pinn_K16.pt
-  • L2 Relative Error: 197.55%
-
-[3/5] Skipping Data-Driven (TRAIN_DD=False)
-
-[4/5] Generating comparison plots...
-  ! Skipping comparison plot (missing model predictions)
-
-────────────────────────────────────────────────────────────────────────────────
-✓ Completed K=16 (High complexity)
-────────────────────────────────────────────────────────────────────────────────
-
-
-================================================================================
-RESULTS SUMMARY
-================================================================================
-
-
-────────────────────────────────────────────────────────────────────────────────
-  Performance Comparison
-────────────────────────────────────────────────────────────────────────────────
-  K   |  Complexity  |   PINN Error (%)   |    DD Error (%)    |   Improvement  
-------+--------------+--------------------+--------------------+----------------
-  16  |     High     |       197.55       |        N/A         |       N/A      
-
-────────────────────────────────────────────────────────────────────────────────
-  Training Statistics
-────────────────────────────────────────────────────────────────────────────────
-
-Complexity High (K=16):
-  PINN:
-    • Total iterations: 9102
-    • Initial loss: 1.616626e+00
-    • Final loss: 1.595775e-03
-    • Loss reduction: 1.01e+03x
-  Data-Driven: Not trained/loaded
-
-────────────────────────────────────────────────────────────────────────────────
-  Key Observations
-────────────────────────────────────────────────────────────────────────────────
-1. Error Trends with Increasing Complexity:
-   • PINN error progression: 197.55%
-   • Data-Driven error progression: Incomplete data
-
-3. Best PINN Performance: K=16 (High) with 197.55% error
-
-────────────────────────────────────────────────────────────────────────────────
-  Generating Summary Visualizations
-────────────────────────────────────────────────────────────────────────────────
-  ✓ Summary plots saved to: results/plots\summary_comparison.png
-
-✓ Results saved to JSON: results/experiment_results.json
-
-================================================================================
-EXPERIMENT COMPLETED SUCCESSFULLY
-================================================================================
-
-Total execution time: 2:26:29.889497
-
-All results have been saved to: results/
-  • Detailed results: results/experiment_results.txt
-  • JSON results: results/experiment_results.json
-  • Plots: results/plots/
-  • Models: results/models/
-
-================================================================================
-Thank you for running the AISE 2026 experiments!
-================================================================================
