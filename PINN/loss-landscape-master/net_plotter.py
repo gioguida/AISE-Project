@@ -70,7 +70,7 @@ def get_random_weights(weights):
         Produce a random direction that is a list of random Gaussian tensors
         with the same shape as the network's weights, so one direction entry per weight.
     """
-    return [torch.randn(w.size()) for w in weights]
+    return [torch.randn(w.size(), device=w.device, dtype=w.dtype) for w in weights]
 
 
 def get_random_states(states):
@@ -79,7 +79,7 @@ def get_random_states(states):
         with the same shape as the network's state_dict(), so one direction entry
         per weight, including BN's running_mean/var.
     """
-    return [torch.randn(w.size()) for k, w in states.items()]
+    return [torch.randn(w.size(), device=w.device, dtype=w.dtype) for k, w in states.items()]
 
 
 def get_diff_weights(weights, weights2):

@@ -57,7 +57,7 @@ class LandscapeConfig:
     MODELS_DIR = "results/models"
     
     # Computation
-    FORCE_RECOMPUTE = False  # Set to True to re-run landscape computation even if files exist
+    FORCE_RECOMPUTE = True  # Set to True to re-run landscape computation even if files exist
 
 class LandscapeAdapter:
     def __init__(self):
