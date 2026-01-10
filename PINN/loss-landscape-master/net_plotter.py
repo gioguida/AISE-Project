@@ -38,7 +38,7 @@ def set_weights(net, weights, directions=None, step=None):
             changes = [d*step for d in directions[0]]
 
         for (p, w, d) in zip(net.parameters(), weights, changes):
-            p.data = w + torch.Tensor(d).type(type(w))
+            p.data = w + torch.as_tensor(d, dtype=w.dtype, device=w.device)
 
 
 def set_states(net, states, directions=None, step=None):
@@ -59,8 +59,8 @@ def set_states(net, states, directions=None, step=None):
         new_states = copy.deepcopy(states)
         assert (len(new_states) == len(changes))
         for (k, v), d in zip(new_states.items(), changes):
-            d = torch.tensor(d)
-            v.add_(d.type(v.type()))
+            d = torch.as_tensor(d, dtype=v.dtype, device=v.device)
+            v.add_(d)
 
         net.load_state_dict(new_states)
 
