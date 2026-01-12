@@ -40,7 +40,8 @@ class ExperimentConfig:
     K_VISUALIZATION = [1, 4, 16]
     
     # Grid resolution
-    N = 64
+    N_DOMAIN_POINTS = 3844  # Total interior collocation points (62^2)
+    N_EVAL_GRID = 64  # Grid resolution for evaluation and data generation
     
     # Output directories
     OUTPUT_DIR = "results"
@@ -140,7 +141,8 @@ def task1_data_generation(logger, exp_config):
     """
     logger.section("TASK 1: DATA GENERATION", "=")
     logger.log(f"Generating data for K = {exp_config.K_VISUALIZATION}")
-    logger.log(f"Grid resolution: N = {exp_config.N}")
+    logger.log(f"Evaluation grid resolution: N = {exp_config.N_EVAL_GRID}")
+    logger.log(f"Interior collocation points: {exp_config.N_DOMAIN_POINTS}")
     
     # Create data directory
     os.makedirs(exp_config.DATA_DIR, exist_ok=True)
@@ -149,8 +151,8 @@ def task1_data_generation(logger, exp_config):
     n_samples = len(exp_config.K_VISUALIZATION)
     fig, axes = plt.subplots(2, n_samples, figsize=(4*n_samples, 8))
     
-    x = np.linspace(0, 1, exp_config.N)
-    y = np.linspace(0, 1, exp_config.N)
+    x = np.linspace(0, 1, exp_config.N_EVAL_GRID)
+    y = np.linspace(0, 1, exp_config.N_EVAL_GRID)
     X, Y = np.meshgrid(x, y, indexing='ij')
     
     data_samples = {}
@@ -159,7 +161,7 @@ def task1_data_generation(logger, exp_config):
         logger.subsection(f"Generating sample with K = {K}")
         
         # Generate data
-        data_gen = Poisson_data_generator(exp_config.N, K)
+        data_gen = Poisson_data_generator(exp_config.N_EVAL_GRID, K)
         force, solution = data_gen.generate()
         
         # Store sample
@@ -295,7 +297,8 @@ def task2_model_training(logger, exp_config):
     
     results = {}
     config = Config()
-    config.N = exp_config.N
+    config.N_DOMAIN_POINTS = exp_config.N_DOMAIN_POINTS
+    config.N_EVAL_GRID = exp_config.N_EVAL_GRID
     
     # Ensure models directory exists
     os.makedirs(exp_config.MODELS_DIR, exist_ok=True)
@@ -309,7 +312,7 @@ def task2_model_training(logger, exp_config):
         
         # Generate data
         logger.log(f"\n[1/5] Generating data...")
-        data_generator = Poisson_data_generator(config.N, config.K)
+        data_generator = Poisson_data_generator(config.N_EVAL_GRID, config.K)
         force, solution = data_generator.generate()
         
         # ────────────────────────────────────────────────────────────────
@@ -338,7 +341,7 @@ def task2_model_training(logger, exp_config):
                     pinn_model = PINN(
                         config.N_HIDDEN_LAYERS, 
                         config.WIDTH, 
-                        config.N, 
+                        config.N_DOMAIN_POINTS,
                         config.DEVICE,
                         mesh=config.MESH_TYPE,
                         lambda_u=config.PINN_LAMBDA_U
@@ -511,8 +514,8 @@ def task2_model_training(logger, exp_config):
         logger.log(f"\n[4/5] Generating comparison plots...")
         
         if U_pred_pinn is not None and U_pred_dd is not None:
-            x = np.linspace(0, 1, config.N)
-            y = np.linspace(0, 1, config.N)
+            x = np.linspace(0, 1, config.N_EVAL_GRID)
+            y = np.linspace(0, 1, config.N_EVAL_GRID)
             X, Y = np.meshgrid(x, y, indexing='ij')
             
             # Create comprehensive comparison figure
@@ -801,7 +804,8 @@ def save_results_json(results, exp_config):
     json_results = {
         'experiment_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'configuration': {
-            'N': exp_config.N,
+            'N_DOMAIN_POINTS': exp_config.N_DOMAIN_POINTS,
+            'N_EVAL_GRID': exp_config.N_EVAL_GRID,
             'K_levels': exp_config.K_LEVELS,
             'seed': exp_config.SEED
         },

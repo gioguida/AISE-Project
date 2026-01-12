@@ -45,7 +45,7 @@ class LandscapeConfig:
     YNUM = 100
     
     # Plotting Limits
-    VMAX_LEVELS = [10, 20, 100]  # Generate plots with these max height limits
+    VMAX_LEVELS = [100, 200, 300, 500,  1000, 2000, 10000]#[10, 20, 30, 50, 100]  # Generate plots with these max height limits
     VMIN = 0
     
     # Models to process
@@ -57,7 +57,7 @@ class LandscapeConfig:
     MODELS_DIR = "results/models"
     
     # Computation
-    FORCE_RECOMPUTE = True  # Set to True to re-run landscape computation even if files exist
+    FORCE_RECOMPUTE = False  # Set to True to re-run landscape computation even if files exist
 
 class LandscapeAdapter:
     def __init__(self):
@@ -70,8 +70,8 @@ class LandscapeAdapter:
     def get_pinn_loss(self, net, data_generator):
         # Generate a fixed set of points for evaluation
         # We use the grid points for consistency
-        x = np.linspace(0, 1, self.config.N)
-        y = np.linspace(0, 1, self.config.N)
+        x = np.linspace(0, 1, self.config.N_EVAL_GRID)
+        y = np.linspace(0, 1, self.config.N_EVAL_GRID)
         X, Y = np.meshgrid(x, y, indexing='ij')
         
         # Interior points (using all grid points for landscape smoothness)
@@ -106,8 +106,8 @@ class LandscapeAdapter:
     def get_dd_loss(self, net, data_generator):
         _, solution = data_generator.generate()
         
-        x = np.linspace(0, 1, self.config.N)
-        y = np.linspace(0, 1, self.config.N)
+        x = np.linspace(0, 1, self.config.N_EVAL_GRID)
+        y = np.linspace(0, 1, self.config.N_EVAL_GRID)
         X, Y = np.meshgrid(x, y, indexing='ij')
         
         inp = torch.tensor(np.stack([X.flatten(), Y.flatten()], axis=1), 
@@ -236,7 +236,7 @@ class LandscapeAdapter:
         for K in K_LEVELS:
             print(f"\nProcessing K={K}...")
             self.config.K = K
-            data_generator = Poisson_data_generator(self.config.N, K)
+            data_generator = Poisson_data_generator(self.config.N_DOMAIN_POINTS, K)
             
             # ---------------------------------------------------------
             # PINN
@@ -248,7 +248,7 @@ class LandscapeAdapter:
                     pinn_model = PINN(
                         self.config.N_HIDDEN_LAYERS, 
                         self.config.WIDTH, 
-                        self.config.N, 
+                        self.config.N_DOMAIN_POINTS, 
                         self.config.DEVICE,
                         mesh=self.config.MESH_TYPE,
                         lambda_u=self.config.PINN_LAMBDA_U

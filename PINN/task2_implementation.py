@@ -17,7 +17,9 @@ class Config:
     """Centralized configuration for experiments"""
     
     # Grid parameters
-    N = 64  # Spatial resolution
+    N_DOMAIN_POINTS = 3844  # Total number of interior collocation points (default: 62^2 = 3844)
+    N_BOUNDARY_POINTS = 200  # Number of boundary collocation points per side
+    N_EVAL_GRID = 64  # Grid resolution for evaluation and data-driven training
     
     # Model architecture
     N_HIDDEN_LAYERS = 4
@@ -126,20 +128,20 @@ class DataDrivenModel(MLP):
 class PINN(MLP):
     """Physics-Informed Neural Network"""
     
-    def __init__(self, n_hidden_layers, width, N, device, 
-                 mesh="grid", lambda_u=1.0):
+    def __init__(self, n_hidden_layers, width, n_domain_points, device, 
+                 mesh="grid", lambda_u=1.0, n_boundary_points=None):
         super(PINN, self).__init__(2, 1, n_hidden_layers, width)
         
         self.device = device
         self.to(self.device)
         self.lambda_u = lambda_u
-        self.N = N
+        self.n_domain_points = n_domain_points
         self.mesh = mesh
         
         self.domain_bounds = ([0.0, 1.0], [0.0, 1.0])
         self.space_dimension = 2
-        self.num_boundary_points = self.N
-        self.num_interior_points = (self.N - 2) ** 2
+        self.num_boundary_points = n_boundary_points if n_boundary_points is not None else 64
+        self.num_interior_points = n_domain_points
         
         self.soboleng = torch.quasirandom.SobolEngine(dimension=self.space_dimension)
         self.training_set_b, self.training_set_int = self.assemble_datasets()
@@ -147,10 +149,11 @@ class PINN(MLP):
     def add_boundary_points(self):
         """Generate boundary points"""
         if self.mesh == "grid":
+            # For grid mesh, use num_boundary_points to define the boundary resolution
             x_b = torch.linspace(self.domain_bounds[0][0], self.domain_bounds[0][1], 
-                               self.N, device=self.device)
+                               self.num_boundary_points, device=self.device)
             y_b = torch.linspace(self.domain_bounds[1][0], self.domain_bounds[1][1], 
-                               self.N, device=self.device)
+                               self.num_boundary_points, device=self.device)
             zero = torch.zeros_like(x_b)
             one = torch.ones_like(x_b)
             
@@ -186,10 +189,15 @@ class PINN(MLP):
     def add_interior_points(self):
         """Generate interior points"""
         if self.mesh == "grid":
+            # Calculate grid resolution from total interior points
+            grid_size = int(np.sqrt(self.num_interior_points))
+            if grid_size ** 2 != self.num_interior_points:
+                print(f"Warning: N_DOMAIN_POINTS={self.num_interior_points} is not a perfect square. Using {grid_size}^2={grid_size**2} points.")
+            
             x = torch.linspace(self.domain_bounds[0][0], self.domain_bounds[0][1], 
-                             self.N, device=self.device)[1:-1]
+                             grid_size + 2, device=self.device)[1:-1]
             y = torch.linspace(self.domain_bounds[1][0], self.domain_bounds[1][1], 
-                             self.N, device=self.device)[1:-1]
+                             grid_size + 2, device=self.device)[1:-1]
             
             X, Y = torch.meshgrid(x, y, indexing='ij')
             interior_points = torch.cat([X.reshape(-1, 1), Y.reshape(-1, 1)], dim=1)
@@ -332,17 +340,18 @@ def train_pinn(config, data_generator, verbose=True):
     """Train PINN model with two-stage optimization"""
     if verbose:
         print(f"\n{'='*60}")
-        print(f"Training PINN (K={config.K}, N={config.N})")
+        print(f"Training PINN (K={config.K}, N={config.N_DOMAIN_POINTS})")
         print(f"{'='*60}")
     
     # Initialize model
     pinn = PINN(
         config.N_HIDDEN_LAYERS, 
         config.WIDTH, 
-        config.N, 
+        config.N_DOMAIN_POINTS,  # Total number of interior points
         config.DEVICE,
         mesh=config.MESH_TYPE,
-        lambda_u=config.PINN_LAMBDA_U
+        lambda_u=config.PINN_LAMBDA_U,
+        n_boundary_points=config.N_BOUNDARY_POINTS
     )
     
     # Create forcing term
@@ -380,15 +389,15 @@ def train_data_driven(config, data_generator, verbose=True):
     """Train data-driven model with supervised learning"""
     if verbose:
         print(f"\n{'='*60}")
-        print(f"Training Data-Driven Model (K={config.K}, N={config.N})")
+        print(f"Training Data-Driven Model (K={config.K}, N={config.N_DOMAIN_POINTS})")
         print(f"{'='*60}")
     
     # Initialize model
     model = DataDrivenModel(config.N_HIDDEN_LAYERS, config.WIDTH).to(config.DEVICE)
     
     # Generate exact solution on grid
-    x = np.linspace(0, 1, config.N)
-    y = np.linspace(0, 1, config.N)
+    x = np.linspace(0, 1, config.N_EVAL_GRID)
+    y = np.linspace(0, 1, config.N_EVAL_GRID)
     X, Y = np.meshgrid(x, y, indexing='ij')
     sol = data_generator.exact_solution(X, Y)  # Use the existing coefficients
     
@@ -448,8 +457,8 @@ def train_data_driven(config, data_generator, verbose=True):
 def evaluate_model(model, data_generator, config, is_data_driven=False):
     """Evaluate model and compute L2 relative error"""
     # Create evaluation grid
-    x = np.linspace(0, 1, config.N)
-    y = np.linspace(0, 1, config.N)
+    x = np.linspace(0, 1, config.N_EVAL_GRID)
+    y = np.linspace(0, 1, config.N_EVAL_GRID)
     X, Y = np.meshgrid(x, y, indexing='ij')
     
     # Prepare input
@@ -461,7 +470,7 @@ def evaluate_model(model, data_generator, config, is_data_driven=False):
     
     # Get predictions
     with torch.no_grad():
-        U_pred = model(coords).detach().cpu().numpy().reshape(config.N, config.N)
+        U_pred = model(coords).detach().cpu().numpy().reshape(config.N_EVAL_GRID, config.N_EVAL_GRID)
     
     # Rescale if data-driven model
     if is_data_driven and hasattr(config, 'DD_SCALE_FACTOR'):
@@ -499,8 +508,8 @@ def plot_training_history(history, title, config):
 
 def plot_solution_comparison(U_pred, U_exact, error, title, config):
     """Plot predicted vs exact solution"""
-    x = np.linspace(0, 1, config.N)
-    y = np.linspace(0, 1, config.N)
+    x = np.linspace(0, 1, config.N_EVAL_GRID)
+    y = np.linspace(0, 1, config.N_EVAL_GRID)
     X, Y = np.meshgrid(x, y, indexing='ij')
     
     fig, axes = plt.subplots(1, 3, figsize=(15, 4))
@@ -551,7 +560,8 @@ def run_experiment(K, N=64, model_type="both"):
     # Update configuration
     config = Config()
     config.K = K
-    config.N = N
+    config.N_EVAL_GRID = N  # Use N for evaluation grid
+    config.N_DOMAIN_POINTS = (N - 2) ** 2  # Interior points
     
     print(f"\n{'='*70}")
     print(f"EXPERIMENT: K={K}, N={N}")
@@ -559,7 +569,7 @@ def run_experiment(K, N=64, model_type="both"):
     print(f"Device: {config.DEVICE}")
     
     # Generate data
-    data_generator = Poisson_data_generator(config.N, config.K)
+    data_generator = Poisson_data_generator(config.N_EVAL_GRID, config.K)
     force, sol = data_generator.generate()
     
     results = {}
