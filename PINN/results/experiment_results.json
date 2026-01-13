@@ -1,7 +1,8 @@
 {
-  "experiment_date": "2026-01-10 12:28:58",
+  "experiment_date": "2026-01-13 04:33:20",
   "configuration": {
-    "N": 64,
+    "N_DOMAIN_POINTS": 3844,
+    "N_EVAL_GRID": 64,
     "K_levels": [
       1,
       4,
@@ -13,12 +14,12 @@
     "1": {
       "complexity_label": "Low",
       "pinn": {
-        "error": 0.1262924788145203,
-        "final_loss": 1.6498230479555787e-06,
-        "iterations": 5168
+        "error": 0.1487327319681344,
+        "final_loss": 2.033878672591527e-06,
+        "iterations": 5064
       },
       "data_driven": {
-        "error": 0.006419840087015517,
+        "error": 0.006419736063274949,
         "final_loss": 1.5739651644253172e-06,
         "iterations": 9047
       }
@@ -26,12 +27,12 @@
     "4": {
       "complexity_label": "Medium",
       "pinn": {
-        "error": 2.469638077643603,
-        "final_loss": 8.38544929138152e-06,
-        "iterations": 9087
+        "error": 1.7348113869176107,
+        "final_loss": 5.782670086773578e-06,
+        "iterations": 8395
       },
       "data_driven": {
-        "error": 0.047640430616649077,
+        "error": 0.04763975694428573,
         "final_loss": 6.555471827596193e-07,
         "iterations": 7387
       }
@@ -39,14 +40,14 @@
     "16": {
       "complexity_label": "High",
       "pinn": {
-        "error": 197.5538404999587,
-        "final_loss": 0.0015957752475515008,
+        "error": 259.04636822201456,
+        "final_loss": 0.0014734524302184582,
         "iterations": 9102
       },
       "data_driven": {
-        "error": 2.0072679622320786,
-        "final_loss": 7.735707185929641e-06,
-        "iterations": 9123
+        "error": 2.0564899128278182,
+        "final_loss": 8.119749509205576e-06,
+        "iterations": 9134
       }
     }
   }

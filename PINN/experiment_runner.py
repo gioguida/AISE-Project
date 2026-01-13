@@ -66,7 +66,7 @@ class ExperimentConfig:
     
     # Execution mode
     # If True, will ignore existing models and retrain from scratch
-    RETRAIN = False 
+    RETRAIN = True 
     
     # If True, will skip all training/loading logic that isn't needed for plotting
     # and just try to load models to generate plots.
