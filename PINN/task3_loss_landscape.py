@@ -61,7 +61,7 @@ class LandscapeConfig:
     FORCE_RECOMPUTE = False  # Set to True to re-run landscape computation even if files exist
     
     # Hessian Direction Options (Krishnapriyan et al. 2021, Section 4.1)
-    USE_HESSIAN_DIRECTIONS = True  # If True, use Hessian eigenvectors; if False, use random directions
+    USE_HESSIAN_DIRECTIONS = False  # If True, use Hessian eigenvectors; if False, use random directions
     HESSIAN_MAXITER = 100  # Maximum iterations for Lanczos algorithm
     HESSIAN_TOL = 1e-3  # Convergence tolerance for eigenvalue computation
 
@@ -144,8 +144,9 @@ class LandscapeAdapter:
             tuple: (xdirection, ydirection, eigenvalue_info)
         """
         device = next(model.parameters()).device
-        dir_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else "_random"
-        args.dir_file = args.dir_file.replace(".h5", f"{dir_suffix}.h5")
+        # Only add suffix for Hessian (keep random as default/legacy format)
+        if self.landscape_config.USE_HESSIAN_DIRECTIONS:
+            args.dir_file = args.dir_file.replace(".h5", "_hessian.h5")
         
         if self.landscape_config.USE_HESSIAN_DIRECTIONS:
             print(f"\n{'='*60}")
@@ -325,10 +326,11 @@ class LandscapeAdapter:
         # Load all data first to determine common z-limits
         data = {}
         all_losses = []
+        surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else ""
         
         for model in models:
             for K in K_LEVELS:
-                surf_file = os.path.join(self.results_dir, f"{model}_K{K}_surface.h5")
+                surf_file = os.path.join(self.results_dir, f"{model}_K{K}_surface{surf_suffix}.h5")
                 if os.path.exists(surf_file):
                     with h5py.File(surf_file, 'r') as f:
                         X = f['xcoordinates'][:]
@@ -389,6 +391,85 @@ class LandscapeAdapter:
             filename = f"comparative_loss_landscapes_{dir_type}_vmax{vmax}.pdf"
             plt.savefig(os.path.join(self.results_dir, filename))
             print(f"Saved comparative plot to {os.path.join(self.results_dir, filename)}")
+            plt.close()
+
+    def plot_comparative_contours(self):
+        K_LEVELS = self.landscape_config.K_LEVELS
+        models = self.landscape_config.MODELS
+        titles = {'pinn': 'PINN', 'dd': 'Data-Driven'}
+        
+        # Load all data first
+        data = {}
+        surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else ""
+        
+        for model in models:
+            for K in K_LEVELS:
+                surf_file = os.path.join(self.results_dir, f"{model}_K{K}_surface{surf_suffix}.h5")
+                if os.path.exists(surf_file):
+                    with h5py.File(surf_file, 'r') as f:
+                        X = f['xcoordinates'][:]
+                        Y = f['ycoordinates'][:]
+                        Z = f['train_loss'][:]
+                        data[(model, K)] = (X, Y, Z)
+        
+        if not data:
+            print("No surface data found to plot.")
+            return
+
+        # Generate contour plots for different vmax limits
+        for vmax in self.landscape_config.VMAX_LEVELS:
+            vmin = self.landscape_config.VMIN
+            
+            # Create 2x3 grid
+            fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+            
+            for i, model in enumerate(models):
+                for j, K in enumerate(K_LEVELS):
+                    if (model, K) not in data:
+                        continue
+                    
+                    X_data, Y_data, Z_data = data[(model, K)]
+                    X, Y = np.meshgrid(X_data, Y_data)
+                    
+                    # Clip Z for plotting
+                    Z_plot = np.clip(Z_data, vmin, vmax)
+                    
+                    ax = axes[i, j]
+                    
+                    # Create contour plot with filled contours
+                    levels = np.linspace(vmin, vmax, 20)
+                    contourf = ax.contourf(X, Y, Z_plot, levels=levels, cmap=cm.coolwarm)
+                    contour = ax.contour(X, Y, Z_plot, levels=levels, colors='black', alpha=0.3, linewidths=0.5)
+                    
+                    # Add colorbar
+                    plt.colorbar(contourf, ax=ax)
+                    
+                    # Create title with eigenvalue info if available
+                    title = f"{titles[model]} K={K}"
+                    if (model, K) in self.eigenvalue_info and self.eigenvalue_info[(model, K)] is not None:
+                        eig_info = self.eigenvalue_info[(model, K)]
+                        λ_max = eig_info['eigenvalue_max']
+                        λ_min = eig_info['eigenvalue_min']
+                        title += f"\nλ_max={λ_max:.2e}, λ_min={λ_min:.2e}"
+                    
+                    ax.set_title(title, fontsize=14)
+                    
+                    # Update axis labels for Hessian directions
+                    if self.landscape_config.USE_HESSIAN_DIRECTIONS:
+                        ax.set_xlabel('max eigenvector', fontsize=12)
+                        ax.set_ylabel('min eigenvector', fontsize=12)
+                    else:
+                        ax.set_xlabel('x (random)', fontsize=12)
+                        ax.set_ylabel('y (random)', fontsize=12)
+                    
+                    # Mark the center (trained model location)
+                    ax.plot(0, 0, 'w*', markersize=15, markeredgecolor='black', markeredgewidth=1)
+
+            plt.tight_layout()
+            dir_type = "hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else "random"
+            filename = f"comparative_loss_contours_{dir_type}_vmax{vmax}.pdf"
+            plt.savefig(os.path.join(self.results_dir, filename))
+            print(f"Saved contour plot to {os.path.join(self.results_dir, filename)}")
             plt.close()
 
     def run(self):
@@ -476,8 +557,9 @@ class LandscapeAdapter:
                     # Load directions
                     directions = [xdirection, ydirection]
                     
-                    # Compute surface
-                    surf_file = os.path.join(self.results_dir, f"pinn_K{K}_surface.h5")
+                    # Compute surface (add suffix to match direction type)
+                    surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else ""
+                    surf_file = os.path.join(self.results_dir, f"pinn_K{K}_surface{surf_suffix}.h5")
                     w = net_plotter.get_weights(pinn_model)
                     
                     self.crunch_surface(
@@ -545,8 +627,9 @@ class LandscapeAdapter:
                     # Load directions
                     directions = [xdirection, ydirection]
                     
-                    # Compute surface
-                    surf_file = os.path.join(self.results_dir, f"dd_K{K}_surface.h5")
+                    # Compute surface (add suffix to match direction type)
+                    surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else ""
+                    surf_file = os.path.join(self.results_dir, f"dd_K{K}_surface{surf_suffix}.h5")
                     w = net_plotter.get_weights(dd_model)
                     
                     self.crunch_surface(
@@ -561,6 +644,9 @@ class LandscapeAdapter:
         # Generate comparative plots
         print("\nGenerating comparative 3D surface plots...")
         self.plot_comparative_surfaces()
+        
+        print("\nGenerating comparative 2D contour plots...")
+        self.plot_comparative_contours()
 
 if __name__ == "__main__":
     adapter = LandscapeAdapter()
