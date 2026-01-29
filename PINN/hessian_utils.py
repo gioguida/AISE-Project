@@ -190,7 +190,7 @@ def compute_hessian_eigenvectors(
             tol=tol,
             return_eigenvectors=True
         )
-        print(f"✓ Computed largest eigenvalues: {eigenvalues_max}")
+        print(f"Computed largest eigenvalues: {eigenvalues_max}")
     except Exception as e:
         print(f"Warning: eigsh failed for largest eigenvalues: {e}")
         print("Falling back to random directions")
@@ -206,7 +206,7 @@ def compute_hessian_eigenvectors(
             tol=tol,
             return_eigenvectors=True
         )
-        print(f"✓ Computed smallest eigenvalues: {eigenvalues_min}")
+        print(f"Computed smallest eigenvalues: {eigenvalues_min}")
     except Exception as e:
         print(f"Warning: eigsh failed for smallest eigenvalues: {e}")
         print("Using largest eigenvalues only")
@@ -230,9 +230,9 @@ def compute_hessian_eigenvectors(
     abs_eigenvalues = np.abs(all_eigenvalues)
     
     print(f"\nDominant eigenvalues:")
-    print(f"  Maximum (most positive): λ_max = {eigval_max:.6e}")
-    print(f"  Minimum (most negative): λ_min = {eigval_min:.6e}")
-    print(f"  Ratio |λ_max|/|λ_min| = {abs(eigval_max/eigval_min):.4f}")
+    print(f"  Maximum (most positive): lambda_max = {eigval_max:.6e}")
+    print(f"  Minimum (most negative): lambda_min = {eigval_min:.6e}")
+    print(f"  Ratio |lambda_max|/|lambda_min| = {abs(eigval_max/eigval_min):.4f}")
     
     # Convert eigenvectors back to parameter list format
     eigvec_max_tensor = torch.from_numpy(eigvec_max).float().to(device)
@@ -328,12 +328,12 @@ def test_hessian_computation():
     )
     
     if result is not None:
-        print("\n✓ Test passed!")
-        print(f"  λ_max = {result['eigenvalue_max']:.6e}")
-        print(f"  λ_min = {result['eigenvalue_min']:.6e}")
+        print("\nTest passed!")
+        print(f"  lambda_max = {result['eigenvalue_max']:.6e}")
+        print(f"  lambda_min = {result['eigenvalue_min']:.6e}")
         print(f"  Orthogonality: {result['dot_product']:.6e}")
     else:
-        print("\n✗ Test failed!")
+        print("\nTest failed!")
     
     return result
 

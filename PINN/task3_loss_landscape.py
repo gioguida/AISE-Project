@@ -163,7 +163,7 @@ class LandscapeAdapter:
                 )
                 
                 if result is None:
-                    print("⚠ Hessian computation failed, falling back to random directions")
+                    print("WARNING: Hessian computation failed, falling back to random directions")
                     xdirection = net_plotter.create_random_direction(model, args.dir_type, args.xignore, args.xnorm)
                     ydirection = net_plotter.create_random_direction(model, args.dir_type, args.yignore, args.ynorm)
                     eigenvalue_info = None
@@ -178,6 +178,10 @@ class LandscapeAdapter:
                     xdirection = hessian_utils.filter_normalize_direction(eigvec_max, model_params, norm='filter')
                     ydirection = hessian_utils.filter_normalize_direction(eigvec_min, model_params, norm='filter')
                     
+                    # Detach for saving (remove gradient tracking)
+                    xdirection = [d.detach() for d in xdirection]
+                    ydirection = [d.detach() for d in ydirection]
+                    
                     # Store eigenvalue information
                     eigenvalue_info = {
                         'eigenvalue_max': result['eigenvalue_max'],
@@ -185,9 +189,9 @@ class LandscapeAdapter:
                         'dot_product': result['dot_product']
                     }
                     
-                    print(f"✓ Using directions along:")
-                    print(f"  - X-axis (max): λ_max = {eigenvalue_info['eigenvalue_max']:.6e}")
-                    print(f"  - Y-axis (min): λ_min = {eigenvalue_info['eigenvalue_min']:.6e}")
+                    print(f"Using directions along:")
+                    print(f"  - X-axis (max): lambda_max = {eigenvalue_info['eigenvalue_max']:.6e}")
+                    print(f"  - Y-axis (min): lambda_min = {eigenvalue_info['eigenvalue_min']:.6e}")
                 
                 # Save directions to h5 file
                 f = h5py.File(args.dir_file, 'w')
@@ -198,7 +202,7 @@ class LandscapeAdapter:
                     f.create_dataset('eigenvalue_min', data=eigenvalue_info['eigenvalue_min'])
                     f.create_dataset('dot_product', data=eigenvalue_info['dot_product'])
                 f.close()
-                print(f"✓ Saved directions to {args.dir_file}")
+                print(f"Saved directions to {args.dir_file}")
             else:
                 print(f"Loading existing Hessian directions from {args.dir_file}")
                 f = h5py.File(args.dir_file, 'r')
@@ -210,8 +214,8 @@ class LandscapeAdapter:
                         'eigenvalue_min': float(f['eigenvalue_min'][()]),
                         'dot_product': float(f['dot_product'][()])
                     }
-                    print(f"  λ_max = {eigenvalue_info['eigenvalue_max']:.6e}")
-                    print(f"  λ_min = {eigenvalue_info['eigenvalue_min']:.6e}")
+                    print(f"  lambda_max = {eigenvalue_info['eigenvalue_max']:.6e}")
+                    print(f"  lambda_min = {eigenvalue_info['eigenvalue_min']:.6e}")
                 else:
                     eigenvalue_info = None
                 f.close()
