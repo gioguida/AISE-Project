@@ -143,6 +143,7 @@ class LandscapeAdapter:
         Returns:
             tuple: (xdirection, ydirection, eigenvalue_info)
         """
+        device = next(model.parameters()).device
         dir_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else "_random"
         args.dir_file = args.dir_file.replace(".h5", f"{dir_suffix}.h5")
         
@@ -210,6 +211,12 @@ class LandscapeAdapter:
                 f = h5py.File(args.dir_file, 'r')
                 xdirection = h5_util.read_list(f, 'xdirection')
                 ydirection = h5_util.read_list(f, 'ydirection')
+                
+                # Convert to proper tensor format if needed
+                if isinstance(xdirection[0], np.ndarray):
+                    xdirection = [torch.from_numpy(d).float().to(device) for d in xdirection]
+                    ydirection = [torch.from_numpy(d).float().to(device) for d in ydirection]
+                
                 if 'eigenvalue_max' in f:
                     eigenvalue_info = {
                         'eigenvalue_max': float(f['eigenvalue_max'][()]),
