@@ -30,6 +30,7 @@ from task2_implementation import (
     PINN,
     DataDrivenModel
 )
+import hessian_utils
 
 class LandscapeConfig:
     """Configuration for loss landscape generation and plotting."""
@@ -58,6 +59,11 @@ class LandscapeConfig:
     
     # Computation
     FORCE_RECOMPUTE = True  # Set to True to re-run landscape computation even if files exist
+    
+    # Hessian Direction Options (Krishnapriyan et al. 2021, Section 4.1)
+    USE_HESSIAN_DIRECTIONS = True  # If True, use Hessian eigenvectors; if False, use random directions
+    HESSIAN_MAXITER = 100  # Maximum iterations for Lanczos algorithm
+    HESSIAN_TOL = 1e-3  # Convergence tolerance for eigenvalue computation
 
 class LandscapeAdapter:
     def __init__(self):
@@ -66,6 +72,7 @@ class LandscapeAdapter:
         self.config.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.results_dir = self.landscape_config.RESULTS_DIR
         os.makedirs(self.results_dir, exist_ok=True)
+        self.eigenvalue_info = {}  # Store eigenvalue information for plotting
 
     def get_pinn_loss(self, net, data_generator):
         # Generate a fixed set of points for evaluation
@@ -121,6 +128,118 @@ class LandscapeAdapter:
         pred = net(inp).reshape(-1)
         loss = torch.mean((pred - target)**2)
         return loss.item()
+    
+    def generate_directions(self, model, model_type, K, loss_fn, args):
+        """
+        Generate directions for loss landscape visualization.
+        
+        Args:
+            model: PyTorch model
+            model_type: 'pinn' or 'dd'
+            K: frequency parameter
+            loss_fn: callable that computes loss (returns scalar tensor, not .item())
+            args: Namespace with direction configuration
+        
+        Returns:
+            tuple: (xdirection, ydirection, eigenvalue_info)
+        """
+        dir_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else "_random"
+        args.dir_file = args.dir_file.replace(".h5", f"{dir_suffix}.h5")
+        
+        if self.landscape_config.USE_HESSIAN_DIRECTIONS:
+            print(f"\n{'='*60}")
+            print(f"Using Hessian Eigenvector Directions (Krishnapriyan et al. 2021)")
+            print(f"{'='*60}")
+            
+            # Check if already computed
+            if not os.path.exists(args.dir_file) or self.landscape_config.FORCE_RECOMPUTE:
+                # Compute Hessian eigenvectors
+                result = hessian_utils.compute_hessian_eigenvectors(
+                    model,
+                    loss_fn,
+                    num_eigenvalues=2,
+                    maxiter=self.landscape_config.HESSIAN_MAXITER,
+                    tol=self.landscape_config.HESSIAN_TOL
+                )
+                
+                if result is None:
+                    print("⚠ Hessian computation failed, falling back to random directions")
+                    xdirection = net_plotter.create_random_direction(model, args.dir_type, args.xignore, args.xnorm)
+                    ydirection = net_plotter.create_random_direction(model, args.dir_type, args.yignore, args.ynorm)
+                    eigenvalue_info = None
+                else:
+                    # Use eigenvectors as directions
+                    eigvec_max = result['eigenvector_max']
+                    eigvec_min = result['eigenvector_min']
+                    
+                    # Apply filter normalization (same as random directions)
+                    print("\nApplying filter normalization to eigenvectors...")
+                    model_params = [p for p in model.parameters() if p.requires_grad]
+                    xdirection = hessian_utils.filter_normalize_direction(eigvec_max, model_params, norm='filter')
+                    ydirection = hessian_utils.filter_normalize_direction(eigvec_min, model_params, norm='filter')
+                    
+                    # Store eigenvalue information
+                    eigenvalue_info = {
+                        'eigenvalue_max': result['eigenvalue_max'],
+                        'eigenvalue_min': result['eigenvalue_min'],
+                        'dot_product': result['dot_product']
+                    }
+                    
+                    print(f"✓ Using directions along:")
+                    print(f"  - X-axis (max): λ_max = {eigenvalue_info['eigenvalue_max']:.6e}")
+                    print(f"  - Y-axis (min): λ_min = {eigenvalue_info['eigenvalue_min']:.6e}")
+                
+                # Save directions to h5 file
+                f = h5py.File(args.dir_file, 'w')
+                h5_util.write_list(f, 'xdirection', xdirection)
+                h5_util.write_list(f, 'ydirection', ydirection)
+                if eigenvalue_info is not None:
+                    f.create_dataset('eigenvalue_max', data=eigenvalue_info['eigenvalue_max'])
+                    f.create_dataset('eigenvalue_min', data=eigenvalue_info['eigenvalue_min'])
+                    f.create_dataset('dot_product', data=eigenvalue_info['dot_product'])
+                f.close()
+                print(f"✓ Saved directions to {args.dir_file}")
+            else:
+                print(f"Loading existing Hessian directions from {args.dir_file}")
+                f = h5py.File(args.dir_file, 'r')
+                xdirection = h5_util.read_list(f, 'xdirection')
+                ydirection = h5_util.read_list(f, 'ydirection')
+                if 'eigenvalue_max' in f:
+                    eigenvalue_info = {
+                        'eigenvalue_max': float(f['eigenvalue_max'][()]),
+                        'eigenvalue_min': float(f['eigenvalue_min'][()]),
+                        'dot_product': float(f['dot_product'][()])
+                    }
+                    print(f"  λ_max = {eigenvalue_info['eigenvalue_max']:.6e}")
+                    print(f"  λ_min = {eigenvalue_info['eigenvalue_min']:.6e}")
+                else:
+                    eigenvalue_info = None
+                f.close()
+        else:
+            print(f"\nUsing Random Directions (Li et al. 2018)")
+            # Generate random directions (original method)
+            if not os.path.exists(args.dir_file) or self.landscape_config.FORCE_RECOMPUTE:
+                print("Generating random directions...")
+                xdirection = net_plotter.create_random_direction(model, args.dir_type, args.xignore, args.xnorm)
+                ydirection = net_plotter.create_random_direction(model, args.dir_type, args.yignore, args.ynorm)
+                
+                # Write to h5
+                f = h5py.File(args.dir_file, 'w')
+                h5_util.write_list(f, 'xdirection', xdirection)
+                h5_util.write_list(f, 'ydirection', ydirection)
+                f.close()
+            else:
+                print(f"Using existing directions from {args.dir_file}")
+                f = h5py.File(args.dir_file, 'r')
+                xdirection = h5_util.read_list(f, 'xdirection')
+                ydirection = h5_util.read_list(f, 'ydirection')
+                f.close()
+            eigenvalue_info = None
+        
+        # Store eigenvalue info for this model
+        self.eigenvalue_info[(model_type, K)] = eigenvalue_info
+        
+        return xdirection, ydirection, eigenvalue_info
 
     def crunch_surface(self, surf_file, net, w, d, loss_fn, args):
         # Check if surface file already exists and is valid
@@ -217,15 +336,30 @@ class LandscapeAdapter:
                     
                     surf = ax.plot_surface(X, Y, Z_plot, cmap=cm.coolwarm, linewidth=0, antialiased=False)
                     
-                    ax.set_title(f"{titles[model]} K={K}", fontsize=20)
+                    # Create title with eigenvalue info if available
+                    title = f"{titles[model]} K={K}"
+                    if (model, K) in self.eigenvalue_info and self.eigenvalue_info[(model, K)] is not None:
+                        eig_info = self.eigenvalue_info[(model, K)]
+                        λ_max = eig_info['eigenvalue_max']
+                        λ_min = eig_info['eigenvalue_min']
+                        title += f"\nλ_max={λ_max:.2e}, λ_min={λ_min:.2e}"
+                    
+                    ax.set_title(title, fontsize=18)
                     ax.set_zlim(vmin, vmax)
-                    ax.set_xlabel('x', fontsize=16)
-                    ax.set_ylabel('y', fontsize=16)
-                    # ax.set_zlabel('Loss', fontsize=16, rotation=90)
-                    ax.tick_params(axis='both', which='major', labelsize=14)
+                    
+                    # Update axis labels for Hessian directions
+                    if self.landscape_config.USE_HESSIAN_DIRECTIONS:
+                        ax.set_xlabel('max eigenvector', fontsize=14)
+                        ax.set_ylabel('min eigenvector', fontsize=14)
+                    else:
+                        ax.set_xlabel('x (random)', fontsize=14)
+                        ax.set_ylabel('y (random)', fontsize=14)
+                    
+                    ax.tick_params(axis='both', which='major', labelsize=12)
 
             plt.tight_layout()
-            filename = f"comparative_loss_landscapes_vmax{vmax}.pdf"
+            dir_type = "hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else "random"
+            filename = f"comparative_loss_landscapes_{dir_type}_vmax{vmax}.pdf"
             plt.savefig(os.path.join(self.results_dir, filename))
             print(f"Saved comparative plot to {os.path.join(self.results_dir, filename)}")
             plt.close()
@@ -272,23 +406,45 @@ class LandscapeAdapter:
                         ymin=self.landscape_config.YMIN, ymax=self.landscape_config.YMAX, ynum=self.landscape_config.YNUM
                     )
                     
-                    # Generate directions manually
-                    if not os.path.exists(args.dir_file) or self.landscape_config.FORCE_RECOMPUTE:
-                        print("Generating directions...")
-                        xdirection = net_plotter.create_random_direction(pinn_model, args.dir_type, args.xignore, args.xnorm)
-                        ydirection = net_plotter.create_random_direction(pinn_model, args.dir_type, args.yignore, args.ynorm)
+                    # Define loss function for Hessian computation (returns tensor, not .item())
+                    def pinn_loss_fn():
+                        # Generate a fixed set of points for evaluation
+                        x = np.linspace(0, 1, self.config.N)
+                        y = np.linspace(0, 1, self.config.N)
+                        X, Y = np.meshgrid(x, y, indexing='ij')
                         
-                        # Write to h5
-                        f = h5py.File(args.dir_file, 'w')
-                        h5_util.write_list(f, 'xdirection', xdirection)
-                        h5_util.write_list(f, 'ydirection', ydirection)
-                        f.close()
-                    else:
-                        print(f"Using existing directions from {args.dir_file}")
-                        f = h5py.File(args.dir_file, 'r')
-                        xdirection = h5_util.read_list(f, 'xdirection')
-                        ydirection = h5_util.read_list(f, 'ydirection')
-                        f.close()
+                        # Interior points
+                        inp = torch.tensor(np.stack([X.flatten(), Y.flatten()], axis=1), 
+                                          dtype=torch.float32, 
+                                          device=self.config.DEVICE).requires_grad_(True)
+                        
+                        # Forcing term
+                        f_val = data_generator.forcing_term(inp[:, 0].detach().cpu().numpy(), 
+                                                          inp[:, 1].detach().cpu().numpy())
+                        f_val = torch.tensor(f_val, dtype=torch.float32, device=self.config.DEVICE)
+                        
+                        # Compute PDE residual
+                        u = pinn_model(inp)
+                        
+                        grads = torch.autograd.grad(u, inp, grad_outputs=torch.ones_like(u), create_graph=True)[0]
+                        u_x = grads[:, 0]
+                        u_y = grads[:, 1]
+                        
+                        grads_x = torch.autograd.grad(u_x, inp, grad_outputs=torch.ones_like(u_x), create_graph=True)[0]
+                        u_xx = grads_x[:, 0]
+                        
+                        grads_y = torch.autograd.grad(u_y, inp, grad_outputs=torch.ones_like(u_y), create_graph=True)[0]
+                        u_yy = grads_y[:, 1]
+                        
+                        residual = -(u_xx + u_yy) - f_val
+                        loss_pde = torch.mean(residual**2)
+                        
+                        return loss_pde  # Return tensor, not .item()
+                    
+                    # Generate directions (random or Hessian)
+                    xdirection, ydirection, eigenvalue_info = self.generate_directions(
+                        pinn_model, 'pinn', K, pinn_loss_fn, args
+                    )
                     
                     # Load directions
                     directions = [xdirection, ydirection]
@@ -334,23 +490,30 @@ class LandscapeAdapter:
                         ymin=self.landscape_config.YMIN, ymax=self.landscape_config.YMAX, ynum=self.landscape_config.YNUM
                     )
                     
-                    # Generate directions manually
-                    if not os.path.exists(args.dir_file) or self.landscape_config.FORCE_RECOMPUTE:
-                        print("Generating directions...")
-                        xdirection = net_plotter.create_random_direction(dd_model, args.dir_type, args.xignore, args.xnorm)
-                        ydirection = net_plotter.create_random_direction(dd_model, args.dir_type, args.yignore, args.ynorm)
+                    # Define loss function for Hessian computation (returns tensor, not .item())
+                    def dd_loss_fn():
+                        _, solution = data_generator.generate()
                         
-                        # Write to h5
-                        f = h5py.File(args.dir_file, 'w')
-                        h5_util.write_list(f, 'xdirection', xdirection)
-                        h5_util.write_list(f, 'ydirection', ydirection)
-                        f.close()
-                    else:
-                        print(f"Using existing directions from {args.dir_file}")
-                        f = h5py.File(args.dir_file, 'r')
-                        xdirection = h5_util.read_list(f, 'xdirection')
-                        ydirection = h5_util.read_list(f, 'ydirection')
-                        f.close()
+                        x = np.linspace(0, 1, self.config.N)
+                        y = np.linspace(0, 1, self.config.N)
+                        X, Y = np.meshgrid(x, y, indexing='ij')
+                        
+                        inp = torch.tensor(np.stack([X.flatten(), Y.flatten()], axis=1), 
+                                          dtype=torch.float32, 
+                                          device=self.config.DEVICE)
+                        
+                        target = torch.tensor(solution.flatten() * self.config.DD_SCALE_FACTOR, 
+                                             dtype=torch.float32, 
+                                             device=self.config.DEVICE)
+                        
+                        pred = dd_model(inp).reshape(-1)
+                        loss = torch.mean((pred - target)**2)
+                        return loss  # Return tensor, not .item()
+                    
+                    # Generate directions (random or Hessian)
+                    xdirection, ydirection, eigenvalue_info = self.generate_directions(
+                        dd_model, 'dd', K, dd_loss_fn, args
+                    )
                     
                     # Load directions
                     directions = [xdirection, ydirection]
