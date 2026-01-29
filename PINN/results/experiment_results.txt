@@ -1,0 +1,70 @@
+================================================================================
+AISE 2026 - Final Project - Problem 1: PINNs vs Data-Driven
+Experiment Date: 2026-01-28 16:20:12
+================================================================================
+
+
+Task 1: Data Generation
+K values: [1, 4, 16], N=64
+
+Generating sample with K = 1
+  Forcing term - Min: 0.0000, Max: 7.8326, Mean: 3.0766
+  Solution     - Min: 0.0000, Max: 0.3968, Mean: 0.1559
+
+Generating sample with K = 4
+  Forcing term - Min: -3.7373, Max: 4.4476, Mean: 0.2685
+  Solution     - Min: -0.0233, Max: 0.0412, Mean: 0.0105
+
+Generating sample with K = 16
+  Forcing term - Min: -4.1169, Max: 4.6102, Mean: 0.0203
+  Solution     - Min: -0.0031, Max: 0.0047, Mean: 0.0007
+Saved: results/plots\task1_data_samples.png
+
+Task 2: Training and Evaluation
+
+K=1 (Low complexity)
+
+Generating data...
+
+Loading PINN model...
+PINN loaded
+PINN test error: 0.13%
+
+Loading Data-Driven model...
+Data-Driven loaded
+Data-Driven test error: 0.01%
+
+Generating plots...
+Saved: results/plots\comparison_K1.png
+
+K=4 (Medium complexity)
+
+Generating data...
+
+Loading PINN model...
+PINN loaded
+PINN test error: 2.47%
+
+Loading Data-Driven model...
+Data-Driven loaded
+Data-Driven test error: 0.05%
+
+Generating plots...
+Saved: results/plots\comparison_K4.png
+
+K=16 (High complexity)
+
+Generating data...
+
+Loading PINN model...
+PINN loaded
+PINN test error: 197.55%
+
+Loading Data-Driven model...
+Data-Driven loaded
+Data-Driven test error: 2.01%
+
+Generating plots...
+Saved: results/plots\comparison_K16.png
+
+Results saved to JSON: results/experiment_results.json

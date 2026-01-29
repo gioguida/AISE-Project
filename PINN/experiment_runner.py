@@ -86,6 +86,13 @@ class ResultLogger:
         
         # Create results directory if it doesn't exist
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        
+        # Initialize file with header
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write("="*80 + "\n")
+            f.write("AISE 2026 - Final Project - Problem 1: PINNs vs Data-Driven\n")
+            f.write(f"Experiment Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write("="*80 + "\n\n")
     
     def log(self, message, to_file=True, to_terminal=True):
         """Log message to file and/or terminal"""
