@@ -42,8 +42,8 @@ class LandscapeConfig:
     YMAX = 2.0
     
     # Resolution (higher = smoother but slower)
-    XNUM = 100
-    YNUM = 100
+    XNUM = 50 #100
+    YNUM = 50 #100
     
     # Plotting Limits
     VMAX_LEVELS = [10, 20, 100]  # Generate plots with these max height limits
