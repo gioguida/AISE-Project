@@ -57,7 +57,7 @@ class LandscapeConfig:
     MODELS_DIR = "results/models"
     
     # Computation
-    FORCE_RECOMPUTE = True  # Set to True to re-run landscape computation even if files exist
+    FORCE_RECOMPUTE = False  # Set to True to re-run landscape computation even if files exist
 
 class LandscapeAdapter:
     def __init__(self):
@@ -230,6 +230,73 @@ class LandscapeAdapter:
             print(f"Saved comparative plot to {os.path.join(self.results_dir, filename)}")
             plt.close()
 
+    def plot_2d_contours(self):
+        """Plot 2D contour visualizations with only level curves (no filled contours)."""
+        K_LEVELS = self.landscape_config.K_LEVELS
+        models = self.landscape_config.MODELS
+        titles = {'pinn': 'PINN', 'dd': 'Data-Driven'}
+        
+        # Load all data
+        data = {}
+        
+        for model in models:
+            for K in K_LEVELS:
+                surf_file = os.path.join(self.results_dir, f"{model}_K{K}_surface.h5")
+                if os.path.exists(surf_file):
+                    with h5py.File(surf_file, 'r') as f:
+                        X = f['xcoordinates'][:]
+                        Y = f['ycoordinates'][:]
+                        Z = f['train_loss'][:]
+                        data[(model, K)] = (X, Y, Z)
+        
+        if not data:
+            print("No surface data found to plot contours.")
+            return
+
+        # Generate contour plots for different vmax limits
+        for vmax in self.landscape_config.VMAX_LEVELS:
+            vmin = self.landscape_config.VMIN
+            
+            # Create 2x3 grid
+            fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+            
+            for i, model in enumerate(models):
+                for j, K in enumerate(K_LEVELS):
+                    if (model, K) not in data:
+                        continue
+                    
+                    X_data, Y_data, Z_data = data[(model, K)]
+                    X, Y = np.meshgrid(X_data, Y_data)
+                    
+                    # Clip Z for plotting
+                    Z_plot = np.clip(Z_data, vmin, vmax)
+                    
+                    ax = axes[i, j]
+                    
+                    # Create contour lines only (no filled contours)
+                    # Use 20 levels for detailed visualization
+                    levels = np.linspace(vmin, vmax, 20)
+                    contours = ax.contour(X, Y, Z_plot, levels=levels, cmap='coolwarm', linewidths=1.5)
+                    
+                    # Add contour labels
+                    ax.clabel(contours, inline=True, fontsize=8, fmt='%.1f')
+                    
+                    # Add colorbar
+                    cbar = plt.colorbar(contours, ax=ax)
+                    cbar.set_label('Loss', fontsize=12)
+                    
+                    ax.set_title(f"{titles[model]} K={K}", fontsize=20)
+                    ax.set_xlabel('x', fontsize=16)
+                    ax.set_ylabel('y', fontsize=16)
+                    ax.tick_params(axis='both', which='major', labelsize=14)
+                    ax.grid(True, alpha=0.3)
+
+            plt.tight_layout()
+            filename = f"contour_loss_landscapes_vmax{vmax}.pdf"
+            plt.savefig(os.path.join(self.results_dir, filename))
+            print(f"Saved 2D contour plot to {os.path.join(self.results_dir, filename)}")
+            plt.close()
+
     def run(self):
         K_LEVELS = self.landscape_config.K_LEVELS
         
@@ -371,6 +438,10 @@ class LandscapeAdapter:
         # Generate comparative plots
         print("\nGenerating comparative 3D surface plots...")
         self.plot_comparative_surfaces()
+        
+        # Generate 2D contour plots
+        print("\nGenerating 2D contour plots with level curves...")
+        self.plot_2d_contours()
 
 if __name__ == "__main__":
     adapter = LandscapeAdapter()
