@@ -193,10 +193,12 @@ class LandscapeAdapter:
                     print(f"  - X-axis (max): lambda_max = {eigenvalue_info['eigenvalue_max']:.6e}")
                     print(f"  - Y-axis (min): lambda_min = {eigenvalue_info['eigenvalue_min']:.6e}")
                 
-                # Save directions to h5 file
+                # Save directions to h5 file (ensure detached)
                 f = h5py.File(args.dir_file, 'w')
-                h5_util.write_list(f, 'xdirection', xdirection)
-                h5_util.write_list(f, 'ydirection', ydirection)
+                xdirection_save = [d.detach().cpu() if isinstance(d, torch.Tensor) else d for d in xdirection]
+                ydirection_save = [d.detach().cpu() if isinstance(d, torch.Tensor) else d for d in ydirection]
+                h5_util.write_list(f, 'xdirection', xdirection_save)
+                h5_util.write_list(f, 'ydirection', ydirection_save)
                 if eigenvalue_info is not None:
                     f.create_dataset('eigenvalue_max', data=eigenvalue_info['eigenvalue_max'])
                     f.create_dataset('eigenvalue_min', data=eigenvalue_info['eigenvalue_min'])
