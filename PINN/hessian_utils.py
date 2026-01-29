@@ -73,7 +73,8 @@ def hessian_vector_product(loss_grad_params, model, vector):
     """
     grad_vector_product = 0.0
     for grad, v in zip(loss_grad_params, vector):
-        grad_vector_product += (grad * v).sum()
+        if grad is not None:
+            grad_vector_product += (grad * v).sum()
     
     # Compute gradient of (∇L · v) w.r.t. parameters
     # This gives H·v
@@ -81,10 +82,12 @@ def hessian_vector_product(loss_grad_params, model, vector):
         grad_vector_product, 
         model.parameters(),
         retain_graph=True,
-        create_graph=False
+        create_graph=False,
+        allow_unused=True
     )
     
-    return [g.detach() for g in hvp]
+    # Handle None gradients (unused parameters)
+    return [g.detach() if g is not None else torch.zeros_like(p) for g, p in zip(hvp, model.parameters())]
 
 
 def compute_hessian_eigenvectors(
@@ -142,8 +145,12 @@ def compute_hessian_eigenvectors(
         loss, 
         params,
         create_graph=True,
-        retain_graph=True
+        retain_graph=True,
+        allow_unused=True
     )
+    
+    # Handle None gradients (unused parameters)
+    loss_grad = [g if g is not None else torch.zeros_like(p) for g, p in zip(loss_grad, params)]
     
     # Define matrix-vector product operator for scipy eigsh
     def hvp_operator(v):
