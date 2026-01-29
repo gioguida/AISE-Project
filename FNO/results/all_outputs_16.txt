@@ -11,6 +11,14 @@ Running Task 2: 16 Resolution Invariance...
 ========================================
 
 Using device: cpu
+
+=== Testing 12 Modes FNO ===
+Resolution 128: Relative L2 = 1.16%
+Resolution 96: Relative L2 = 1.60%
+Resolution 64: Relative L2 = 3.04%
+Resolution 32: Relative L2 = 7.38%
+
+=== Testing 16 Modes FNO ===
 Resolution 128: Relative L2 = 1.54%
 Resolution 96: Relative L2 = 2.18%
 Resolution 64: Relative L2 = 4.05%
