@@ -42,8 +42,8 @@ class LandscapeConfig:
     YMAX = 2.0
     
     # Resolution (higher = smoother but slower)
-    XNUM = 50 #100
-    YNUM = 50 #100
+    XNUM = 100
+    YNUM = 100
     
     # Plotting Limits
     VMAX_LEVELS = [10, 20, 100]  # Generate plots with these max height limits
@@ -58,7 +58,7 @@ class LandscapeConfig:
     MODELS_DIR = "results/models"
     
     # Computation
-    FORCE_RECOMPUTE = True  # Set to True to re-run landscape computation even if files exist
+    FORCE_RECOMPUTE = False  # Set to True to re-run landscape computation even if files exist
     
     # Hessian Direction Options (Krishnapriyan et al. 2021, Section 4.1)
     USE_HESSIAN_DIRECTIONS = True  # If True, use Hessian eigenvectors; if False, use random directions
