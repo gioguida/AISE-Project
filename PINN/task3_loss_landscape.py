@@ -209,13 +209,18 @@ class LandscapeAdapter:
             else:
                 print(f"Loading existing Hessian directions from {args.dir_file}")
                 f = h5py.File(args.dir_file, 'r')
-                xdirection = h5_util.read_list(f, 'xdirection')
-                ydirection = h5_util.read_list(f, 'ydirection')
                 
-                # Convert to proper tensor format if needed
-                if isinstance(xdirection[0], np.ndarray):
-                    xdirection = [torch.from_numpy(d).float().to(device) for d in xdirection]
-                    ydirection = [torch.from_numpy(d).float().to(device) for d in ydirection]
+                # Read directions and convert to tensors immediately (while file is open)
+                xdirection_raw = h5_util.read_list(f, 'xdirection')
+                ydirection_raw = h5_util.read_list(f, 'ydirection')
+                
+                # Force conversion to numpy arrays (read from h5)
+                xdirection = [np.array(d) for d in xdirection_raw]
+                ydirection = [np.array(d) for d in ydirection_raw]
+                
+                # Convert to tensors
+                xdirection = [torch.from_numpy(d).float().to(device) for d in xdirection]
+                ydirection = [torch.from_numpy(d).float().to(device) for d in ydirection]
                 
                 if 'eigenvalue_max' in f:
                     eigenvalue_info = {
@@ -244,8 +249,17 @@ class LandscapeAdapter:
             else:
                 print(f"Using existing directions from {args.dir_file}")
                 f = h5py.File(args.dir_file, 'r')
-                xdirection = h5_util.read_list(f, 'xdirection')
-                ydirection = h5_util.read_list(f, 'ydirection')
+                
+                # Read and convert to numpy/tensors immediately
+                xdirection_raw = h5_util.read_list(f, 'xdirection')
+                ydirection_raw = h5_util.read_list(f, 'ydirection')
+                
+                xdirection = [np.array(d) for d in xdirection_raw]
+                ydirection = [np.array(d) for d in ydirection_raw]
+                
+                xdirection = [torch.from_numpy(d).float().to(device) for d in xdirection]
+                ydirection = [torch.from_numpy(d).float().to(device) for d in ydirection]
+                
                 f.close()
             eigenvalue_info = None
         
