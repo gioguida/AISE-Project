@@ -1,0 +1,36 @@
+pinn_K1:
+  lambda_max = 8.997423e+02
+  lambda_min = 7.174305e+02
+  condition_number = 1.254118e+00
+  loss = 1.904577e-06
+
+pinn_K4:
+  lambda_max = 4.608101e+03
+  lambda_min = 2.922054e+03
+  condition_number = 1.577008e+00
+  loss = 1.628921e-05
+
+pinn_K16:
+  lambda_max = 6.104677e+04
+  lambda_min = 5.722580e+04
+  condition_number = 1.066770e+00
+  loss = 5.268840e-03
+
+dd_K1:
+  lambda_max = 8.559248e+03
+  lambda_min = 3.425325e+03
+  condition_number = 2.498813e+00
+  loss = 1.573965e-06
+
+dd_K4:
+  lambda_max = 4.487791e+02
+  lambda_min = -1.506765e+01
+  condition_number = 2.978429e+01
+  loss = 1.425696e+00
+
+dd_K16:
+  lambda_max = 3.084370e+02
+  lambda_min = -1.378786e+00
+  condition_number = 2.237018e+02
+  loss = 2.826392e-02
+
