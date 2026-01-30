@@ -180,8 +180,7 @@ class EigenvalueComputer:
         
         # Evaluate loss at trained parameters
         model.eval()
-        with torch.no_grad():
-            loss_value = loss_fn().item()
+        loss_value = loss_fn().item()
         print(f"Loss at trained parameters: {loss_value:.6e}")
         
         # Compute Hessian eigenvalues
