@@ -46,7 +46,7 @@ class LandscapeConfig:
     YNUM = 100
     
     # Plotting Limits
-    VMAX_LEVELS = [10, 20, 100]  # Generate plots with these max height limits
+    VMAX_LEVELS = [1000, 5000, 10000, 50000, 100000]#[10, 20, 100]  # Generate plots with these max height limits
     VMIN = 0
     
     # Models to process
@@ -436,13 +436,12 @@ class LandscapeAdapter:
                     
                     ax = axes[i, j]
                     
-                    # Create contour plot with filled contours
+                    # Create contour plot with level curves only
                     levels = np.linspace(vmin, vmax, 20)
-                    contourf = ax.contourf(X, Y, Z_plot, levels=levels, cmap=cm.coolwarm)
-                    contour = ax.contour(X, Y, Z_plot, levels=levels, colors='black', alpha=0.3, linewidths=0.5)
+                    contour = ax.contour(X, Y, Z_plot, levels=levels, cmap=cm.coolwarm, linewidths=1.5)
                     
                     # Add colorbar
-                    plt.colorbar(contourf, ax=ax)
+                    plt.colorbar(contour, ax=ax)
                     
                     # Create title with eigenvalue info if available
                     title = f"{titles[model]} K={K}"
