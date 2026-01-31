@@ -45,7 +45,7 @@ class LandscapeConfig:
     YNUM = 100
     
     # Plotting Limits
-    VMAX_LEVELS = [10, 20, 100]  # Generate plots with these max height limits
+    VMAX_LEVELS = [20]#[10, 20, 100]  # Generate plots with these max height limits
     VMIN = 0
     
     # Models to process
@@ -278,8 +278,8 @@ class LandscapeAdapter:
                     levels = np.linspace(vmin, vmax, 20)
                     contours = ax.contour(X, Y, Z_plot, levels=levels, cmap='coolwarm', linewidths=1.5)
                     
-                    # Add contour labels
-                    ax.clabel(contours, inline=True, fontsize=8, fmt='%.1f')
+                    # Add contour labels - REMOVED per user request
+                    # ax.clabel(contours, inline=True, fontsize=8, fmt='%.1f')
                     
                     # Add colorbar
                     cbar = plt.colorbar(contours, ax=ax)
@@ -290,6 +290,7 @@ class LandscapeAdapter:
                     ax.set_ylabel('y', fontsize=16)
                     ax.tick_params(axis='both', which='major', labelsize=14)
                     ax.grid(True, alpha=0.3)
+                    # ax.plot(0, 0, 'w*', markersize=15, markeredgecolor='black', markeredgewidth=1)
 
             plt.tight_layout()
             filename = f"contour_loss_landscapes_vmax{vmax}.pdf"
