@@ -46,7 +46,7 @@ class LandscapeConfig:
     YNUM = 100
     
     # Plotting Limits
-    VMAX_LEVELS = [1000, 5000, 10000, 50000, 100000]#[10, 20, 100]  # Generate plots with these max height limits
+    VMAX_LEVELS = [10, 20, 100]  # Generate plots with these max height limits
     VMIN = 0
     
     # Models to process
@@ -144,9 +144,11 @@ class LandscapeAdapter:
             tuple: (xdirection, ydirection, eigenvalue_info)
         """
         device = next(model.parameters()).device
-        # Only add suffix for Hessian (keep random as default/legacy format)
+        # Modify suffix based on direction type
         if self.landscape_config.USE_HESSIAN_DIRECTIONS:
             args.dir_file = args.dir_file.replace(".h5", "_hessian.h5")
+        else:
+            args.dir_file = args.dir_file.replace(".h5", "_random.h5")
         
         if self.landscape_config.USE_HESSIAN_DIRECTIONS:
             print(f"\n{'='*60}")
@@ -326,7 +328,7 @@ class LandscapeAdapter:
         # Load all data first to determine common z-limits
         data = {}
         all_losses = []
-        surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else ""
+        surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else "_random"
         
         for model in models:
             for K in K_LEVELS:
@@ -376,13 +378,8 @@ class LandscapeAdapter:
                     ax.set_title(title, fontsize=18)
                     ax.set_zlim(vmin, vmax)
                     
-                    # Update axis labels for Hessian directions
-                    if self.landscape_config.USE_HESSIAN_DIRECTIONS:
-                        ax.set_xlabel('max eigenvector', fontsize=14)
-                        ax.set_ylabel('min eigenvector', fontsize=14)
-                    else:
-                        ax.set_xlabel('x (random)', fontsize=14)
-                        ax.set_ylabel('y (random)', fontsize=14)
+                    ax.set_xlabel('x', fontsize=14)
+                    ax.set_ylabel('y', fontsize=14)
                     
                     ax.tick_params(axis='both', which='major', labelsize=12)
 
@@ -400,7 +397,7 @@ class LandscapeAdapter:
         
         # Load all data first
         data = {}
-        surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else ""
+        surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else "_random"
         
         for model in models:
             for K in K_LEVELS:
@@ -452,14 +449,8 @@ class LandscapeAdapter:
                         title += f"\nλ_max={λ_max:.2e}, λ_min={λ_min:.2e}"
                     
                     ax.set_title(title, fontsize=14)
-                    
-                    # Update axis labels for Hessian directions
-                    if self.landscape_config.USE_HESSIAN_DIRECTIONS:
-                        ax.set_xlabel('max eigenvector', fontsize=12)
-                        ax.set_ylabel('min eigenvector', fontsize=12)
-                    else:
-                        ax.set_xlabel('x (random)', fontsize=12)
-                        ax.set_ylabel('y (random)', fontsize=12)
+                    ax.set_xlabel('x', fontsize=12)
+                    ax.set_ylabel('y', fontsize=12)
                     
                     # Mark the center (trained model location)
                     ax.plot(0, 0, 'w*', markersize=15, markeredgecolor='black', markeredgewidth=1)
@@ -557,7 +548,7 @@ class LandscapeAdapter:
                     directions = [xdirection, ydirection]
                     
                     # Compute surface (add suffix to match direction type)
-                    surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else ""
+                    surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else "_random"
                     surf_file = os.path.join(self.results_dir, f"pinn_K{K}_surface{surf_suffix}.h5")
                     w = net_plotter.get_weights(pinn_model)
                     
@@ -627,7 +618,7 @@ class LandscapeAdapter:
                     directions = [xdirection, ydirection]
                     
                     # Compute surface (add suffix to match direction type)
-                    surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else ""
+                    surf_suffix = "_hessian" if self.landscape_config.USE_HESSIAN_DIRECTIONS else "_random"
                     surf_file = os.path.join(self.results_dir, f"dd_K{K}_surface{surf_suffix}.h5")
                     w = net_plotter.get_weights(dd_model)
                     
